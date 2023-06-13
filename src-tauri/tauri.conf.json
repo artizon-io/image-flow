@@ -29,7 +29,7 @@
         "all": false,
         "asset": true,
         "assetScope": [
-          "*"
+          "**/*"
         ]
       },
       "shell": {

@@ -7,9 +7,21 @@ type ImageMetadata = SDMetadata & {
   resolution: [number, number];
 };
 
-type SDMetadata = {
-  prompt: string;
-  modelName: string;
-  modelVersion: string;
-  seed: number;
+type SDMetadata = ModelParams & {
+  prompt: Prompt | null;
+  negativePrompt: NegativePrompt | null;
+};
+
+type Prompt = [PromptKeyword, PromptWeight][];
+
+type PromptKeyword = string;
+type PromptWeight = number;
+
+type NegativePrompt = Prompt;
+
+// Omit<SDMetadata, "prompt"|"negativePrompt">
+type ModelParams = {
+  modelName: string | null;
+  modelVersion: string | null;
+  seed: number | null;
 };

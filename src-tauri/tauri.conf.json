@@ -16,8 +16,21 @@
       "fs": {
         "all": true,
         "scope": {
-          "allow": ["*"]
+          "allow": [
+            "$DOCUMENT/*",
+            "$DESKTOP/*"
+          ]
         }
+      },
+      "path": {
+        "all": true
+      },
+      "protocol": {
+        "all": false,
+        "asset": true,
+        "assetScope": [
+          "*"
+        ]
       },
       "shell": {
         "all": false,
@@ -37,7 +50,7 @@
       ]
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
     },
     "windows": [
       {

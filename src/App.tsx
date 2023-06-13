@@ -1,5 +1,6 @@
 import { useState, useMemo, FC, MouseEventHandler, MouseEvent } from "react";
 import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
+import { documentDir } from "@tauri-apps/api/path";
 import {
   Row,
   createColumnHelper,
@@ -26,8 +27,7 @@ const testData: Metadata[] = [
     modelVersion: "v5",
     resolution: [512, 512],
     seed: 12345678,
-    imageSrc:
-      "D:\\Stable-Diffusion\\Output\\Reference\\MajicMix\\00015-3484539024.jpeg",
+    imageSrc: "test.png",
   },
   {
     prompt: "anime girl",
@@ -35,8 +35,7 @@ const testData: Metadata[] = [
     modelVersion: "v5",
     resolution: [512, 768],
     seed: 12128812,
-    imageSrc:
-      "D:\\Stable-Diffusion\\Output\\Reference\\MajicMix\\00015-3484539024.jpeg",
+    imageSrc: "test.png",
   },
   {
     prompt: "1cat",
@@ -44,8 +43,7 @@ const testData: Metadata[] = [
     modelVersion: "v2",
     resolution: [512, 512],
     seed: 32111211,
-    imageSrc:
-      "D:\\Stable-Diffusion\\Output\\Reference\\MajicMix\\00015-3484539024.jpeg",
+    imageSrc: "test.png",
   },
 ];
 
@@ -82,7 +80,7 @@ function App() {
       }),
       columnHelper.accessor("imageSrc", {
         id: "imageSrc",
-        header: "Location ",
+        header: "Location",
       }),
     ],
     []
@@ -113,9 +111,12 @@ function App() {
     </thead>
   );
 
-  const handleClickRow = (e: MouseEvent, row: Row<Metadata>) => {
+  const handleClickRow = async (e: MouseEvent, row: Row<Metadata>) => {
     const imageSrc: string = row.getValue("imageSrc");
-    setImage(convertFileSrc(imageSrc as string));
+    const documentDirPath = await documentDir();
+    const loadablePath = convertFileSrc(`${documentDirPath}${imageSrc}`);
+    console.log("tempPath", loadablePath);
+    setImage(loadablePath);
   };
 
   const TableBody = () => (
@@ -164,7 +165,7 @@ function App() {
           <TableFooter />
         </table>
       </div>
-      <div className="bg-neutral-200 flex overflow-auto">
+      <div className="flex overflow-auto">
         {image ? <img src={image} className="self-center" /> : null}
       </div>
     </div>

@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -37,6 +37,9 @@ devDependencies:
   autoprefixer:
     specifier: ^10.4.14
     version: 10.4.14(postcss@8.4.24)
+  exifreader:
+    specifier: ^4.12.1
+    version: 4.12.1
   postcss:
     specifier: ^8.4.24
     version: 8.4.24
@@ -699,6 +702,13 @@ packages:
       - supports-color
     dev: true
 
+  /@xmldom/xmldom@0.8.8:
+    resolution: {integrity: sha512-0LNz4EY8B/8xXY86wMrQ4tz6zEHZv9ehFMJPm8u2gq5lQ71cfRKdaKyxfJAx5aUoyzx0qzgURblTisPGgz3d+Q==}
+    engines: {node: '>=10.0.0'}
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /ansi-styles@3.2.1:
     resolution: {integrity: sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==}
     engines: {node: '>=4'}
@@ -900,6 +910,13 @@ packages:
   /escape-string-regexp@1.0.5:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
     engines: {node: '>=0.8.0'}
+    dev: true
+
+  /exifreader@4.12.1:
+    resolution: {integrity: sha512-ulcpV4X+xhmIreONaIXy5WjiB9bP+3cv18UBgbMAEzwYKS3PdP+BT+flF7OZ15zc49/Hox6PCMQIoztXEeyLDQ==}
+    requiresBuild: true
+    optionalDependencies:
+      '@xmldom/xmldom': 0.8.8
     dev: true
 
   /fast-glob@3.2.12:

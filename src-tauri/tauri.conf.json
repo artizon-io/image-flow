@@ -17,8 +17,10 @@
         "all": true,
         "scope": {
           "allow": [
-            "$DOCUMENT/*",
-            "$DESKTOP/*"
+            "$DOCUMENT/**/*",
+            "$DESKTOP/**/*",
+            "$PICTURE/**/*",
+            "$CONFIG/**/*"
           ]
         }
       },

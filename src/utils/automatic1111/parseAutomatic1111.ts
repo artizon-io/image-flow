@@ -19,7 +19,7 @@ const parseAutomatic1111Metadata = async (
   const [prompt, negativePrompt, modelParams] = result;
 
   return {
-    ...await parseModelParams(modelParams),
+    ...(await parseModelParams(modelParams)),
     prompt: prompt,
     negativePrompt: negativePrompt,
     structuredPrompt: await parsePrompt(prompt),
@@ -52,38 +52,59 @@ const parsePrompt = async (
     return null;
   }
 
-  const structuredPrompt : StructuredPrompt = new Map();
+  const structuredPrompt: StructuredPrompt = new Map();
 
   const semantics = grammar.createSemantics();
   semantics.addOperation("constructPrompt", {
-    Prompt(nodes) {
-      console.info("Prompt", nodes);
+    Prompt(a, _) {
+      a.children[0].children[0].constructPrompt();
+      a.children[0].children[1].constructPrompt();
     },
-    Emphasized(nodes) {
-      console.info("Emphasized", nodes);
+    Emphasized_round(_lbracket, prompt, _rbracket) {
+      prompt.constructPrompt();
+      console.log(`(${prompt.sourceString})`);
     },
-    Scheduled(nodes) {
-      console.info("Scheduled", nodes);
+    Emphasized_roundWithColon(_lbracket, prompt, _colon, number, _rbracket) {
+      prompt.constructPrompt();
+      console.log(`(${prompt.sourceString}:${number.sourceString})`);
     },
-    lora(nodes) {
-      console.info("lora", nodes);
+    Emphasized_square(_lbracket, prompt, _rbracket) {
+      prompt.constructPrompt();
+      console.log(`[${prompt.sourceString}]`);
     },
-    keyword(nodes) {
-      console.info("keyword", nodes);
+    Scheduled(_lbracket, from, _colon, to, _colon2, number, _rbracket) {
+      console.log(
+        `[${from.sourceString}:${to.sourceString}:${number.sourceString}]`
+      );
     },
-    number(nodes) {
-      console.info("number", nodes);
+    lora(
+      _lbracket,
+      _l,
+      _o,
+      _r,
+      _a,
+      _colon,
+      identifier,
+      _colon2,
+      number,
+      _rbracket
+    ) {
+      console.log("Lora", identifier.sourceString, number.sourceString);
     },
-    identifier(nodes) {
-      console.info("identifier", nodes);
+    keyword(identifier, space, identifier2) {
+      console.log("Keyword", identifier.sourceString, identifier2.sourceString);
     },
+    _iter(...children) {
+      return children.map((c) => c.constructPrompt());
+    },
+    _terminal() {},
   });
 
   // "A semantic adapter is an interface to a particular parse tree node"
   const adapter = semantics(match);
   adapter.constructPrompt();
 
-  return null;
+  return structuredPrompt;
 };
 
 const parseNegativePrompt = async (

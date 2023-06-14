@@ -19,11 +19,11 @@ const parseAutomatic1111Metadata = async (
   const [prompt, negativePrompt, modelParams] = result;
 
   return {
-    ...parseModelParams(modelParams),
+    ...await parseModelParams(modelParams),
     prompt: prompt,
     negativePrompt: negativePrompt,
     structuredPrompt: await parsePrompt(prompt),
-    structuredNegativePrompt: parseNegativePrompt(negativePrompt),
+    structuredNegativePrompt: await parseNegativePrompt(negativePrompt),
   };
 };
 
@@ -32,45 +32,71 @@ const parsePrompt = async (
 ): Promise<StructuredPrompt | null> => {
   console.log("ResourceDirPath", resourceDirPath);
 
+  // https://nextjournal.com/dubroy/ohm-parsing-made-easy
+
   // Rely on developer create a symlink in $DOCUMENT during dev mode
   const grammarTextUrl = import.meta.env.DEV
-    ? `${documentDirPath}automatic1111${sep}prompt.ohm`
+    ? `${documentDirPath}stupid${sep}prompt.ohm`
     : `${resourceDirPath}automatic1111${sep}prompt.ohm`;
   console.log("GrammarTextUrl", grammarTextUrl);
 
-  const grammarText = await readTextFile(convertFileSrc(grammarTextUrl));
+  const grammarText = await readTextFile(grammarTextUrl);
 
   console.log("GrammarText", grammarText);
 
   const grammar = ohm.grammar(grammarText);
   // TODO: use matcher to incrementally match
   const match = grammar.match(prompt);
-  if (match.failed()) return null;
+  if (match.failed()) {
+    console.warn("Failed to match automatic1111 prompt");
+    return null;
+  }
+
+  const structuredPrompt : StructuredPrompt = new Map();
 
   const semantics = grammar.createSemantics();
   semantics.addOperation("constructPrompt", {
-    Prompt() {},
-    Emphasized() {},
-    Scheduled() {},
-    Alternate() {},
-    whiteapce() {},
-    plain() {},
-    number() {},
+    Prompt(nodes) {
+      console.info("Prompt", nodes);
+    },
+    Emphasized(nodes) {
+      console.info("Emphasized", nodes);
+    },
+    Scheduled(nodes) {
+      console.info("Scheduled", nodes);
+    },
+    lora(nodes) {
+      console.info("lora", nodes);
+    },
+    keyword(nodes) {
+      console.info("keyword", nodes);
+    },
+    number(nodes) {
+      console.info("number", nodes);
+    },
+    identifier(nodes) {
+      console.info("identifier", nodes);
+    },
   });
+
+  // "A semantic adapter is an interface to a particular parse tree node"
+  const adapter = semantics(match);
+  adapter.constructPrompt();
 
   return null;
 };
 
-const parseNegativePrompt = (
+const parseNegativePrompt = async (
   negativePrompt: string
-): StructuredNegativePrompt | null => {
-  if (!negativePrompt.startsWith("Negative prompt: ")) {
-    return null;
+): Promise<StructuredNegativePrompt | null> => {
+  const negativePromptPrefix = "Negative prompt: ";
+  if (!negativePrompt.startsWith(negativePromptPrefix)) {
+    return parsePrompt(negativePrompt.slice(negativePromptPrefix.length));
   }
   return null;
 };
 
-const parseModelParams = (modelParams: string): ModelParams => {
+const parseModelParams = async (modelParams: string): Promise<ModelParams> => {
   return {
     modelName: null,
     modelVersion: null,

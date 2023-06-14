@@ -14,7 +14,7 @@ type SDMetadata = ModelParams & {
   negativePrompt: string | null;
 };
 
-type StructuredPrompt = [PromptKeyword, PromptWeight][];
+type StructuredPrompt = Map<PromptKeyword, PromptWeight>;
 
 type PromptKeyword = string;
 type PromptWeight = number;

@@ -1,7 +1,8 @@
 import { exists, readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
 import * as ExifReader from "exifreader";
+import parseAutomatic1111Metadata from "./automatic1111/parseAutomatic1111";
 
-const parseSDMetadata = (rawSDMetadata: string): SDMetadata | null => {
+const parseSDMetadata = (rawSDMetadata: string): Promise<SDMetadata | null> => {
   return parseAutomatic1111Metadata(rawSDMetadata);
 };
 
@@ -50,6 +51,8 @@ const readImageMetadata = async (
     return {
       prompt: null,
       negativePrompt: null,
+      structuredPrompt: null,
+      structuredNegativePrompt: null,
       modelName: null,
       modelVersion: null,
       resolution: [0, 0],
@@ -62,6 +65,8 @@ const readImageMetadata = async (
     return {
       prompt: null,
       negativePrompt: null,
+      structuredPrompt: null,
+      structuredNegativePrompt: null,
       modelName: null,
       modelVersion: null,
       resolution: [0, 0],
@@ -71,11 +76,13 @@ const readImageMetadata = async (
 
   console.log(rawSDMetadata);
 
-  const sdMetadata = parseSDMetadata(rawSDMetadata);
+  const sdMetadata = await parseSDMetadata(rawSDMetadata);
   if (!sdMetadata) {
     return {
       prompt: null,
       negativePrompt: null,
+      structuredPrompt: null,
+      structuredNegativePrompt: null,
       modelName: null,
       modelVersion: null,
       resolution: [0, 0],

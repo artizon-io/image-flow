@@ -1,0 +1,21 @@
+Prompt {
+  Prompt
+    = ((Emphasized | Scheduled | keyword | whitespace) delimiter?)+
+  Emphasized
+    = "(" Prompt ")"  -- round
+    | "(" Prompt ":" number ")"  -- roundWithColon
+    | "[" Prompt "]"  -- square
+  Scheduled
+    = "[" keyword ":" (keyword ":")? number "]"
+  whitespace
+    = space
+  keyword
+    = identifier (whitespace? identifier)*
+  identifier
+    = (letter | digit)+
+  delimiter
+    = ","
+  number
+    = "-"? digit* "." digit+  -- float
+    | "-"? digit+  -- int
+}

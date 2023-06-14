@@ -75,7 +75,7 @@ const Table: FC<{
 
         if (!imageMetadata) return;
 
-        console.log("entry", entry);
+        console.log("Entry", entry);
 
         images.push({
           ...imageMetadata,
@@ -85,7 +85,7 @@ const Table: FC<{
       });
     });
 
-    console.log("images", images);
+    console.log("Images", images);
     return images;
   }, []);
 
@@ -101,9 +101,7 @@ const Table: FC<{
   const handleClickRow = async (e: MouseEvent, row: Row<Metadata>) => {
     const imageSrc: string = row.getValue("imageSrc");
     // Convert to something that is loadable by system web view
-    const loadablePath = convertFileSrc(imageSrc);
-    console.log("loadablePath", loadablePath);
-    setImage(loadablePath);
+    setImage(convertFileSrc(imageSrc));
   };
 
   console.log("Render Table", table.getRowModel().rows);

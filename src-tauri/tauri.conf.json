@@ -31,9 +31,7 @@
       "protocol": {
         "all": false,
         "asset": true,
-        "assetScope": [
-          "**/*"
-        ]
+        "assetScope": ["**/*"]
       },
       "shell": {
         "all": false,

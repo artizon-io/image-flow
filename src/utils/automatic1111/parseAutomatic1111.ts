@@ -1,12 +1,16 @@
 import * as ohm from "ohm-js";
-import { resourceDir, sep } from "@tauri-apps/api/path";
+import { resourceDir, documentDir, sep } from "@tauri-apps/api/path";
 import { readTextFile } from "@tauri-apps/api/fs";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
 
 const resourceDirPath = await resourceDir();
+const documentDirPath = await documentDir();
 
 const parseAutomatic1111Metadata = async (
   rawImageMetadata: string
 ): Promise<SDMetadata | null> => {
+  console.log("Parsing as Automatic1111");
+
   // Optional carriage return
   const result = rawImageMetadata.split(/\r?\n/);
   if (result.length !== 3) {
@@ -26,9 +30,18 @@ const parseAutomatic1111Metadata = async (
 const parsePrompt = async (
   prompt: string
 ): Promise<StructuredPrompt | null> => {
-  const grammarText = await readTextFile(
-    `${resourceDirPath}automatic1111${sep}prompt.ohm`
-  );
+  console.log("ResourceDirPath", resourceDirPath);
+
+  // Rely on developer create a symlink in $DOCUMENT during dev mode
+  const grammarTextUrl = import.meta.env.DEV
+    ? `${documentDirPath}automatic1111${sep}prompt.ohm`
+    : `${resourceDirPath}automatic1111${sep}prompt.ohm`;
+  console.log("GrammarTextUrl", grammarTextUrl);
+
+  const grammarText = await readTextFile(convertFileSrc(grammarTextUrl));
+
+  console.log("GrammarText", grammarText);
+
   const grammar = ohm.grammar(grammarText);
   // TODO: use matcher to incrementally match
   const match = grammar.match(prompt);

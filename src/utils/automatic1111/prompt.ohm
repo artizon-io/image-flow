@@ -1,21 +1,27 @@
-Prompt {
+StructuredPrompt {
   Prompt
-    = ((Emphasized | Scheduled | keyword | whitespace) delimiter?)+
+    = ListOf<(Emphasized | Scheduled | lora | keyword), delimiter+> delimiter*
   Emphasized
     = "(" Prompt ")"  -- round
     | "(" Prompt ":" number ")"  -- roundWithColon
     | "[" Prompt "]"  -- square
   Scheduled
-    = "[" keyword ":" (keyword ":")? number "]"
-  whitespace
-    = space
+    = "[" keyword ":" &(keyword ":")? number "]"
+  lora
+    = "<" "l" "o" "r" "a" ":" identifier ":" number ">"
   keyword
-    = identifier (whitespace? identifier)*
+    = identifier (space+ identifier)*
   identifier
-    = (letter | digit)+
+    = (alnum | "@" | "." | "!" | "#" | "$" | "%" | "^" | "&" | "*" | "-" | "_" | "=" | "+" | "/" | "?" | "~" | "`" | ";" | escaped | unicode)+
+  unicode
+    = "\\" "u" hexDigit hexDigit hexDigit hexDigit
+  escaped
+    = "\\" ("," | "(" | ")" | "[" | "]" | ":")
   delimiter
-    = ","
+    = "," | "\n" | "\r\n"
   number
     = "-"? digit* "." digit+  -- float
     | "-"? digit+  -- int
+  // Redefining space rule: see https://github.com/ohmjs/ohm/discussions/297
+  space := ~"\n" "\x00".."\x20"
 }

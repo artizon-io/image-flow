@@ -46,7 +46,7 @@ const readImageMetadata = async (
 
   const content = await readBinaryFile(imagePath);
   const exifTags = ExifReader.load(content.buffer);
-  console.log(exifTags);
+  console.log("ExifTags", exifTags);
   if (!exifTags.UserComment?.description) {
     return {
       prompt: null,
@@ -74,7 +74,7 @@ const readImageMetadata = async (
     };
   }
 
-  console.log(rawSDMetadata);
+  console.log("RawSDMetadata", rawSDMetadata);
 
   const sdMetadata = await parseSDMetadata(rawSDMetadata);
   if (!sdMetadata) {

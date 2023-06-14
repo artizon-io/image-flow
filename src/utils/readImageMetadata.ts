@@ -1,40 +1,8 @@
 import { exists, readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
 import * as ExifReader from "exifreader";
 
-const textEncoder = new TextEncoder();
-
-const parseSDMetadata = (rawImageMetadata: string): SDMetadata | null => {
-  // Optional carriage return
-  const result = rawImageMetadata.split(/\r?\n/);
-  if (result.length !== 3) {
-    return null;
-  }
-  const [prompt, negativePrompt, modelParams] = result;
-
-  return {
-    ...parseModelParams(modelParams),
-    prompt: parsePrompt(prompt),
-    negativePrompt: parseNegativePrompt(negativePrompt),
-  };
-};
-
-const parsePrompt = (prompt: string): Prompt | null => {
-  return null;
-};
-
-const parseNegativePrompt = (negativePrompt: string): NegativePrompt | null => {
-  if (!negativePrompt.startsWith("Negative prompt: ")) {
-    return null;
-  }
-  return null;
-};
-
-const parseModelParams = (modelParams: string): ModelParams => {
-  return {
-    modelName: null,
-    modelVersion: null,
-    seed: null,
-  };
+const parseSDMetadata = (rawSDMetadata: string): SDMetadata | null => {
+  return parseAutomatic1111Metadata(rawSDMetadata);
 };
 
 const getRawSDMetadata = (exifTags: ExifReader.Tags): string | null => {
@@ -45,7 +13,7 @@ const getRawSDMetadata = (exifTags: ExifReader.Tags): string | null => {
   // and ignore every alternative codepoint (an encoding issue?)
   userCommentDescription = userCommentDescription
     .slice(9, -1)
-    .reduce((acc, codepoint, index) => {
+    .reduce((acc: number[], codepoint, index) => {
       if (index % 2) return acc;
       acc.push(codepoint);
       return acc;
@@ -58,7 +26,7 @@ const getRawSDMetadata = (exifTags: ExifReader.Tags): string | null => {
   return `${rawSDMetadata}}`;
 };
 
-const tryReadImageMetadata = async (
+const readImageMetadata = async (
   imagePath: string
 ): Promise<ImageMetadata | null> => {
   if (!(await exists(imagePath))) {
@@ -121,4 +89,4 @@ const tryReadImageMetadata = async (
   };
 };
 
-export default tryReadImageMetadata;
+export default readImageMetadata;

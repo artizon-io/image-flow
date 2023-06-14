@@ -16,8 +16,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import StructuredPrompt from "./StructuredPrompt";
-import testData from "./testData";
-import tryReadImageMetadata from "./utils/readImageMetadata";
+import testData from "../testData";
+import readImageMetadata from "../utils/readImageMetadata";
 
 const documentDirPath = await documentDir();
 const desktopDirPath = await desktopDir();
@@ -71,7 +71,7 @@ const Table: FC<{
 
       const entries = await readDir(`${baseDir}test`);
       entries.forEach(async (entry) => {
-        const imageMetadata = await tryReadImageMetadata(entry.path);
+        const imageMetadata = await readImageMetadata(entry.path);
 
         if (!imageMetadata) return;
 

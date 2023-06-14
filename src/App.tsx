@@ -1,6 +1,6 @@
 import { useState, useMemo, FC, MouseEventHandler, MouseEvent } from "react";
 import { configDir } from "@tauri-apps/api/path";
-import Table from "./Table";
+import Table from "./components/Table";
 
 const configDirPath = await configDir();
 

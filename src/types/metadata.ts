@@ -10,15 +10,17 @@ type ImageMetadata = SDMetadata & {
 type SDMetadata = ModelParams & {
   structuredPrompt: StructuredPrompt | null;
   structuredNegativePrompt: StructuredNegativePrompt | null;
-  prompt: string | null;
-  negativePrompt: string | null;
+  prompt: Prompt | null;
+  negativePrompt: NegativePrompt | null;
 };
 
+type Prompt = string;
 type StructuredPrompt = Map<PromptKeyword, PromptWeight>;
 
 type PromptKeyword = string;
 type PromptWeight = number;
 
+type NegativePrompt = Prompt;
 type StructuredNegativePrompt = StructuredPrompt;
 
 // Omit<SDMetadata, "prompt"|"negativePrompt">

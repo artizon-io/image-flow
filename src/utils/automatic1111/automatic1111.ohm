@@ -1,0 +1,45 @@
+Metadata {
+  Metadata
+    = Prompt newline+ NegativePrompt newline+ ModelParams
+
+  NegativePrompt
+    // Careful not to mistaken a model param as regular tag
+    = negativePromptPrefix ListOf<(EmphasizedTag | ScheduledTag | loraTag | ~ModelParam tag), tagDelimiter+>
+
+  negativePromptPrefix
+    = "Negative prompt:"
+
+  ModelParams
+    = ListOf<ModelParam, tagDelimiter+>
+  ModelParam
+    = tag ":" tag
+
+  Prompt
+    // Careful not to mistaken the "Negative prompt:" prefix as regular tag
+    = ListOf<(EmphasizedTag | ScheduledTag | loraTag | ~negativePromptPrefix tag), tagDelimiter+>
+  EmphasizedTag
+    = "(" Prompt ")"  -- round
+    | "(" Prompt ":" number ")"  -- roundWithColon
+    | "[" Prompt "]"  -- square
+  ScheduledTag
+    = "[" tag ":" &(tag ":")? number "]"
+  loraTag
+    = "<" "lora" ":" tag ":" number ">"
+  tag
+    = listOf<word, space+>
+  word
+    = (alnum | "@" | "." | "!" | "#" | "$" | "%" | "^" | "&" | "*" | "-" | "_" | "=" | "+" | "/" | "?" | "~" | "`" | ";" | escapedChar | unicode)+
+  unicode
+    = "\\" "u" hexDigit hexDigit hexDigit hexDigit
+  escapedChar
+    = "\\" ("," | "(" | ")" | "[" | "]" | ":")
+  tagDelimiter
+    = "," | newline
+  newline
+  	= "\n" | "\r\n"
+  number
+    = "-"? digit* "." digit+  -- float
+    | "-"? digit+  -- int
+  // Redefining space rule: see https://github.com/ohmjs/ohm/discussions/297
+  space := ~"\n" "\x00".."\x20"
+}

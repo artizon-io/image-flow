@@ -11,118 +11,101 @@ const parseAutomatic1111Metadata = async (
 ): Promise<SDMetadata | null> => {
   console.log("Parsing as Automatic1111");
 
-  // Optional carriage return
-  const result = rawImageMetadata.split(/\r?\n/);
-  if (result.length !== 3) {
-    return null;
-  }
-  const [prompt, negativePrompt, modelParams] = result;
-
-  return {
-    ...(await parseModelParams(modelParams)),
-    prompt: prompt,
-    negativePrompt: negativePrompt,
-    structuredPrompt: await parsePrompt(prompt),
-    structuredNegativePrompt: await parseNegativePrompt(negativePrompt),
-  };
-};
-
-const parsePrompt = async (
-  prompt: string
-): Promise<StructuredPrompt | null> => {
-  console.log("ResourceDirPath", resourceDirPath);
-
   // https://nextjournal.com/dubroy/ohm-parsing-made-easy
 
   // Rely on developer create a symlink in $DOCUMENT during dev mode
   const grammarTextUrl = import.meta.env.DEV
-    ? `${documentDirPath}stupid${sep}prompt.ohm`
-    : `${resourceDirPath}automatic1111${sep}prompt.ohm`;
+    ? `${documentDirPath}stupid${sep}automatic1111.ohm`
+    : `${resourceDirPath}automatic1111${sep}automatic1111.ohm`;
   console.log("GrammarTextUrl", grammarTextUrl);
 
   const grammarText = await readTextFile(grammarTextUrl);
 
-  console.log("GrammarText", grammarText);
-
   const grammar = ohm.grammar(grammarText);
   // TODO: use matcher to incrementally match
-  const match = grammar.match(prompt);
+  const match = grammar.match(rawImageMetadata);
   if (match.failed()) {
-    console.warn("Failed to match automatic1111 prompt");
+    console.warn("Failed to match automatic1111 metadata");
     return null;
   }
 
-  const structuredPrompt: StructuredPrompt = new Map();
+  const metadata: SDMetadata = {
+    modelName: null,
+    modelVersion: null,
+    seed: null,
+    prompt: null,
+    negativePrompt: null,
+    structuredPrompt: new Map(),
+    structuredNegativePrompt: new Map(),
+  };
 
   const semantics = grammar.createSemantics();
-  semantics.addOperation("constructPrompt", {
-    Prompt(a, _) {
-      a.children[0].children[0].constructPrompt();
-      a.children[0].children[1].constructPrompt();
+  semantics.addOperation("constructMetadata", {
+    Metadata(prompt, _newline, negativePrompt, _newline2, modelParams) {
+      prompt.constructMetadata();
+      negativePrompt.constructMetadata();
+      modelParams.constructMetadata();
     },
-    Emphasized_round(_lbracket, prompt, _rbracket) {
-      prompt.constructPrompt();
-      console.log(`(${prompt.sourceString})`);
+    ModelParams(paramList) {
+      paramList.constructMetadata();
     },
-    Emphasized_roundWithColon(_lbracket, prompt, _colon, number, _rbracket) {
-      prompt.constructPrompt();
-      console.log(`(${prompt.sourceString}:${number.sourceString})`);
+    ModelParam(key, _colon, value) {
+      console.log(`${key.sourceString}:${value.sourceString}`);
     },
-    Emphasized_square(_lbracket, prompt, _rbracket) {
-      prompt.constructPrompt();
-      console.log(`[${prompt.sourceString}]`);
+    NegativePrompt(_prefix, prompt) {
+      prompt.constructMetadata();
     },
-    Scheduled(_lbracket, from, _colon, to, _colon2, number, _rbracket) {
+    Prompt(keywordList) {
+      keywordList.constructMetadata();
+    },
+    EmphasizedTag_round(_lbracket, prompt, _rbracket) {
+      prompt.constructMetadata();
+      console.log(`Tag ${prompt.sourceString} with weight=1.1`);
+    },
+    EmphasizedTag_roundWithColon(_lbracket, prompt, _colon, number, _rbracket) {
+      prompt.constructMetadata();
       console.log(
-        `[${from.sourceString}:${to.sourceString}:${number.sourceString}]`
+        `Tag ${prompt.sourceString} with weight=${number.sourceString}`
       );
     },
-    lora(
-      _lbracket,
-      _l,
-      _o,
-      _r,
-      _a,
-      _colon,
-      identifier,
-      _colon2,
-      number,
-      _rbracket
-    ) {
-      console.log("Lora", identifier.sourceString, number.sourceString);
+    EmphasizedTag_square(_lbracket, prompt, _rbracket) {
+      prompt.constructMetadata();
+      console.log(`Tag ${prompt.sourceString} with weight=0.91`);
     },
-    keyword(identifier, space, identifier2) {
-      console.log("Keyword", identifier.sourceString, identifier2.sourceString);
+    ScheduledTag(_lbracket, from, _colon, to, _colon2, number, _rbracket) {
+      console.log(
+        `Set schedule [${from.sourceString}:${to.sourceString}:${number.sourceString}]`
+      );
+    },
+    loraTag(_lbracket, _lora, _colon, identifier, _colon2, number, _rbracket) {
+      console.log(
+        `Lora ${identifier.sourceString} with weight ${number.sourceString}`
+      );
+    },
+    tag(_wordList) {
+      console.log(`Tag ${this.sourceString}`);
+    },
+    NonemptyListOf(arg0, arg1, arg2) {
+      arg0.constructMetadata();
+      arg1.constructMetadata();
+      arg2.constructMetadata();
+    },
+    nonemptyListOf(arg0, arg1, arg2) {
+      arg0.constructMetadata();
+      arg1.constructMetadata();
+      arg2.constructMetadata();
     },
     _iter(...children) {
-      return children.map((c) => c.constructPrompt());
+      children.map((c) => c.constructMetadata());
     },
     _terminal() {},
   });
 
   // "A semantic adapter is an interface to a particular parse tree node"
   const adapter = semantics(match);
-  adapter.constructPrompt();
+  adapter.constructMetadata();
 
-  return structuredPrompt;
-};
-
-const parseNegativePrompt = async (
-  negativePrompt: string
-): Promise<StructuredNegativePrompt | null> => {
-  const negativePromptPrefix = "Negative prompt: ";
-  if (!negativePrompt.startsWith(negativePromptPrefix)) {
-    return parsePrompt(negativePrompt.slice(negativePromptPrefix.length));
-  }
-  return null;
-};
-
-const parseModelParams = async (modelParams: string): Promise<ModelParams> => {
-  return {
-    modelName: null,
-    modelVersion: null,
-    seed: null,
-  };
+  return metadata;
 };
 
 export default parseAutomatic1111Metadata;

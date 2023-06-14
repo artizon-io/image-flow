@@ -23,8 +23,7 @@ const getRawSDMetadata = (exifTags: ExifReader.Tags): string | null => {
   // Convert byte code to String
   const rawSDMetadata = String.fromCharCode(...userCommentDescription);
 
-  // Append the missing "}"
-  return `${rawSDMetadata}}`;
+  return rawSDMetadata;
 };
 
 const readImageMetadata = async (

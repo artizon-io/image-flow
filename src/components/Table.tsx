@@ -24,6 +24,8 @@ import {
 } from "@tanstack/react-table";
 import WeightMap from "./WeightMap";
 import readImageMetadata from "../utils/readImageMetadata";
+import { twJoin, twMerge } from "tailwind-merge";
+import { useNotification } from "./Notification";
 
 const documentDirPath = await documentDir();
 const desktopDirPath = await desktopDir();
@@ -35,6 +37,8 @@ const Table: FC<{
 }> = ({ setImage, ...props }) => {
   const columnHelper = createColumnHelper<Metadata>();
 
+  const showNotification = useNotification();
+
   const columns = useMemo(
     () => [
       columnHelper.accessor("promptMap", {
@@ -42,7 +46,7 @@ const Table: FC<{
         header: "Prompt",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorDegree={220} />
+            <WeightMap weightMap={info.getValue()!} colorHue={220} />
           ) : (
             "N/A"
           ),
@@ -52,7 +56,7 @@ const Table: FC<{
         header: "Negative Prompt",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorDegree={0} />
+            <WeightMap weightMap={info.getValue()!} colorHue={0} />
           ) : (
             "N/A"
           ),
@@ -117,7 +121,7 @@ const Table: FC<{
         header: "Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorDegree={220} />
+            <WeightMap weightMap={info.getValue()!} colorHue={220} />
           ) : (
             "N/A"
           ),
@@ -127,7 +131,7 @@ const Table: FC<{
         header: "Negative Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorDegree={0} />
+            <WeightMap weightMap={info.getValue()!} colorHue={0} />
           ) : (
             "N/A"
           ),
@@ -175,6 +179,10 @@ const Table: FC<{
                 "Encoounter error while reading image metadata",
                 err
               );
+              showNotification(
+                "Warning",
+                `Encountered an error while trying to read ${entry.path}`
+              );
             }
 
             if (!imageMetadata) return;
@@ -200,12 +208,9 @@ const Table: FC<{
     fetchImages();
   }, []);
 
-  // const data = useMemo(() => testData, []);
-
   const table = useReactTable({
     columns,
     data: images,
-    // data: data,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -214,8 +219,6 @@ const Table: FC<{
     // Convert to something that is loadable by system web view
     setImage(convertFileSrc(imageSrc));
   };
-
-  console.debug("Render Table", table.getRowModel().rows);
 
   const TableHeader = () => (
     <thead>
@@ -250,19 +253,19 @@ const Table: FC<{
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
-          className="hover:bg-neutral-900 cursor-pointer"
+          className="cursor-pointer"
           onClick={(e) => handleClickRow(e, row)}
         >
           {row.getVisibleCells().map((cell) => (
             <td
               key={cell.id}
-              className={`text-center p-3 font-light text-neutral-200 text-sm
-                ${
-                  hoverCell === cell.id
-                    ? "shadow-solid-inset-1 shadow-neutral-500"
-                    : ""
-                }
-              `}
+              className={twJoin(
+                "text-center p-3 font-light text-neutral-200 text-sm",
+                hoverCell === cell.id
+                  ? "shadow-solid-inset-1 shadow-neutral-500"
+                  : "",
+                hoverColumn === cell.column.id ? "" : ""
+              )}
               onMouseOver={(e) => {
                 setHoverColumn(cell.column.id);
                 setHoverCell(cell.id);

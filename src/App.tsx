@@ -1,7 +1,7 @@
-import { useState, useMemo, FC, MouseEventHandler, MouseEvent } from "react";
+import { useState, useMemo } from "react";
 import { configDir } from "@tauri-apps/api/path";
 import Table from "./components/Table";
-import Settings from "./components/Settings";
+import SettingsDialog from "./components/Settings";
 import {
   KBarProvider,
   KBarPortal,
@@ -11,11 +11,15 @@ import {
   useMatches,
   NO_GROUP,
 } from "kbar";
+import _Notification, { useNotification } from "./components/Notification";
+import * as RadixToast from "@radix-ui/react-toast";
 
 const configDirPath = await configDir();
 
 function App() {
   const [image, setImage] = useState<string | null>(null);
+
+  const Notification = useMemo(() => _Notification, []);
 
   const kbarActions = useMemo(
     () => [
@@ -38,28 +42,32 @@ function App() {
   );
 
   return (
-    <KBarProvider actions={kbarActions}>
-      <KBarPortal>
-        <KBarPositioner>
-          <KBarAnimator>
-            <KBarSearch />
-          </KBarAnimator>
-        </KBarPositioner>
-      </KBarPortal>
-      <div className="w-full h-full grid grid-cols-2 bg-neutral-900">
-        <div className="overflow-auto">
-          <Table setImage={setImage} />
+    <RadixToast.Provider swipeDirection="right">
+      <RadixToast.Viewport className="fixed bottom-0 right-0 flex flex-col p-6 gap-2 w-[390px] max-w-[100vw] list-none z-10 outline-none" />
+      <Notification />
+      <KBarProvider actions={kbarActions}>
+        <KBarPortal>
+          <KBarPositioner>
+            <KBarAnimator>
+              <KBarSearch />
+            </KBarAnimator>
+          </KBarPositioner>
+        </KBarPortal>
+        <div className="w-full h-full grid grid-cols-2 bg-neutral-900">
+          <div className="overflow-auto">
+            <Table setImage={setImage} />
+          </div>
+          <div className="flex overflow-auto justify-center bg-neutral-900">
+            {image ? (
+              <img src={image} className="self-center" />
+            ) : (
+              <p className="self-center text-neutral-500">No Image Selected</p>
+            )}
+          </div>
         </div>
-        <div className="flex overflow-auto justify-center bg-neutral-900">
-          {image ? (
-            <img src={image} className="self-center" />
-          ) : (
-            <p className="self-center text-neutral-500">No Image Selected</p>
-          )}
-          <Settings className="self-center absolute top-5 right-5" />
-        </div>
-      </div>
-    </KBarProvider>
+        <SettingsDialog className="absolute top-2 right-5" />
+      </KBarProvider>
+    </RadixToast.Provider>
   );
 }
 

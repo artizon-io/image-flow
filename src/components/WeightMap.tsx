@@ -1,17 +1,19 @@
 import { FC, PropsWithChildren, useMemo } from "react";
 
+const THRESHOLD = 3;
+
 const WeightMap: FC<
   PropsWithChildren & {
     weightMap: WeightMap;
-    colorDegree: number;
+    colorHue: number;
   }
-> = ({ weightMap, colorDegree, ...props }) => {
+> = ({ weightMap, colorHue, ...props }) => {
   if (weightMap.size === 0) {
     return <>None</>;
   }
 
   const highestWeight = useMemo(
-    () => Math.max(...weightMap.values()),
+    () => Math.max(...weightMap.values(), THRESHOLD),
     // TODO: can lead to performance issue?
     [weightMap]
   );
@@ -26,7 +28,7 @@ const WeightMap: FC<
           key={key}
           className="text-neutral-200 font-light text-sm px-2 py-0.5 rounded-md shadow-none hover:border-none border-none"
           style={{
-            backgroundColor: `hsl(${colorDegree} ${Math.round(
+            backgroundColor: `hsl(${colorHue} ${Math.round(
               (weightMap.get(key)! / highestWeight) * 100
             )}% 15%)`,
           }}

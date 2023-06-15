@@ -41,13 +41,21 @@ const Table: FC<{
         id: "prompt",
         header: "Prompt",
         cell: (info) =>
-          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
+          info.getValue() ? (
+            <WeightMap weightMap={info.getValue()!} colorDegree={220} />
+          ) : (
+            "N/A"
+          ),
       }),
       columnHelper.accessor("negativePromptMap", {
         id: "negativePrompt",
         header: "Negative Prompt",
         cell: (info) =>
-          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
+          info.getValue() ? (
+            <WeightMap weightMap={info.getValue()!} colorDegree={0} />
+          ) : (
+            "N/A"
+          ),
       }),
       columnHelper.accessor("modelName", {
         id: "modelName",
@@ -108,13 +116,21 @@ const Table: FC<{
         id: "lora",
         header: "Lora",
         cell: (info) =>
-          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
+          info.getValue() ? (
+            <WeightMap weightMap={info.getValue()!} colorDegree={220} />
+          ) : (
+            "N/A"
+          ),
       }),
       columnHelper.accessor("negativeLoraMap", {
         id: "negativeLora",
         header: "Negative Lora",
         cell: (info) =>
-          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
+          info.getValue() ? (
+            <WeightMap weightMap={info.getValue()!} colorDegree={0} />
+          ) : (
+            "N/A"
+          ),
       }),
       columnHelper.accessor("modelHash", {
         id: "modelHash",
@@ -243,10 +259,9 @@ const Table: FC<{
               className={`text-center p-3 font-light text-neutral-200 text-sm
                 ${
                   hoverCell === cell.id
-                    ? "bg-neutral-800 shadow-solid-inset-1 shadow-neutral-500"
+                    ? "shadow-solid-inset-1 shadow-neutral-500"
                     : ""
                 }
-                ${hoverColumn === cell.column.id ? "bg-neutral-900" : ""}
               `}
               onMouseOver={(e) => {
                 setHoverColumn(cell.column.id);
@@ -282,7 +297,7 @@ const Table: FC<{
 
   return (
     <table
-      className={`border-4 border-neutral-600 self-start table-auto`}
+      className={`border-2 border-neutral-600 self-start table-auto`}
       {...props}
     >
       <TableHeader />

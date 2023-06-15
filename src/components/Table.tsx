@@ -1,4 +1,11 @@
-import { useState, useMemo, FC, MouseEventHandler, MouseEvent } from "react";
+import {
+  useState,
+  useMemo,
+  FC,
+  MouseEventHandler,
+  MouseEvent,
+  useEffect,
+} from "react";
 import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
 import {
   documentDir,
@@ -15,8 +22,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import StructuredPrompt from "./StructuredPrompt";
-import testData from "../testData";
+import WeightMap from "./WeightMap";
 import readImageMetadata from "../utils/readImageMetadata";
 
 const documentDirPath = await documentDir();
@@ -33,8 +39,13 @@ const Table: FC<{
     () => [
       columnHelper.accessor("prompt", {
         id: "prompt",
-        cell: (info) => <StructuredPrompt>{info.getValue()}</StructuredPrompt>,
+        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
         header: "Prompt",
+      }),
+      columnHelper.accessor("negativePrompt", {
+        id: "negativePrompt",
+        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
+        header: "Negative Prompt",
       }),
       columnHelper.accessor("modelName", {
         id: "modelName",
@@ -58,42 +69,110 @@ const Table: FC<{
         header: "Path",
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor("cfgScale", {
+        id: "cfgScale",
+        header: "CFG Scale",
+      }),
+      columnHelper.accessor("clipSkip", {
+        id: "clipSkip",
+        header: "Clip Skip",
+      }),
+      columnHelper.accessor("denoisingStrength", {
+        id: "denoisingStrength",
+        header: "Denoising Strength",
+      }),
+      columnHelper.accessor("highResResize", {
+        id: "highResResize",
+        header: "High Res Fix Resolution",
+      }),
+      columnHelper.accessor("highResSteps", {
+        id: "highResSteps",
+        header: "High Res Fix Steps",
+      }),
+      columnHelper.accessor("highResUpscaler", {
+        id: "highResUpscaler",
+        header: "High Res Upscaler",
+      }),
+      columnHelper.accessor("loraMap", {
+        id: "lora",
+        header: "Lora",
+        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
+      }),
+      columnHelper.accessor("negativeLoraMap", {
+        id: "negativeLora",
+        header: "Negative Lora",
+        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
+      }),
+      columnHelper.accessor("modelHash", {
+        id: "modelHash",
+        header: "Model Hash",
+      }),
+      columnHelper.accessor("sampler", {
+        id: "sampler",
+        header: "Sampler",
+      }),
+      columnHelper.accessor("steps", {
+        id: "steps",
+        header: "Steps",
+      }),
     ],
     []
   );
 
-  const loadAllImages = useMemo<Metadata[]>(() => {
+  const [images, setImages] = useState<Metadata[]>([]);
+
+  const fetchImages = (): void => {
     const images: Metadata[] = [];
 
     const baseDirs = [documentDirPath, desktopDirPath, pictureDirPath];
-    baseDirs.forEach(async (baseDir) => {
-      if (!(await exists(`${baseDir}test`))) return;
+    // Why not forEach async (because it will cause a bunch of re-renders)
+    // https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
+    Promise.all(
+      baseDirs.map(async (baseDir) => {
+        if (!(await exists(`${baseDir}test`))) return;
 
-      const entries = await readDir(`${baseDir}test`);
-      entries.forEach(async (entry) => {
-        const imageMetadata = await readImageMetadata(entry.path);
+        const entries = await readDir(`${baseDir}test`);
+        await Promise.all(
+          entries.map(async (entry) => {
+            let imageMetadata;
+            // Wrap in try catch to prevent Tauri fs permission issues
+            try {
+              imageMetadata = await readImageMetadata(entry.path);
+            } catch (err) {
+              console.error(
+                "Encoounter error while reading image metadata",
+                err
+              );
+            }
 
-        if (!imageMetadata) return;
+            if (!imageMetadata) return;
 
-        console.log("Entry", entry);
+            console.debug("Entry", entry);
+            console.info("Image Metadata", imageMetadata);
 
-        images.push({
-          ...imageMetadata,
-          imageBaseDir: baseDir,
-          imageSrc: `test${sep}${entry.name}`,
-        });
-      });
+            images.push({
+              ...imageMetadata,
+              imageBaseDir: baseDir,
+              imageSrc: `test${sep}${entry.name}`,
+            });
+          })
+        );
+      })
+    ).then(() => {
+      console.info("Images", images);
+      setImages(images);
     });
+  };
 
-    console.log("Images", images);
-    return images;
+  useEffect(() => {
+    fetchImages();
   }, []);
 
   // const data = useMemo(() => testData, []);
 
   const table = useReactTable({
     columns,
-    data: loadAllImages,
+    data: images,
     // data: data,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -104,7 +183,7 @@ const Table: FC<{
     setImage(convertFileSrc(imageSrc));
   };
 
-  console.log("Render Table", table.getRowModel().rows);
+  console.debug("Render Table", table.getRowModel().rows);
 
   const TableHeader = () => (
     <thead>

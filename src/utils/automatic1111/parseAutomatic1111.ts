@@ -15,7 +15,7 @@ const documentDirPath = await documentDir();
 const parseAutomatic1111Metadata = async (
   rawImageMetadata: string
 ): Promise<SDMetadata | null> => {
-  console.log("Parsing as Automatic1111");
+  console.debug("Parsing as Automatic1111");
 
   // https://nextjournal.com/dubroy/ohm-parsing-made-easy
 
@@ -23,7 +23,7 @@ const parseAutomatic1111Metadata = async (
   const grammarTextUrl = import.meta.env.DEV
     ? `${documentDirPath}stupid${sep}automatic1111.ohm`
     : `${resourceDirPath}automatic1111${sep}automatic1111.ohm`;
-  console.log("GrammarTextUrl", grammarTextUrl);
+  console.debug("GrammarTextUrl", grammarTextUrl);
 
   const grammarText = await readTextFile(grammarTextUrl);
 
@@ -55,7 +55,7 @@ const parseAutomatic1111Metadata = async (
       paramList.constructMetadata();
     },
     ModelParam(key, _colon, value) {
-      console.log(`Model param - ${key.sourceString}:${value.sourceString}`);
+      console.debug(`Model param - ${key.sourceString}:${value.sourceString}`);
       switch (key.sourceString) {
         case "Steps":
           metadata.steps = Number(value.sourceString);
@@ -112,7 +112,7 @@ const parseAutomatic1111Metadata = async (
       if (!map) {
         return;
       }
-      console.log(`Tag ${prompt.sourceString} with weight=1.1`);
+      console.debug(`Tag ${prompt.sourceString} with weight=1.1`);
       multiplyTagWeightInWeightMap(prompt.sourceString, 1.1, map);
       return map;
     },
@@ -122,7 +122,7 @@ const parseAutomatic1111Metadata = async (
       if (!map) {
         return;
       }
-      console.log(
+      console.debug(
         `Tag ${prompt.sourceString} with weight=${number.sourceString}`
       );
       multiplyTagWeightInWeightMap(
@@ -138,20 +138,20 @@ const parseAutomatic1111Metadata = async (
       if (!map) {
         return;
       }
-      console.log(`Tag ${prompt.sourceString} with weight=0.91`);
+      console.debug(`Tag ${prompt.sourceString} with weight=0.91`);
       multiplyTagWeightInWeightMap(prompt.sourceString, 0.91, map);
       return map;
     },
     ScheduledTag(_lbracket, from, _colon, to, _colon2, number, _rbracket) {
       // TODO
-      console.log(
+      console.debug(
         `Set schedule [${from.sourceString}:${to.sourceString}:${number.sourceString}]`
       );
     },
     loraTag(_lbracket, _lora, _colon, identifier, _colon2, number, _rbracket) {
       // For Lora we can directly assign to loraMap because Lora tags
       // doesn't support nested structure
-      console.log(
+      console.debug(
         `Lora ${identifier.sourceString} with weight ${number.sourceString}`
       );
       addTagToWeightMap(
@@ -163,7 +163,7 @@ const parseAutomatic1111Metadata = async (
     tag(_wordList) {
       // We construct new Map object when we parse a tag,
       // because tag is the fundamental unit of prompt
-      console.log(`Tag ${this.sourceString}`);
+      console.debug(`Tag ${this.sourceString}`);
       const map = new Map();
       addTagToWeightMap(this.sourceString, 1, map);
       return map;
@@ -185,7 +185,6 @@ const parseAutomatic1111Metadata = async (
   const adapter = semantics(match);
   adapter.constructMetadata();
 
-  console.info("Metadata", metadata);
   return metadata;
 };
 

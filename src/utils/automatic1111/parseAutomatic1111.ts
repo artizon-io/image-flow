@@ -2,6 +2,12 @@ import * as ohm from "ohm-js";
 import { resourceDir, documentDir, sep } from "@tauri-apps/api/path";
 import { readTextFile } from "@tauri-apps/api/fs";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
+import constructEmptyImageMetadata from "../constructEmptyImageMetadata";
+import {
+  addTagToWeightMap,
+  combineNodesToWeightMap,
+  multiplyTagWeightInWeightMap,
+} from "../weightMap";
 
 const resourceDirPath = await resourceDir();
 const documentDirPath = await documentDir();
@@ -29,14 +35,13 @@ const parseAutomatic1111Metadata = async (
     return null;
   }
 
-  const metadata: SDMetadata = {
-    modelName: null,
-    modelVersion: null,
-    seed: null,
-    prompt: null,
-    negativePrompt: null,
-    structuredPrompt: new Map(),
-    structuredNegativePrompt: new Map(),
+  let metadata: SDMetadata = constructEmptyImageMetadata();
+  metadata = {
+    ...metadata,
+    promptMap: new Map(),
+    negativePromptMap: new Map(),
+    loraMap: new Map(),
+    negativeLoraMap: new Map(),
   };
 
   const semantics = grammar.createSemantics();
@@ -50,53 +55,128 @@ const parseAutomatic1111Metadata = async (
       paramList.constructMetadata();
     },
     ModelParam(key, _colon, value) {
-      console.log(`${key.sourceString}:${value.sourceString}`);
+      console.log(`Model param - ${key.sourceString}:${value.sourceString}`);
+      switch (key.sourceString) {
+        case "Steps":
+          metadata.steps = Number(value.sourceString);
+          return;
+        case "Sampler":
+          metadata.sampler = value.sourceString;
+          return;
+        case "CFG scale":
+          metadata.cfgScale = Number(value.sourceString);
+          return;
+        case "Seed":
+          metadata.seed = Number(value.sourceString);
+          return;
+        case "Size":
+          return;
+        case "Model hash":
+          metadata.modelHash = value.sourceString;
+          return;
+        case "Model":
+          metadata.modelName = value.sourceString;
+          return;
+        case "Denoising strength":
+          metadata.denoisingStrength = Number(value.sourceString);
+          return;
+        case "Clip skip":
+          metadata.clipSkip = Number(value.sourceString);
+          return;
+        case "Hires resize":
+          return;
+        case "Hires steps":
+          metadata.highResSteps = Number(value.sourceString);
+          return;
+        case "Hires upscaler":
+          metadata.highResUpscaler = value.sourceString;
+          return;
+        default:
+          console.warn("Unknown model param", key.sourceString);
+      }
     },
-    NegativePrompt(_prefix, prompt) {
-      prompt.constructMetadata();
+    NegativePrompt(_prefix, tagList) {
+      const map = tagList.constructMetadata();
+      metadata.negativePromptMap = map;
     },
-    Prompt(keywordList) {
-      keywordList.constructMetadata();
+    Prompt(tagList) {
+      const map = tagList.constructMetadata();
+      metadata.promptMap = map;
+    },
+    TagList(tagList) {
+      return tagList.constructMetadata();
     },
     EmphasizedTag_round(_lbracket, prompt, _rbracket) {
-      prompt.constructMetadata();
+      const map = prompt.constructMetadata();
+      // Cater for empty prompt
+      if (!map) {
+        return;
+      }
       console.log(`Tag ${prompt.sourceString} with weight=1.1`);
+      multiplyTagWeightInWeightMap(prompt.sourceString, 1.1, map);
+      return map;
     },
     EmphasizedTag_roundWithColon(_lbracket, prompt, _colon, number, _rbracket) {
-      prompt.constructMetadata();
+      const map = prompt.constructMetadata();
+      // Cater for empty prompt
+      if (!map) {
+        return;
+      }
       console.log(
         `Tag ${prompt.sourceString} with weight=${number.sourceString}`
       );
+      multiplyTagWeightInWeightMap(
+        prompt.sourceString,
+        Number(number.sourceString),
+        map
+      );
+      return map;
     },
     EmphasizedTag_square(_lbracket, prompt, _rbracket) {
-      prompt.constructMetadata();
+      const map = prompt.constructMetadata();
+      // Cater for empty prompt (no actual tags)
+      if (!map) {
+        return;
+      }
       console.log(`Tag ${prompt.sourceString} with weight=0.91`);
+      multiplyTagWeightInWeightMap(prompt.sourceString, 0.91, map);
+      return map;
     },
     ScheduledTag(_lbracket, from, _colon, to, _colon2, number, _rbracket) {
+      // TODO
       console.log(
         `Set schedule [${from.sourceString}:${to.sourceString}:${number.sourceString}]`
       );
     },
     loraTag(_lbracket, _lora, _colon, identifier, _colon2, number, _rbracket) {
+      // For Lora we can directly assign to loraMap because Lora tags
+      // doesn't support nested structure
       console.log(
         `Lora ${identifier.sourceString} with weight ${number.sourceString}`
       );
+      addTagToWeightMap(
+        identifier.sourceString,
+        Number(number.sourceString),
+        metadata.loraMap!
+      );
     },
     tag(_wordList) {
+      // We construct new Map object when we parse a tag,
+      // because tag is the fundamental unit of prompt
       console.log(`Tag ${this.sourceString}`);
+      const map = new Map();
+      addTagToWeightMap(this.sourceString, 1, map);
+      return map;
     },
     NonemptyListOf(arg0, arg1, arg2) {
-      arg0.constructMetadata();
-      arg1.constructMetadata();
-      arg2.constructMetadata();
+      // Best if we can scope these generic actions to a particular rule
+      return combineNodesToWeightMap([arg0, arg1, arg2]);
     },
     nonemptyListOf(arg0, arg1, arg2) {
-      arg0.constructMetadata();
-      arg1.constructMetadata();
-      arg2.constructMetadata();
+      return combineNodesToWeightMap([arg0, arg1, arg2]);
     },
     _iter(...children) {
-      children.map((c) => c.constructMetadata());
+      return combineNodesToWeightMap(children);
     },
     _terminal() {},
   });
@@ -105,6 +185,7 @@ const parseAutomatic1111Metadata = async (
   const adapter = semantics(match);
   adapter.constructMetadata();
 
+  console.info("Metadata", metadata);
   return metadata;
 };
 

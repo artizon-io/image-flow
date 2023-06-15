@@ -1,6 +1,7 @@
 import { exists, readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
 import * as ExifReader from "exifreader";
 import parseAutomatic1111Metadata from "./automatic1111/parseAutomatic1111";
+import constructEmptyImageMetadata from "./constructEmptyImageMetadata";
 
 const parseSDMetadata = (rawSDMetadata: string): Promise<SDMetadata | null> => {
   return parseAutomatic1111Metadata(rawSDMetadata);
@@ -43,56 +44,31 @@ const readImageMetadata = async (
   )
     return null;
 
+  const imageMetadata = constructEmptyImageMetadata();
+
   const content = await readBinaryFile(imagePath);
   const exifTags = ExifReader.load(content.buffer);
   console.log("ExifTags", exifTags);
+
+  imageMetadata.resolution = [0, 0];
+
   if (!exifTags.UserComment?.description) {
-    return {
-      prompt: null,
-      negativePrompt: null,
-      structuredPrompt: null,
-      structuredNegativePrompt: null,
-      modelName: null,
-      modelVersion: null,
-      resolution: [0, 0],
-      seed: null,
-    };
+    return imageMetadata;
   }
 
   const rawSDMetadata = getRawSDMetadata(exifTags);
   if (!rawSDMetadata) {
-    return {
-      prompt: null,
-      negativePrompt: null,
-      structuredPrompt: null,
-      structuredNegativePrompt: null,
-      modelName: null,
-      modelVersion: null,
-      resolution: [0, 0],
-      seed: null,
-    };
+    return imageMetadata;
   }
 
   console.log("RawSDMetadata", rawSDMetadata);
 
   const sdMetadata = await parseSDMetadata(rawSDMetadata);
   if (!sdMetadata) {
-    return {
-      prompt: null,
-      negativePrompt: null,
-      structuredPrompt: null,
-      structuredNegativePrompt: null,
-      modelName: null,
-      modelVersion: null,
-      resolution: [0, 0],
-      seed: null,
-    };
+    return imageMetadata;
   }
 
-  return {
-    ...sdMetadata,
-    resolution: [0, 0],
-  };
+  return {...imageMetadata, ...sdMetadata};
 };
 
 export default readImageMetadata;

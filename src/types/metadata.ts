@@ -8,24 +8,39 @@ type ImageMetadata = SDMetadata & {
 };
 
 type SDMetadata = ModelParams & {
-  structuredPrompt: StructuredPrompt | null;
-  structuredNegativePrompt: StructuredNegativePrompt | null;
+  promptMap: PromptMap | null;
+  negativePromptMap: NegativePromptMap | null;
   prompt: Prompt | null;
   negativePrompt: NegativePrompt | null;
+  loraMap: LoraMap | null;
+  negativeLoraMap: NegativeLoraMap | null;
 };
 
-type Prompt = string;
-type StructuredPrompt = Map<PromptKeyword, PromptWeight>;
+type LoraMap = WeightMap;
+type NegativeLoraMap = WeightMap;
 
-type PromptKeyword = string;
-type PromptWeight = number;
+type Prompt = string;
+type PromptMap = WeightMap;
+type WeightMap = Map<Tag, Weight>;
+
+type Tag = string;
+type Weight = number;
 
 type NegativePrompt = Prompt;
-type StructuredNegativePrompt = StructuredPrompt;
+type NegativePromptMap = PromptMap;
 
 // Omit<SDMetadata, "prompt"|"negativePrompt">
 type ModelParams = {
-  modelName: string | null;
   modelVersion: string | null;
+  steps: number | null;
+  sampler: string | null;
+  cfgScale: number | null;
   seed: number | null;
+  modelHash: string | null;
+  modelName: string | null;
+  denoisingStrength: number | null;
+  clipSkip: number | null;
+  highResResize: [number, number] | null;
+  highResSteps: number | null;
+  highResUpscaler: string | null;
 };

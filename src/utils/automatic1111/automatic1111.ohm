@@ -2,30 +2,38 @@ Metadata {
   Metadata
     = Prompt newline+ NegativePrompt newline+ ModelParams
 
-  NegativePrompt
-    // Careful not to mistaken a model param as regular tag
-    = negativePromptPrefix ListOf<(EmphasizedTag | ScheduledTag | loraTag | ~ModelParam tag), tagDelimiter+>
+  Prompt
+    = TagList
 
+  NegativePrompt
+    = negativePromptPrefix TagList
   negativePromptPrefix
     = "Negative prompt:"
 
   ModelParams
     = ListOf<ModelParam, tagDelimiter+>
   ModelParam
-    = tag ":" tag
+  	// Careful to only include capitalized sentence
+    = capitalizedSentence ":" sentence
+  capitalizedSentence
+    = &upper sentence
 
-  Prompt
+  TagList
+    // Careful not to mistaken a model param as regular tag
     // Careful not to mistaken the "Negative prompt:" prefix as regular tag
-    = ListOf<(EmphasizedTag | ScheduledTag | loraTag | ~negativePromptPrefix tag), tagDelimiter+>
+    = ListOf<(EmphasizedTag | ScheduledTag | loraTag | ~(negativePromptPrefix|ModelParam) tag), tagDelimiter+>
+
   EmphasizedTag
-    = "(" Prompt ")"  -- round
-    | "(" Prompt ":" number ")"  -- roundWithColon
-    | "[" Prompt "]"  -- square
+    = "(" TagList ")"  -- round
+    | "(" TagList ":" number ")"  -- roundWithColon
+    | "[" TagList "]"  -- square
   ScheduledTag
-    = "[" tag ":" &(tag ":")? number "]"
+    = "[" sentence ":" &(sentence ":")? number "]"
   loraTag
-    = "<" "lora" ":" tag ":" number ">"
+    = "<" "lora" ":" sentence ":" number ">"
   tag
+    = sentence
+  sentence
     = listOf<word, space+>
   word
     = (alnum | "@" | "." | "!" | "#" | "$" | "%" | "^" | "&" | "*" | "-" | "_" | "=" | "+" | "/" | "?" | "~" | "`" | ";" | escapedChar | unicode)+

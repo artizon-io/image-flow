@@ -2,19 +2,15 @@ import { FC } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { twMerge } from "tailwind-merge";
 import CloseButton from "./CloseButton";
+import { GearIcon } from "@radix-ui/react-icons";
 
 const SettingsDialog: FC<{
-  className: string;
+  className?: string;
 }> = ({ ...props }) => (
   <Dialog.Root>
     <Dialog.Trigger asChild>
-      <button
-        className={twMerge(
-          "text-neutral-500 bg-neutral-800 hover:text-neutral-400 self-center absolute top-5 right-5 px-2 py-1 rounded-md hover:border-neutral-500",
-          props.className
-        )}
-      >
-        Settings
+      <button className={twMerge("naviconbutton", props.className)}>
+        <GearIcon className="w-5 h-5" />
       </button>
     </Dialog.Trigger>
     <Dialog.Portal>

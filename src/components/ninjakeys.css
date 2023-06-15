@@ -1,0 +1,64 @@
+/* https://github.com/ssleptsov/ninja-keys#css-variables */
+
+ninja-keys {
+  --ninja-width: 50vw;
+  --ninja-backdrop-filter: none;
+  /* The overlay */
+  --ninja-overflow-background: #2d2d2dca;
+  --ninja-text-color: #d2d2d2;
+  --ninja-font-size: 16px;
+  /* Distance from top */
+  --ninja-top: 20%;
+  /* The "tags" radius */
+  --ninja-key-border-radius: 0.25em;
+  /* The left border */
+  --ninja-accent-color: #8b8b8b;
+  /* The tags background */
+  --ninja-secondary-background-color: #1d1d1d;
+  /* The tags foreground */
+  --ninja-secondary-text-color: #bababa;
+  /* Selected action background */
+  --ninja-selected-background: #3d3d3d6d;
+  --ninja-icon-color: var(--ninja-secondary-text-color);
+  --ninja-icon-size: 1.2em;
+  /* Top and bottom border of the action list */
+  --ninja-separate-border: 3px solid var(--ninja-secondary-background-color);
+  --ninja-modal-background: #1e1e1e;
+  --ninja-modal-shadow: rgb(0 0 0 / 50%) 0px 16px 70px;
+  /* Available height of action list. Overflow if exceeded */
+  --ninja-actions-height: 500px;
+  --ninja-group-text-color: #8e8e8e;
+  --ninja-footer-background: #23232366;
+  /* Placeholder text color */
+  --ninja-placeholder-color: #4a4a4a;
+  --ninja-z-index: 1;
+}
+
+/* Because the ninja-keys component is scoped by shadow DOM */
+/* https://github.com/ssleptsov/ninja-keys#css-shadow-parts */
+
+/* Works on Firefox */
+
+ninja-keys::part(actions-list) {
+  scrollbar-width: thin;
+  scrollbar-color: #3d3d3d3d #6c6c6caa;
+}
+
+/* Works on Chrome, Edge, and Safari */
+
+ninja-keys::part(actions-list)::-webkit-scrollbar {
+  width: 6px;
+}
+
+ninja-keys::part(actions-list)::-webkit-scrollbar-corner {
+  background: #3d3d3d3d;
+}
+
+ninja-keys::part(actions-list)::-webkit-scrollbar-track {
+  background: #3d3d3d3d;
+}
+
+ninja-keys::part(actions-list)::-webkit-scrollbar-thumb {
+  background-color: #6c6c6caa;
+  border-radius: 20px;
+}

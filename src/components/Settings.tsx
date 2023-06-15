@@ -23,7 +23,7 @@ const SettingsDialog: FC<{
         <Dialog.Title className="text-neutral-200 text-2xl">
           Settings
         </Dialog.Title>
-        <Dialog.Description className="text-neutral-400 leading-normal absolute bottom-0">
+        <Dialog.Description className="text-neutral-400 leading-normal bottom-0">
           Refer to the documentation for more information.
         </Dialog.Description>
         <Dialog.Close asChild>

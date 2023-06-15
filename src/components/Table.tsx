@@ -204,9 +204,9 @@ const Table: FC<{
   const TableHeader = () => (
     <thead>
       {table.getHeaderGroups().map((headerGroup) => (
-        <tr key={headerGroup.id}>
+        <tr key={headerGroup.id} className="bg-neutral-950">
           {headerGroup.headers.map((header) => (
-            <th key={header.id} className="p-3">
+            <th key={header.id} className="p-3 font-normal text-neutral-300">
               {header.isPlaceholder
                 ? null
                 : flexRender(
@@ -240,7 +240,7 @@ const Table: FC<{
           {row.getVisibleCells().map((cell) => (
             <td
               key={cell.id}
-              className={`text-center p-3
+              className={`text-center p-3 font-light text-neutral-200 text-sm
                 ${
                   hoverCell === cell.id
                     ? "bg-neutral-800 shadow-solid-inset-1 shadow-neutral-500"
@@ -282,7 +282,7 @@ const Table: FC<{
 
   return (
     <table
-      className={`border-2 border-neutral-500 self-start table-auto`}
+      className={`border-4 border-neutral-600 self-start table-auto`}
       {...props}
     >
       <TableHeader />

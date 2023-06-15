@@ -17,7 +17,7 @@ const WeightMap: FC<
       {...Array.from(weightMap.keys()).map((key) => (
         <button
           key={key}
-          className="text-neutral-50 px-2 py-1 rounded-md bg-neutral-700 hover:bg-neutral-600 hover:border-neutral-500"
+          className="text-neutral-200 font-light text-sm px-2 py-0.5 rounded-md bg-neutral-700 hover:bg-neutral-600 hover:border-neutral-500"
         >
           {key}:{weightMap.get(key)}
         </button>

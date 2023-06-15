@@ -8,11 +8,11 @@ function App() {
   const [image, setImage] = useState<string | null>(null);
 
   return (
-    <div className="w-full h-full grid grid-rows-2 gap-4 bg-neutral-800">
-      <div className="p-12 overflow-auto flex">
+    <div className="w-full h-full grid grid-cols-2 bg-neutral-800">
+      <div className="overflow-auto">
         <Table setImage={setImage} />
       </div>
-      <div className="flex overflow-auto">
+      <div className="flex overflow-auto justify-center bg-neutral-900">
         {image ? <img src={image} className="self-center" /> : null}
       </div>
     </div>

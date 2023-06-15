@@ -32,28 +32,32 @@ const configDirPath = await configDir();
 
 const Table: FC<{
   setImage: (image: string | null) => void;
-}> = ({ setImage }) => {
+}> = ({ setImage, ...props }) => {
   const columnHelper = createColumnHelper<Metadata>();
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("prompt", {
+      columnHelper.accessor("promptMap", {
         id: "prompt",
-        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
         header: "Prompt",
+        cell: (info) =>
+          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
       }),
-      columnHelper.accessor("negativePrompt", {
+      columnHelper.accessor("negativePromptMap", {
         id: "negativePrompt",
-        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
         header: "Negative Prompt",
+        cell: (info) =>
+          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
       }),
       columnHelper.accessor("modelName", {
         id: "modelName",
         header: "Model Name",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("modelVersion", {
         id: "modelVersion",
         header: "Model Version",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("resolution", {
         id: "resolution",
@@ -63,57 +67,69 @@ const Table: FC<{
       columnHelper.accessor("seed", {
         id: "seed",
         header: "Seed",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor((row) => `${row.imageBaseDir}${row.imageSrc}`, {
         id: "imageSrc",
         header: "Path",
-        cell: (info) => info.getValue(),
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("cfgScale", {
         id: "cfgScale",
         header: "CFG Scale",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("clipSkip", {
         id: "clipSkip",
         header: "Clip Skip",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("denoisingStrength", {
         id: "denoisingStrength",
         header: "Denoising Strength",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("highResResize", {
         id: "highResResize",
         header: "High Res Fix Resolution",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("highResSteps", {
         id: "highResSteps",
         header: "High Res Fix Steps",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("highResUpscaler", {
         id: "highResUpscaler",
         header: "High Res Upscaler",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("loraMap", {
         id: "lora",
         header: "Lora",
-        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
+        cell: (info) =>
+          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
       }),
       columnHelper.accessor("negativeLoraMap", {
         id: "negativeLora",
         header: "Negative Lora",
-        cell: (info) => <WeightMap>{info.getValue()}</WeightMap>,
+        cell: (info) =>
+          info.getValue() ? <WeightMap weightMap={info.getValue()!} /> : "N/A",
       }),
       columnHelper.accessor("modelHash", {
         id: "modelHash",
         header: "Model Hash",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("sampler", {
         id: "sampler",
         header: "Sampler",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("steps", {
         id: "steps",
         header: "Steps",
+        cell: (info) => info.getValue() ?? "N/A",
       }),
     ],
     []
@@ -204,16 +220,39 @@ const Table: FC<{
     </thead>
   );
 
+  // TODO: Investigate performance cost
+  const [hoverColumn, setHoverColumn] = useState<string | null>(null);
+  const [hoverCell, setHoverCell] = useState<string | null>(null);
+
   const TableBody = () => (
-    <tbody>
+    <tbody
+      onMouseLeave={(e) => {
+        setHoverColumn(null);
+        setHoverCell(null);
+      }}
+    >
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
-          className="hover:bg-neutral-700 cursor-pointer"
+          className="hover:bg-neutral-900 cursor-pointer"
           onClick={(e) => handleClickRow(e, row)}
         >
           {row.getVisibleCells().map((cell) => (
-            <td key={cell.id} className="text-center p-3">
+            <td
+              key={cell.id}
+              className={`text-center p-3
+                ${
+                  hoverCell === cell.id
+                    ? "bg-neutral-800 shadow-solid-inset-1 shadow-neutral-500"
+                    : ""
+                }
+                ${hoverColumn === cell.column.id ? "bg-neutral-900" : ""}
+              `}
+              onMouseOver={(e) => {
+                setHoverColumn(cell.column.id);
+                setHoverCell(cell.id);
+              }}
+            >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>
           ))}
@@ -242,7 +281,10 @@ const Table: FC<{
   );
 
   return (
-    <table className="border-2 border-neutral-200 self-start">
+    <table
+      className={`border-2 border-neutral-500 self-start table-auto`}
+      {...props}
+    >
       <TableHeader />
       <TableBody />
       <TableFooter />

@@ -26,6 +26,7 @@ import WeightMap from "./WeightMap";
 import readImageMetadata from "../utils/readImageMetadata";
 import { twJoin, twMerge } from "tailwind-merge";
 import { useNotification } from "./Notification";
+import useFetchImages from "../hooks/useFetchImages";
 
 const documentDirPath = await documentDir();
 const desktopDirPath = await desktopDir();
@@ -155,58 +156,7 @@ const Table: FC<{
     []
   );
 
-  const [images, setImages] = useState<Metadata[]>([]);
-
-  const fetchImages = (): void => {
-    const images: Metadata[] = [];
-
-    const baseDirs = [documentDirPath, desktopDirPath, pictureDirPath];
-    // Why not forEach async (because it will cause a bunch of re-renders)
-    // https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
-    Promise.all(
-      baseDirs.map(async (baseDir) => {
-        if (!(await exists(`${baseDir}test`))) return;
-
-        const entries = await readDir(`${baseDir}test`);
-        await Promise.all(
-          entries.map(async (entry) => {
-            let imageMetadata;
-            // Wrap in try catch to prevent Tauri fs permission issues
-            try {
-              imageMetadata = await readImageMetadata(entry.path);
-            } catch (err) {
-              console.error(
-                "Encoounter error while reading image metadata",
-                err
-              );
-              showNotification(
-                "Warning",
-                `Encountered an error while trying to read ${entry.path}`
-              );
-            }
-
-            if (!imageMetadata) return;
-
-            console.debug("Entry", entry);
-            console.info("Image Metadata", imageMetadata);
-
-            images.push({
-              ...imageMetadata,
-              imageBaseDir: baseDir,
-              imageSrc: `test${sep}${entry.name}`,
-            });
-          })
-        );
-      })
-    ).then(() => {
-      console.info("Images", images);
-      setImages(images);
-    });
-  };
-
-  useEffect(() => {
-    fetchImages();
-  }, []);
+  const images = useFetchImages();
 
   const table = useReactTable({
     columns,

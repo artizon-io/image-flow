@@ -82,11 +82,14 @@ const Table: FC<{
         header: "Seed",
         cell: (info) => info.getValue() ?? "N/A",
       }),
-      columnHelper.accessor((row) => `${row.imageBaseDir}${row.imageSrc}`, {
-        id: "imageSrc",
-        header: "Path",
-        cell: (info) => info.getValue() ?? "N/A",
-      }),
+      columnHelper.accessor(
+        (row) => `${row.imageBaseDir}${sep}${row.imageSrc}`,
+        {
+          id: "imageSrc",
+          header: "Path",
+          cell: (info) => info.getValue() ?? "N/A",
+        }
+      ),
       columnHelper.accessor("cfgScale", {
         id: "cfgScale",
         header: "CFG Scale",

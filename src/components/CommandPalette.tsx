@@ -137,6 +137,7 @@ const CommandPalette = () => {
       return;
     }
     ninjaKeys.current.data = hotkeys;
+    ninjaKeys.current.hideBreadcrumbs = true;
   }, []);
 
   useEffect(() => {

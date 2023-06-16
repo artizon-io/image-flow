@@ -24,24 +24,24 @@
 /* Works on Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3d3d3d3d #6c6c6caa;
+  scrollbar-color: #3c3c3c #1b1b1b;
 }
 
 /* Works on Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 12px;
+  width: 6px;
 }
 
 *::-webkit-scrollbar-corner {
-  background: #3d3d3d3d;
+  background: #1b1b1b;
 }
 
 *::-webkit-scrollbar-track {
-  background: #3d3d3d3d;
+  background: #1b1b1b;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #6c6c6caa;
+  background-color: #3c3c3c;
   border-radius: 20px;
 }
 

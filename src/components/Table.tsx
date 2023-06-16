@@ -253,7 +253,7 @@ const Table: FC<{
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
-          className="cursor-pointer"
+          className={twJoin("cursor-pointer")}
           onClick={(e) => handleClickRow(e, row)}
         >
           {row.getVisibleCells().map((cell) => (

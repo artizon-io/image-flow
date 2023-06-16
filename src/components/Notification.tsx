@@ -23,15 +23,20 @@ const useNotificationStore = create<{
   setOpen: (open: boolean) => set((state) => ({ ...state, open })),
 }));
 
-export const useNotification = () => useNotificationStore(
-  (state) => state.showNotification
-);
+export const useNotification = () =>
+  useNotificationStore((state) => state.showNotification);
 
 type Severity = "Success" | "Error" | "Warning";
 
 const Notification: FC<{}> = ({ ...props }) => {
   const { open, message, severity, setOpen } = useNotificationStore(
-    (state) => state
+    (state) => state,
+    // Only re-render when "open" changes
+    // https://github.com/pmndrs/zustand#selecting-multiple-state-slices
+    (prevState, currentState) =>
+      prevState.open !== currentState.open &&
+      // https://github.com/pmndrs/zustand/discussions/1868
+      prevState.setOpen !== currentState.setOpen
   );
 
   return (

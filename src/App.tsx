@@ -5,7 +5,7 @@ import SettingsDialog from "./components/Settings";
 import "ninja-keys";
 import _Notification, { useNotification } from "./components/Notification";
 import * as RadixToast from "@radix-ui/react-toast";
-import CommandPalette from "./components/CommandPalette";
+import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
 import { Component1Icon } from "@radix-ui/react-icons";
 
 const configDirPath = await configDir();
@@ -16,6 +16,7 @@ function App() {
   const Notification = useMemo(() => _Notification, []);
 
   const showNotification = useNotification();
+  const showCommandPalette = useCommandPalette();
 
   return (
     <RadixToast.Provider swipeDirection="right">
@@ -35,10 +36,10 @@ function App() {
         </div>
       </div>
       <div className="absolute top-3 right-5 flex flex-row gap-3">
-        <SettingsDialog />
-        <button className="naviconbutton">
+        <button className="naviconbutton" onClick={showCommandPalette}>
           <Component1Icon className="w-5 h-5" />
         </button>
+        <SettingsDialog />
       </div>
     </RadixToast.Provider>
   );

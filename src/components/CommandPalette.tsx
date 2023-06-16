@@ -27,16 +27,22 @@ type NinjaAction = {
   // children?: NinjaAction[];
 };
 
-const useNotificationStore = create<{
+const useCommandPaletteStore = create<{
+  // Because we cannot control the state of the NinjaKeys element,
+  // so we cope with it
+  shouldOpen: boolean;
   hotkeys: NinjaKeys["data"];
+  showCommandPalette: () => void;
+  resetShouldOpen: () => void;
 }>((set) => ({
+  shouldOpen: false,
   hotkeys: [
     // Search
     {
       id: "Advance Filter",
       title: "Advance Filter With Query Syntax",
       hotkey: "cmd+p",
-      section: 'Search',
+      section: "Search",
       handler: () => {},
       // https://github.com/ssleptsov/ninja-keys#icons
       // mdIcon: "",
@@ -44,28 +50,28 @@ const useNotificationStore = create<{
     {
       id: "Manage Columns",
       title: "Reorder/Show/Hide Table Columns",
-      section: 'Table',
+      section: "Table",
       handler: () => {},
     },
     // Layout
     {
       id: "Table Only",
       title: "Switch to Table Only Layout",
-      section: 'Layout',
+      section: "Layout",
       hotkey: "cmd+1",
       handler: () => {},
     },
     {
       id: "Image Feed",
       title: "Switch to Image Feed Layout",
-      section: 'Layout',
+      section: "Layout",
       hotkey: "cmd+2",
       handler: () => {},
     },
     {
       id: "Two Column",
       title: "Switch to Two Column Layout",
-      section: 'Layout',
+      section: "Layout",
       hotkey: "cmd+3",
       handler: () => {},
     },
@@ -90,18 +96,40 @@ const useNotificationStore = create<{
     {
       id: "Settings",
       title: "Open Settings",
-      section: 'Settings',
+      section: "Settings",
       handler: () => {},
     },
   ],
+  showCommandPalette: () =>
+    set((state) => ({
+      ...state,
+      shouldOpen: true,
+    })),
+  resetShouldOpen: () =>
+    set((state) => ({
+      ...state,
+      shouldOpen: false,
+    })),
 }));
+
+export const useCommandPalette = () =>
+  useCommandPaletteStore((state) => state.showCommandPalette);
 
 const CommandPalette = () => {
   const showNotification = useNotification();
 
   // Reference to the "ninja-keys" element
   const ninjaKeys = useRef<NinjaKeys>(null);
-  const { hotkeys } = useNotificationStore((state) => state);
+  const { hotkeys, shouldOpen, resetShouldOpen } = useCommandPaletteStore(
+    (state) => state,
+    // Only re-render when "shouldOpen" changes from false to true
+    // https://github.com/pmndrs/zustand#selecting-multiple-state-slices
+    (prevState, currentState) =>
+      prevState.shouldOpen !== currentState.shouldOpen &&
+      !!currentState.shouldOpen &&
+      // https://github.com/pmndrs/zustand/discussions/1868
+      prevState.resetShouldOpen !== prevState.resetShouldOpen
+  );
 
   useEffect(() => {
     if (!ninjaKeys.current) {
@@ -110,6 +138,18 @@ const CommandPalette = () => {
     }
     ninjaKeys.current.data = hotkeys;
   }, []);
+
+  useEffect(() => {
+    if (!ninjaKeys.current) {
+      showNotification("Error", "Command palette fails");
+      return;
+    }
+
+    if (shouldOpen) {
+      ninjaKeys.current.open();
+      resetShouldOpen();
+    }
+  }, [shouldOpen]);
 
   // @ts-ignore
   return <ninja-keys ref={ninjaKeys} />;

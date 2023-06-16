@@ -8,8 +8,8 @@ import _Notification, { useNotification } from "./components/Notification";
 import * as RadixToast from "@radix-ui/react-toast";
 import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
-import RightClickContextMenu from "./components/RightClickContextMenu";
-import WorkspaceManager from "./components/WorkspaceManager";
+import RootContextMenu from "./components/RootContextMenu";
+import LayoutManager from "./components/LayoutManager";
 import ScrollArea from "./components/ScrollArea";
 
 const Nav = () => {
@@ -44,9 +44,9 @@ function App() {
       <RadixToast.Viewport className="fixed bottom-0 right-0 flex flex-col p-6 gap-2 w-[390px] max-w-[100vw] list-none z-10 outline-none" />
       <Notification />
       <CommandPalette />
-      <RightClickContextMenu>
-        <WorkspaceManager />
-      </RightClickContextMenu>
+      <RootContextMenu>
+        <LayoutManager />
+      </RootContextMenu>
       <Nav />
     </RadixToast.Provider>
   );

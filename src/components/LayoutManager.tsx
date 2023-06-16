@@ -1,47 +1,46 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { create } from "zustand";
 import { tailwind } from "../utils/cntl/tailwind";
 import { twJoin } from "tailwind-merge";
 import Table from "./Table";
 import ScrollArea from "./ScrollArea";
-import RightClickContextMenu from "./RightClickContextMenu";
+import RootContextMenu from "./RootContextMenu";
 
-enum Workspace {
-  TwoColumn = "Two Column",
-  ImageFeed = "Image Feed",
-  TableOnly = "Table Only",
-}
+export const layouts = ["Two Column", "Table Only", "Image Feed"] as const;
 
-const useWorkspaceStore = create<{
-  workspace: Workspace;
-  switchWorkspace: (workspace: Workspace) => void;
-}>((set) => ({
-  workspace: Workspace.TwoColumn,
-  switchWorkspace: (workspace: Workspace) =>
-    set((state) => ({ ...state, workspace })),
+type Layout = (typeof layouts)[number];
+
+export const useLayoutStore = create<{
+  layout: Layout;
+  switchLayout: (layout: Layout) => void;
+  switchers: Record<Layout, () => void>;
+}>((set, get) => ({
+  layout: "Two Column",
+  switchLayout: (layout: Layout) =>
+    set((state) => ({ ...state, layout: layout })),
+  // Dict comprehension in JS
+  // https://stackoverflow.com/questions/11068247/in-javascript-a-dictionary-comprehension-or-an-object-map
+  switchers: Object.fromEntries(
+    layouts.map((w) => [w, () => get().switchLayout(w)])
+  ) as Record<Layout, () => void>,
 }));
 
-export const useWorkspace = () =>
-  useWorkspaceStore(
-    (state) => ({
-      // TODO: make it more DRY?
-      [Workspace.TwoColumn]: state.switchWorkspace(Workspace.TwoColumn),
-      [Workspace.ImageFeed]: state.switchWorkspace(Workspace.ImageFeed),
-      [Workspace.TableOnly]: state.switchWorkspace(Workspace.TableOnly),
-    }),
-    (prevState, currentState) => false
-  );
+export const useLayout = () => useLayoutStore((state) => state.switchers);
 
-const WorkspaceManager: FC<{}> = () => {
-  const workspace = useWorkspaceStore((state) => state.workspace);
+const LayoutManager: FC<{}> = () => {
+  const layout = useLayoutStore((state) => state.layout);
+
+  useEffect(() => {
+    console.log(`Layout changed to ${layout}`);
+  }, [layout]);
 
   const containerStyles = tailwind`w-full h-full`;
 
-  if (workspace === Workspace.TwoColumn) {
+  if (layout === "Two Column") {
     return <TwoColumn className={containerStyles} />;
-  } else if (workspace === Workspace.ImageFeed) {
+  } else if (layout === "Image Feed") {
     return <div className={twJoin(containerStyles, "")}></div>;
-  } else if (workspace === Workspace.TableOnly) {
+  } else if (layout === "Table Only") {
     return <TableOnly className={containerStyles} />;
   } else {
     // TODO: throw error and provide fallback UI
@@ -78,4 +77,4 @@ const TableOnly: FC<{ className: string }> = ({ className }) => {
   );
 };
 
-export default WorkspaceManager;
+export default LayoutManager;

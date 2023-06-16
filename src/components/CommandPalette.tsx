@@ -4,6 +4,8 @@ import type { NinjaKeys as _NinjaKeys } from "ninja-keys";
 import { create } from "zustand";
 import "./ninjakeys.css";
 import { AngleIcon } from "@radix-ui/react-icons";
+import { useLayout, useLayoutStore } from "./LayoutManager";
+import { subscribeWithSelector } from "zustand/middleware";
 
 // Fixing the NinjaKeys type
 // https://github.com/ssleptsov/ninja-keys#data
@@ -31,12 +33,14 @@ const useCommandPaletteStore = create<{
   // Because we cannot control the state of the NinjaKeys element,
   // so we cope with it
   shouldOpen: boolean;
-  hotkeys: NinjaKeys["data"];
+  actions: NinjaKeys["data"];
   showCommandPalette: () => void;
   resetShouldOpen: () => void;
+  addAction: (action: NinjaAction) => void;
+  addActions: (actions: NinjaAction[]) => void;
 }>((set) => ({
   shouldOpen: false,
-  hotkeys: [
+  actions: [
     // Search
     {
       id: "Advance Filter",
@@ -51,28 +55,6 @@ const useCommandPaletteStore = create<{
       id: "Manage Columns",
       title: "Reorder/Show/Hide Table Columns",
       section: "Table",
-      handler: () => {},
-    },
-    // Layout
-    {
-      id: "Table Only",
-      title: "Switch to Table Only Layout",
-      section: "Layout",
-      // hotkey: "⌘+1",
-      handler: () => {},
-    },
-    {
-      id: "Image Feed",
-      title: "Switch to Image Feed Layout",
-      section: "Layout",
-      // hotkey: "⌘+2",
-      handler: () => {},
-    },
-    {
-      id: "Two Column",
-      title: "Switch to Two Column Layout",
-      section: "Layout",
-      // hotkey: "⌘+3",
       handler: () => {},
     },
     // Theme
@@ -110,7 +92,34 @@ const useCommandPaletteStore = create<{
       ...state,
       shouldOpen: false,
     })),
+  addAction: (action) => {
+    set((state) => ({
+      ...state,
+      actions: [...state.actions, action],
+    }));
+  },
+  addActions: (actions) => {
+    set((state) => ({
+      ...state,
+      actions: [...state.actions, ...actions],
+    }));
+  },
 }));
+
+// Interactions between stores
+// https://github.com/pmndrs/zustand#using-subscribe-with-selector
+
+const layoutActions = Object.entries(useLayoutStore.getState().switchers).map(
+  ([name, switcher]) => ({
+    id: name,
+    title: `Switch to ${name} Layout`,
+    section: "Layout",
+    // hotkey: "⌘+3",
+    handler: switcher,
+  })
+);
+
+useCommandPaletteStore.getState().addActions(layoutActions);
 
 export const useCommandPalette = () =>
   useCommandPaletteStore((state) => state.showCommandPalette);
@@ -120,7 +129,11 @@ const CommandPalette = () => {
 
   // Reference to the "ninja-keys" element
   const ninjaKeys = useRef<NinjaKeys>(null);
-  const { hotkeys, shouldOpen, resetShouldOpen } = useCommandPaletteStore(
+  const {
+    actions: actions,
+    shouldOpen,
+    resetShouldOpen,
+  } = useCommandPaletteStore(
     (state) => state,
     // Only re-render when "shouldOpen" changes from false to true
     // https://github.com/pmndrs/zustand#selecting-multiple-state-slices
@@ -136,7 +149,7 @@ const CommandPalette = () => {
       showNotification("Error", "Command palette fail to load");
       return;
     }
-    ninjaKeys.current.data = hotkeys;
+    ninjaKeys.current.data = actions;
     ninjaKeys.current.hideBreadcrumbs = true;
   }, []);
 

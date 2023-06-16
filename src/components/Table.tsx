@@ -13,6 +13,8 @@ import { twJoin, twMerge } from "tailwind-merge";
 import { useNotification } from "./Notification";
 import useFetchImages from "../hooks/useFetchImages";
 
+// TODO: reduce re-renders
+
 const Table: FC<{
   setImage?: (image: string | null) => void;
 }> = ({ setImage, ...props }) => {

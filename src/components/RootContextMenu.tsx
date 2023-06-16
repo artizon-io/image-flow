@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from "react";
+import React, { FC, PropsWithChildren, useMemo } from "react";
 import * as ContextMenu from "@radix-ui/react-context-menu";
 import {
   DotFilledIcon,
@@ -7,6 +7,8 @@ import {
 } from "@radix-ui/react-icons";
 import { twJoin } from "tailwind-merge";
 import { tailwind } from "../utils/cntl/tailwind";
+import { useLayout, useLayoutStore } from "./LayoutManager";
+import { create } from "zustand";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-2 py-3 border-neutral-700 border-[1px] flex flex-col gap-1`;
 
@@ -42,7 +44,10 @@ const MenuItem: FC<
     );
   else
     return (
-      <ContextMenu.Item className={twJoin(menuItemStyles, "")}>
+      <ContextMenu.Item
+        className={twJoin(menuItemStyles, "")}
+        onClick={itemConfig.handler}
+      >
         <div className={twJoin(menuItemLabelStyles, "")}>
           {itemConfig.label}
         </div>
@@ -63,30 +68,46 @@ const Separator = () => (
 
 type MenuItemConfig = {
   label: string;
+  handler?: () => void;
   hotkey?: string;
   subItemConfigs?: MenuItemConfig[];
 };
 
-const menuItemConfigs: MenuItemConfig[] = [
-  {
-    label: "Switch Layout",
-    subItemConfigs: [
-      {
-        label: "Table Only",
-        // hotkey: "⌘+p",
-      },
-      {
-        label: "Image Feed",
-        // hotkey: "⌘+p",
-      },
-      {
-        label: "Two Column",
-      },
-    ],
-  },
-];
+const useRootContextMenuStore = create<{
+  menuItemConfigs: MenuItemConfig[];
+  addMenuItemConfig: (menuItemConfig: MenuItemConfig) => void;
+  addMenuItemConfigs: (menuItemConfigs: MenuItemConfig[]) => void;
+}>((set) => ({
+  menuItemConfigs: [],
+  addMenuItemConfig: (menuItemConfig) =>
+    set((state) => ({
+      ...state,
+      menuItemConfigs: [...state.menuItemConfigs, menuItemConfig],
+    })),
+  addMenuItemConfigs: (menuItemConfigs) =>
+    set((state) => ({
+      ...state,
+      menuItemConfigs: [...state.menuItemConfigs, ...menuItemConfigs],
+    })),
+}));
 
-const RightClickContextMenu: FC<PropsWithChildren> = ({ children }) => {
+// Interactions between stores
+// https://github.com/pmndrs/zustand#using-subscribe-with-selector
+
+const layoutMenuItemConfigs = Object.entries(
+  useLayoutStore.getState().switchers
+).map(([name, switcher]) => ({
+  label: name,
+  handler: switcher,
+}));
+
+useRootContextMenuStore.getState().addMenuItemConfigs(layoutMenuItemConfigs);
+
+const RootContextMenu: FC<PropsWithChildren> = ({ children }) => {
+  const menuItemConfigs = useRootContextMenuStore(
+    (state) => state.menuItemConfigs
+  );
+
   return (
     <ContextMenu.Root>
       {/* Reason of wrapping the children inside the trigger */}
@@ -103,4 +124,4 @@ const RightClickContextMenu: FC<PropsWithChildren> = ({ children }) => {
   );
 };
 
-export default RightClickContextMenu;
+export default RootContextMenu;

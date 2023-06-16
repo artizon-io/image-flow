@@ -41,7 +41,7 @@ const useCommandPaletteStore = create<{
     {
       id: "Advance Filter",
       title: "Advance Filter With Query Syntax",
-      hotkey: "cmd+p",
+      // hotkey: "⌘+p",
       section: "Search",
       handler: () => {},
       // https://github.com/ssleptsov/ninja-keys#icons
@@ -58,21 +58,21 @@ const useCommandPaletteStore = create<{
       id: "Table Only",
       title: "Switch to Table Only Layout",
       section: "Layout",
-      hotkey: "cmd+1",
+      // hotkey: "⌘+1",
       handler: () => {},
     },
     {
       id: "Image Feed",
       title: "Switch to Image Feed Layout",
       section: "Layout",
-      hotkey: "cmd+2",
+      // hotkey: "⌘+2",
       handler: () => {},
     },
     {
       id: "Two Column",
       title: "Switch to Two Column Layout",
       section: "Layout",
-      hotkey: "cmd+3",
+      // hotkey: "⌘+3",
       handler: () => {},
     },
     // Theme

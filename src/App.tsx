@@ -8,6 +8,7 @@ import _Notification, { useNotification } from "./components/Notification";
 import * as RadixToast from "@radix-ui/react-toast";
 import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
+import RightClickContextMenu from "./components/RightClickContextMenu";
 
 const configDirPath = await configDir();
 
@@ -24,6 +25,7 @@ function App() {
       <RadixToast.Viewport className="fixed bottom-0 right-0 flex flex-col p-6 gap-2 w-[390px] max-w-[100vw] list-none z-10 outline-none" />
       <Notification />
       <CommandPalette />
+      <RightClickContextMenu />
       <div className="w-full h-full grid grid-cols-2 bg-neutral-900">
         <div className="overflow-auto">
           <Table setImage={setImage} />

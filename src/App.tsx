@@ -9,49 +9,45 @@ import * as RadixToast from "@radix-ui/react-toast";
 import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import RightClickContextMenu from "./components/RightClickContextMenu";
+import WorkspaceManager from "./components/WorkspaceManager";
+import ScrollArea from "./components/ScrollArea";
 
-const configDirPath = await configDir();
-
-function App() {
-  const [image, setImage] = useState<string | null>(null);
-
-  const Notification = useMemo(() => _Notification, []);
-
-  const showNotification = useNotification();
+const Nav = () => {
   const showCommandPalette = useCommandPalette();
 
   return (
+    <div className="absolute top-3 right-5 flex flex-row gap-3">
+      <button
+        className="naviconbutton"
+        onClick={(e) =>
+          open("https://github.com/artizon-io/stable-diffusion-metadata-ui")
+        }
+      >
+        <GitHubLogoIcon />
+      </button>
+      <button className="naviconbutton" onClick={showCommandPalette}>
+        <Component1Icon />
+      </button>
+      <SettingsDialog />
+    </div>
+  );
+};
+
+function App() {
+  const Notification = useMemo(() => _Notification, []);
+
+  const showNotification = useNotification();
+
+  return (
     <RadixToast.Provider swipeDirection="right">
+      {/* TODO: make a notification stack */}
       <RadixToast.Viewport className="fixed bottom-0 right-0 flex flex-col p-6 gap-2 w-[390px] max-w-[100vw] list-none z-10 outline-none" />
       <Notification />
       <CommandPalette />
-      <RightClickContextMenu />
-      <div className="w-full h-full grid grid-cols-2 bg-neutral-900">
-        <div className="overflow-auto">
-          <Table setImage={setImage} />
-        </div>
-        <div className="flex overflow-auto justify-center bg-neutral-900">
-          {image ? (
-            <img src={image} className="self-center" />
-          ) : (
-            <p className="self-center text-neutral-500">No Image Selected</p>
-          )}
-        </div>
-      </div>
-      <div className="absolute top-3 right-5 flex flex-row gap-3">
-        <button
-          className="naviconbutton"
-          onClick={(e) =>
-            open("https://github.com/artizon-io/stable-diffusion-metadata-ui")
-          }
-        >
-          <GitHubLogoIcon />
-        </button>
-        <button className="naviconbutton" onClick={showCommandPalette}>
-          <Component1Icon />
-        </button>
-        <SettingsDialog />
-      </div>
+      <RightClickContextMenu>
+        <WorkspaceManager />
+      </RightClickContextMenu>
+      <Nav />
     </RadixToast.Provider>
   );
 }

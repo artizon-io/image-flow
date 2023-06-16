@@ -1,20 +1,6 @@
-import {
-  useState,
-  useMemo,
-  FC,
-  MouseEventHandler,
-  MouseEvent,
-  useEffect,
-} from "react";
+import { useState, useMemo, FC } from "react";
 import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
-import {
-  documentDir,
-  desktopDir,
-  pictureDir,
-  configDir,
-  sep,
-} from "@tauri-apps/api/path";
-import { readDir, BaseDirectory, exists } from "@tauri-apps/api/fs";
+import { sep } from "@tauri-apps/api/path";
 import {
   Row,
   createColumnHelper,
@@ -23,18 +9,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import WeightMap from "./WeightMap";
-import readImageMetadata from "../utils/readImageMetadata";
 import { twJoin, twMerge } from "tailwind-merge";
 import { useNotification } from "./Notification";
 import useFetchImages from "../hooks/useFetchImages";
 
-const documentDirPath = await documentDir();
-const desktopDirPath = await desktopDir();
-const pictureDirPath = await pictureDir();
-const configDirPath = await configDir();
-
 const Table: FC<{
-  setImage: (image: string | null) => void;
+  setImage?: (image: string | null) => void;
 }> = ({ setImage, ...props }) => {
   const columnHelper = createColumnHelper<Metadata>();
 
@@ -167,10 +147,10 @@ const Table: FC<{
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleClickRow = async (e: MouseEvent, row: Row<Metadata>) => {
+  const selectImage = async (row: Row<Metadata>) => {
     const imageSrc: string = row.getValue("imageSrc");
     // Convert to something that is loadable by system web view
-    setImage(convertFileSrc(imageSrc));
+    setImage!(convertFileSrc(imageSrc));
   };
 
   const TableHeader = () => (
@@ -207,7 +187,7 @@ const Table: FC<{
         <tr
           key={row.id}
           className={twJoin("cursor-pointer")}
-          onClick={(e) => handleClickRow(e, row)}
+          onClick={(e) => (selectImage ? selectImage(row) : null)}
         >
           {row.getVisibleCells().map((cell) => (
             <td
@@ -253,7 +233,7 @@ const Table: FC<{
 
   return (
     <table
-      className={`border-2 border-neutral-600 self-start table-auto`}
+      className={`border-2 border-neutral-600 self-start table-auto bg-neutral-900`}
       {...props}
     >
       <TableHeader />

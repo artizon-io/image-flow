@@ -21,30 +21,6 @@
   box-sizing: border-box;
 }
 
-/* Works on Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #3c3c3c #1b1b1b;
-}
-
-/* Works on Chrome, Edge, and Safari */
-*::-webkit-scrollbar {
-  width: 6px;
-}
-
-*::-webkit-scrollbar-corner {
-  background: #1b1b1b;
-}
-
-*::-webkit-scrollbar-track {
-  background: #1b1b1b;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: #3c3c3c;
-  border-radius: 20px;
-}
-
 #root {
   height: 100vh;
   width: 100vw;

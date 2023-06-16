@@ -8,7 +8,7 @@ import {
 import { twJoin } from "tailwind-merge";
 import { tailwind } from "../utils/cntl/tailwind";
 
-const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-3 py-4 border-neutral-700 border-[1px] flex flex-col gap-1`;
+const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-2 py-3 border-neutral-700 border-[1px] flex flex-col gap-1`;
 
 const MenuItem: FC<
   PropsWithChildren<{
@@ -86,18 +86,12 @@ const menuItemConfigs: MenuItemConfig[] = [
   },
 ];
 
-const RightClickContextMenu = () => {
+const RightClickContextMenu: FC<PropsWithChildren> = ({ children }) => {
   return (
     <ContextMenu.Root>
-      <ContextMenu.Trigger
-        className={twJoin(
-          // Show and inset the "box" only in dev mode
-          `block border-[1px] absolute border-dashed`,
-          import.meta.env.DEV
-            ? "inset-10 border-neutral-600"
-            : "inset-0 border-transparent"
-        )}
-      />
+      {/* Reason of wrapping the children inside the trigger */}
+      {/* https://github.com/radix-ui/primitives/discussions/2216 */}
+      <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content className={twJoin(menuStyles, "")}>
           {menuItemConfigs.map((item) => (

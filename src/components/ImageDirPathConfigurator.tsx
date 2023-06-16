@@ -20,7 +20,7 @@ export const useImageDirPathConfiguratorStore = create<{
     if (currentImageDirs.has(imageDir)) return false;
     set((state) => ({
       ...state,
-      imageDirs: new Set([...currentImageDirs, imageDir]),
+      imageDirs: new Set([...state.imageDirs, imageDir]),
     }));
     return true;
   },

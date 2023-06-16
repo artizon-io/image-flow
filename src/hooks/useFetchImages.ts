@@ -13,10 +13,11 @@ const useFetchImages = () => {
   );
 
   useEffect(() => {
+    console.debug("Detecting image dirs changes", imageDirs);
     fetchImages();
-  }, []);
+  }, [imageDirs]);
 
-  const fetchImages = useCallback(() => {
+  const fetchImages = () => {
     const images: Metadata[] = [];
 
     // Why not forEach async (because it will cause a bunch of re-renders)
@@ -67,7 +68,7 @@ const useFetchImages = () => {
       console.info("Loaded images", images);
       setImages(images);
     });
-  }, []);
+  };
 
   return images;
 };

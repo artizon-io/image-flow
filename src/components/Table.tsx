@@ -11,9 +11,11 @@ import {
 import WeightMap from "./WeightMap";
 import { twJoin, twMerge } from "tailwind-merge";
 import { useNotification } from "./Notification";
-import useFetchImages from "../hooks/useFetchImages";
+import useImagesMetadata from "../hooks/useImagesMetadata";
 
 // TODO: reduce re-renders
+// TODO: render only visible rows using react-window or react-virtualized
+// TODO: use surreal-db locally
 
 const Table: FC<{
   setImage?: (image: string | null) => void;
@@ -141,26 +143,28 @@ const Table: FC<{
     []
   );
 
-  const images = useFetchImages();
+  const imagesMetadata = useImagesMetadata();
 
   const table = useReactTable({
     columns,
-    data: images,
+    data: imagesMetadata,
     getCoreRowModel: getCoreRowModel(),
   });
 
   const selectImage = async (row: Row<Metadata>) => {
     const imageSrc: string = row.getValue("imageSrc");
-    // Convert to something that is loadable by system web view
-    setImage!(convertFileSrc(imageSrc));
+    setImage!(imageSrc);
   };
 
   const TableHeader = () => (
     <thead>
       {table.getHeaderGroups().map((headerGroup) => (
-        <tr key={headerGroup.id} className="bg-neutral-950">
+        <tr key={headerGroup.id} className="bg-neutral-925">
           {headerGroup.headers.map((header) => (
-            <th key={header.id} className="p-3 font-normal text-neutral-300">
+            <th
+              key={header.id}
+              className="p-3 font-medium text-sm text-neutral-500"
+            >
               {header.isPlaceholder
                 ? null
                 : flexRender(
@@ -175,36 +179,42 @@ const Table: FC<{
   );
 
   // TODO: Investigate performance cost
-  const [hoverColumn, setHoverColumn] = useState<string | null>(null);
-  const [hoverCell, setHoverCell] = useState<string | null>(null);
+  // const [hoverColumn, setHoverColumn] = useState<string | null>(null);
+  // const [hoverCell, setHoverCell] = useState<string | null>(null);
+  const [hoverRow, setHoverRow] = useState<string | null>(null);
 
   const TableBody = () => (
     <tbody
-      onMouseLeave={(e) => {
-        setHoverColumn(null);
-        setHoverCell(null);
-      }}
+    // onMouseLeave={(e) => {
+    //   setHoverColumn(null);
+    //   setHoverCell(null);
+    //   setHoverRow(null);
+    // }}
     >
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
-          className={twJoin("cursor-pointer")}
+          className={twJoin("cursor-pointer border-[1px] border-neutral-800")}
           onClick={(e) => (selectImage ? selectImage(row) : null)}
+          onMouseOver={(e) => {
+            setHoverRow(row.id);
+          }}
         >
           {row.getVisibleCells().map((cell) => (
             <td
               key={cell.id}
               className={twJoin(
                 "text-center p-3 font-light text-neutral-200 text-sm",
-                hoverCell === cell.id
-                  ? "shadow-solid-inset-1 shadow-neutral-500"
-                  : "",
-                hoverColumn === cell.column.id ? "" : ""
+                // hoverCell === cell.id
+                //   ? "shadow-solid-inset-1 shadow-neutral-500"
+                //   : "",
+                // hoverColumn === cell.column.id ? "" : "",
+                hoverRow === row.id ? "bg-neutral-850" : ""
               )}
-              onMouseOver={(e) => {
-                setHoverColumn(cell.column.id);
-                setHoverCell(cell.id);
-              }}
+              // onMouseOver={(e) => {
+              //   setHoverColumn(cell.column.id);
+              //   setHoverCell(cell.id);
+              // }}
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>
@@ -233,11 +243,15 @@ const Table: FC<{
     </tfoot>
   );
 
+  if (imagesMetadata.length === 0)
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        <p className="text-neutral-500">Cannot locate any images</p>
+      </div>
+    );
+
   return (
-    <table
-      className={`border-2 border-neutral-600 self-start table-auto bg-neutral-900`}
-      {...props}
-    >
+    <table className={`bg-neutral-900 border-collapse`} {...props}>
       <TableHeader />
       <TableBody />
       <TableFooter />

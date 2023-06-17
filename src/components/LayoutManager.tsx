@@ -3,8 +3,10 @@ import { create } from "zustand";
 import { tailwind } from "../utils/cntl/tailwind";
 import { twJoin } from "tailwind-merge";
 import Table from "./Table";
+import useImages from "../hooks/useImages";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
 import ScrollArea from "./ScrollArea";
-import RootContextMenu from "./RootContextMenu";
+import { Masonry, RenderComponentProps } from "masonic";
 
 export const layouts = ["Two Column", "Table Only", "Image Feed"] as const;
 
@@ -27,6 +29,8 @@ export const useLayoutStore = create<{
 
 export const useLayout = () => useLayoutStore((state) => state.switchers);
 
+// TODO: memorise table so it doesn't get rerendered when layout switched
+
 const LayoutManager: FC<{}> = () => {
   const layout = useLayoutStore((state) => state.layout);
 
@@ -39,7 +43,7 @@ const LayoutManager: FC<{}> = () => {
   if (layout === "Two Column") {
     return <TwoColumn className={containerStyles} />;
   } else if (layout === "Image Feed") {
-    return <div className={twJoin(containerStyles, "")}></div>;
+    return <ImageFeed className={containerStyles} />;
   } else if (layout === "Table Only") {
     return <TableOnly className={containerStyles} />;
   } else {
@@ -52,13 +56,14 @@ const TwoColumn: FC<{ className: string }> = ({ className }) => {
   const [image, setImage] = useState<string | null>(null);
 
   return (
-    <div className={twJoin(className, "grid grid-cols-2 bg-neutral-800 gap-2")}>
+    <div className={twJoin(className, "grid grid-cols-2 gap-2")}>
       <ScrollArea>
         <Table setImage={setImage} />
       </ScrollArea>
       <div className="flex justify-center items-center bg-neutral-900">
         {image ? (
-          <img src={image} className="" />
+          // Convert to something that is loadable by system web view
+          <img src={convertFileSrc(image)} className="" />
         ) : (
           <p className="text-neutral-500">No Image Selected</p>
         )}
@@ -69,10 +74,56 @@ const TwoColumn: FC<{ className: string }> = ({ className }) => {
 
 const TableOnly: FC<{ className: string }> = ({ className }) => {
   return (
-    <div className={twJoin(className, "")}>
+    <div className={twJoin(className, "grid")}>
       <ScrollArea>
         <Table />
       </ScrollArea>
+    </div>
+  );
+};
+
+const ImageFeed: FC<{ className: string }> = ({ className }) => {
+  const images = useImages();
+
+  if (images.length === 0)
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        <p className="text-neutral-500">Cannot locate any images</p>
+      </div>
+    );
+
+  return (
+    <ScrollArea>
+      <Masonry
+        // TODO: use a better key
+        items={images.map((image, index) => ({
+          id: index,
+          image,
+        }))}
+        render={ImageFeedImage}
+        // Grid cell spacing
+        columnGutter={8}
+        // Column min width
+        columnWidth={300}
+        // Pre-renders 5 windows worth of content
+        overscanBy={10}
+      />
+    </ScrollArea>
+  );
+};
+
+const ImageFeedImage: FC<
+  RenderComponentProps<{
+    id: number;
+    image: string;
+  }>
+> = ({ index, data: { id, image }, width }) => {
+  return (
+    <div className="rounded-md overflow-hidden">
+      <img
+        src={convertFileSrc(image)}
+        className="hover:scale-105 transition-transform cursor-pointer"
+      />
     </div>
   );
 };

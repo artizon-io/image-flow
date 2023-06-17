@@ -5,8 +5,8 @@ import { sep } from "@tauri-apps/api/path";
 import { exists, readDir } from "@tauri-apps/api/fs";
 import { useImageDirPathConfiguratorStore } from "../components/ImageDirPathConfigurator";
 
-const useFetchImages = () => {
-  const [images, setImages] = useState<Metadata[]>([]);
+const useImagesMetadata = () => {
+  const [imagesMetadata, setImagesMetadata] = useState<Metadata[]>([]);
   const showNotification = useNotification();
   const imageDirs = useImageDirPathConfiguratorStore(
     (state) => state.imageDirs
@@ -14,11 +14,11 @@ const useFetchImages = () => {
 
   useEffect(() => {
     console.debug("Detecting image dirs changes", imageDirs);
-    fetchImages();
+    fetchMetadata();
   }, [imageDirs]);
 
-  const fetchImages = () => {
-    const images: Metadata[] = [];
+  const fetchMetadata = () => {
+    const imagesMetadata: Metadata[] = [];
 
     // Why not forEach async (because it will cause a bunch of re-renders)
     // https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
@@ -56,7 +56,7 @@ const useFetchImages = () => {
             console.debug("Entry", entry);
             console.debug("Image Metadata", imageMetadata);
 
-            images.push({
+            imagesMetadata.push({
               ...imageMetadata,
               imageBaseDir: imageDir,
               imageSrc: entry.name!,
@@ -65,12 +65,12 @@ const useFetchImages = () => {
         );
       })
     ).then(() => {
-      console.info("Loaded images", images);
-      setImages(images);
+      console.info("Loaded images metadata", imagesMetadata);
+      setImagesMetadata(imagesMetadata);
     });
   };
 
-  return images;
+  return imagesMetadata;
 };
 
-export default useFetchImages;
+export default useImagesMetadata;

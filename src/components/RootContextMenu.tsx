@@ -10,15 +10,15 @@ import { tailwind } from "../utils/cntl/tailwind";
 import { useLayout, useLayoutStore } from "./LayoutManager";
 import { create } from "zustand";
 
-const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-2 py-3 border-neutral-700 border-[1px] flex flex-col gap-1`;
+const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;
 
 const MenuItem: FC<
   PropsWithChildren<{
     itemConfig: MenuItemConfig;
   }>
 > = ({ itemConfig }) => {
-  const menuItemStyles = tailwind`flex flex-row justify-between items-center rounded-sm hover:bg-neutral-800 text-neutral-300 hover:text-neutral-50 hover:outline-none px-3 py-2 shadow-none outline-none`;
-  const menuItemLabelStyles = tailwind`text-inherit text-xs`;
+  const menuItemStyles = tailwind`flex flex-row justify-between items-center rounded-sm hover:bg-neutral-800 text-neutral-300 hover:text-neutral-50 hover:outline-none px-3 py-1.5 shadow-none outline-none`;
+  const menuItemLabelStyles = tailwind`text-inherit text-s pointer-events-none`;
 
   if (itemConfig.subItemConfigs)
     return (
@@ -101,7 +101,10 @@ const layoutMenuItemConfigs = Object.entries(
   handler: switcher,
 }));
 
-useRootContextMenuStore.getState().addMenuItemConfigs(layoutMenuItemConfigs);
+useRootContextMenuStore.getState().addMenuItemConfig({
+  label: "Switch Layout",
+  subItemConfigs: layoutMenuItemConfigs,
+});
 
 const RootContextMenu: FC<PropsWithChildren> = ({ children }) => {
   const menuItemConfigs = useRootContextMenuStore(

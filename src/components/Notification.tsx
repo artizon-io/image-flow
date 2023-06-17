@@ -42,13 +42,13 @@ const Notification: FC<{}> = ({ ...props }) => {
   return (
     <Toast.Root
       className={twJoin(
-        "bg-neutral-900 rounded-md flex flex-col gap-2 px-6 py-5 border-2 border-neutral-700 relative"
+        "bg-neutral-900 rounded-md flex flex-col gap-2 px-6 py-5 border-[1px] border-neutral-800 relative"
       )}
       open={open}
       onOpenChange={setOpen}
     >
       <Toast.Title className="text-neutral-200">{severity}</Toast.Title>
-      <Toast.Description className="text-neutral-400 text-sm">
+      <Toast.Description className="text-neutral-400 text-s">
         {message}
       </Toast.Description>
       <Toast.Close asChild>

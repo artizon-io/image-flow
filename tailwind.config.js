@@ -9,6 +9,15 @@ export default {
       minWidth: {
         25: "25rem",
       },
+      colors: {
+        neutral: {
+          850: "hsl(0, 0%, 11%)",
+          925: "hsl(0, 0%, 7%)",
+        },
+      },
+      fontSize: {
+        s: "0.75rem",
+      },
     },
   },
   plugins: [

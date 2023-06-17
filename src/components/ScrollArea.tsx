@@ -7,7 +7,7 @@ const AppScrollArea: FC<PropsWithChildren<{ className?: string }>> = ({
   children,
 }) => (
   <ScrollArea.Root className={twMerge("overflow-hidden", className)}>
-    <ScrollArea.Viewport className="w-full h-full">
+    <ScrollArea.Viewport className="w-full h-full flex justify-stretch items-stretch child:h-full">
       {children}
     </ScrollArea.Viewport>
     <ScrollArea.Scrollbar orientation="vertical">

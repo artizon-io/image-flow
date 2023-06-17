@@ -12,6 +12,8 @@ import RootContextMenu from "./components/RootContextMenu";
 import LayoutManager from "./components/LayoutManager";
 import ScrollArea from "./components/ScrollArea";
 
+// TODO: add transitions
+
 const Nav = () => {
   const showCommandPalette = useCommandPalette();
 

@@ -36,7 +36,7 @@ const Section: FC<
   }>
 > = ({ sectionTitle, sectionDescription, children }) => (
   <div className="flex flex-col gap-3">
-    <h3 className="text-xs text-neutral-400">{sectionTitle}</h3>
+    <h3 className="text-s text-neutral-400">{sectionTitle}</h3>
     {sectionDescription ? (
       <p className="text-xs text-neutral-300">{sectionDescription}</p>
     ) : null}
@@ -50,7 +50,7 @@ const FieldGroup: FC<
   }>
 > = ({ label, children }) => (
   <div className="flex justify-between">
-    <label className="text-xs text-neutral-200">{label}</label>
+    <label className="text-xs font-medium text-neutral-200">{label}</label>
     {children}
   </div>
 );
@@ -77,7 +77,7 @@ const SettingsDialog: FC<{
             <Dialog.Title className="text-neutral-200 text-xl">
               Settings
             </Dialog.Title>
-            <Dialog.Description className="text-neutral-400 text-sm leading-normal bottom-0">
+            <Dialog.Description className="text-neutral-400 text-s leading-normal bottom-0">
               All settings are saved automatically.
             </Dialog.Description>
           </div>

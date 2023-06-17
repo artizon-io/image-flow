@@ -40,6 +40,8 @@ import type { NodeData as StringNumberMapNodeData } from "./node/StringNumberMap
 import type { NodeData as LoraNumberMapNodeData } from "./node/LoraNumberMap";
 import { useNotificationStore } from "../../Notification";
 
+// TODO: for each node, show input dialog instead of fixing the value
+
 const customNodes = {
   "automatic-1111": Automatic1111Node,
   model: ModelNode,
@@ -124,6 +126,7 @@ export const useConnectorStore = create<{
     {
       name: "connector-storage",
       partialize: (state) => ({ nodes: state.nodes, edges: state.edges }),
+      // TODO: fix persisting connector state not working
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name);

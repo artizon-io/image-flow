@@ -9,6 +9,7 @@ import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import RootContextMenu from "./components/RootContextMenu";
 import LayoutManager from "./components/LayoutManager";
+import HelpTooltip, { HelpTooltipProvider } from "./components/HelpTooltip";
 
 // TODO: add transitions
 
@@ -16,20 +17,29 @@ const Nav = () => {
   const showCommandPalette = useCommandPalette();
 
   return (
-    <div className="absolute top-3 right-5 flex flex-row gap-3">
-      <button
-        className="naviconbutton"
-        onClick={(e) =>
-          open("https://github.com/artizon-io/stable-diffusion-metadata-ui")
-        }
-      >
-        <GitHubLogoIcon />
-      </button>
-      <button className="naviconbutton" onClick={showCommandPalette}>
-        <Component1Icon />
-      </button>
-      <SettingsDialog />
-    </div>
+    <HelpTooltipProvider>
+      <div className="absolute top-3 right-5 flex flex-row gap-3">
+        <HelpTooltip description="GitHub">
+          <button
+            className="naviconbutton"
+            onClick={(e) =>
+              open("https://github.com/artizon-io/stable-diffusion-metadata-ui")
+            }
+          >
+            <GitHubLogoIcon />
+          </button>
+        </HelpTooltip>
+        <HelpTooltip description="Command Palette">
+          <button className="naviconbutton" onClick={showCommandPalette}>
+            <Component1Icon />
+          </button>
+        </HelpTooltip>
+        {/* TODO: fix tooltip not showing */}
+        <HelpTooltip description="Settings">
+          <SettingsDialog />
+        </HelpTooltip>
+      </div>
+    </HelpTooltipProvider>
   );
 };
 

@@ -77,7 +77,7 @@ const SettingsDialog: FC<{
             <Dialog.Title className="text-neutral-200 text-xl">
               Settings
             </Dialog.Title>
-            <Dialog.Description className="text-neutral-400 text-s leading-normal bottom-0">
+            <Dialog.Description className="text-neutral-400 text-sm leading-normal bottom-0">
               All settings are saved automatically.
             </Dialog.Description>
           </div>

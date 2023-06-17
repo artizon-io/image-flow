@@ -7,6 +7,9 @@
 
 @layer components {
   .naviconbutton {
-    @apply text-neutral-500 bg-neutral-800 hover:text-neutral-400 rounded-md hover:border-neutral-500 w-10 h-10 flex justify-center items-center child:w-5 child:h-5;
+    @apply text-neutral-500 bg-neutral-800 hover:text-neutral-400 w-10 h-10 flex justify-center items-center child:w-5 child:h-5 hover:border-transparent rounded-none hover:bg-neutral-750;
+  }
+  .naviconbutton-with-border {
+    @apply naviconbutton hover:border-neutral-500 rounded;
   }
 }

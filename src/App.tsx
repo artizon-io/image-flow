@@ -10,6 +10,7 @@ import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import RootContextMenu from "./components/RootContextMenu";
 import LayoutManager from "./components/LayoutManager";
 import HelpTooltip, { HelpTooltipProvider } from "./components/HelpTooltip";
+import LayoutNav from "./components/LayoutNav";
 
 // TODO: add transitions
 
@@ -19,9 +20,11 @@ const Nav = () => {
   return (
     <HelpTooltipProvider>
       <div className="fixed top-3 right-5 flex flex-row gap-3">
+        <LayoutNav />
+
         <HelpTooltip description="GitHub">
           <button
-            className="naviconbutton"
+            className="naviconbutton-with-border"
             onClick={(e) =>
               open("https://github.com/artizon-io/stable-diffusion-metadata-ui")
             }
@@ -30,7 +33,7 @@ const Nav = () => {
           </button>
         </HelpTooltip>
         <HelpTooltip description="Command Palette">
-          <button className="naviconbutton" onClick={showCommandPalette}>
+          <button className="naviconbutton-with-border" onClick={showCommandPalette}>
             <Component1Icon />
           </button>
         </HelpTooltip>

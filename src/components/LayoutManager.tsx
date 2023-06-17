@@ -10,7 +10,7 @@ import { Masonry, RenderComponentProps } from "masonic";
 
 export const layouts = ["Two Column", "Table Only", "Image Feed"] as const;
 
-type Layout = (typeof layouts)[number];
+export type Layout = (typeof layouts)[number];
 
 export const useLayoutStore = create<{
   layout: Layout;

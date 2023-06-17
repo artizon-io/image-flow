@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from "react";
+import { FC, PropsWithChildren, forwardRef } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { twMerge } from "tailwind-merge";
 import CloseButton from "./CloseButton";
@@ -55,9 +55,12 @@ const FieldGroup: FC<
   </div>
 );
 
-const SettingsDialog: FC<{
-  className?: string;
-}> = ({ ...props }) => {
+const SettingsDialog = forwardRef<
+  any,
+  {
+    className?: string;
+  }
+>(({ ...props }, ref) => {
   const { colorHue: positiveColorHue, setColorHue: setPositiveColorHue } =
     usePositiveWeightMapColorHueStore((state) => state);
   const { colorHue: negativeColorHue, setColorHue: setNegativeColorHue } =
@@ -66,7 +69,7 @@ const SettingsDialog: FC<{
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button className={twMerge("naviconbutton", props.className)}>
+        <button className={twMerge("naviconbutton-with-border", props.className)} ref={ref}>
           <GearIcon className="w-5 h-5" />
         </button>
       </Dialog.Trigger>
@@ -112,6 +115,6 @@ const SettingsDialog: FC<{
       </Dialog.Portal>
     </Dialog.Root>
   );
-};
+});
 
 export default SettingsDialog;

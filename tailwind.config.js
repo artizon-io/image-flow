@@ -11,6 +11,7 @@ export default {
       },
       colors: {
         neutral: {
+          750: "hsl(0, 0%, 17%)",
           850: "hsl(0, 0%, 11%)",
           925: "hsl(0, 0%, 7%)",
         },

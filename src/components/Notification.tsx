@@ -33,10 +33,10 @@ const Notification: FC<{}> = ({ ...props }) => {
     (state) => state,
     // Only re-render when "open" changes
     // https://github.com/pmndrs/zustand#selecting-multiple-state-slices
-    (prevState, currentState) =>
-      prevState.open !== currentState.open &&
+    (prev, current) =>
+      prev.open !== current.open &&
       // https://github.com/pmndrs/zustand/discussions/1868
-      prevState.setOpen !== currentState.setOpen
+      prev.setOpen !== current.setOpen
   );
 
   return (

@@ -137,11 +137,11 @@ const CommandPalette = () => {
     (state) => state,
     // Only re-render when "shouldOpen" changes from false to true
     // https://github.com/pmndrs/zustand#selecting-multiple-state-slices
-    (prevState, currentState) =>
-      prevState.shouldOpen !== currentState.shouldOpen &&
-      !!currentState.shouldOpen &&
+    (prev, current) =>
+      prev.shouldOpen !== current.shouldOpen &&
+      !!current.shouldOpen &&
       // https://github.com/pmndrs/zustand/discussions/1868
-      prevState.resetShouldOpen !== prevState.resetShouldOpen
+      prev.resetShouldOpen !== prev.resetShouldOpen
   );
 
   useEffect(() => {

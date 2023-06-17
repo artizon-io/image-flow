@@ -1,7 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { configDir } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/shell";
-import Table from "./components/Table";
 import SettingsDialog from "./components/Settings";
 import "ninja-keys";
 import _Notification, { useNotification } from "./components/Notification";
@@ -10,7 +9,6 @@ import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import RootContextMenu from "./components/RootContextMenu";
 import LayoutManager from "./components/LayoutManager";
-import ScrollArea from "./components/ScrollArea";
 
 // TODO: add transitions
 

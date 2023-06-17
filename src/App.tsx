@@ -18,7 +18,7 @@ const Nav = () => {
 
   return (
     <HelpTooltipProvider>
-      <div className="absolute top-3 right-5 flex flex-row gap-3">
+      <div className="fixed top-3 right-5 flex flex-row gap-3">
         <HelpTooltip description="GitHub">
           <button
             className="naviconbutton"

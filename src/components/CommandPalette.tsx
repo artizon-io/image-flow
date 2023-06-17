@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import _Notification, { useNotification } from "./Notification";
 import type { NinjaKeys as _NinjaKeys } from "ninja-keys";
 import { create } from "zustand";
-import "./ninjakeys.css";
+import "./ninja-keys.css";
 import { AngleIcon } from "@radix-ui/react-icons";
-import { useLayout, useLayoutStore } from "./LayoutManager";
+import { useLayout, useLayoutStore } from "./layout/LayoutManager";
 import { subscribeWithSelector } from "zustand/middleware";
 
 // Fixing the NinjaKeys type

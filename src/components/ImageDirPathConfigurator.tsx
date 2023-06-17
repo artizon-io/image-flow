@@ -1,6 +1,6 @@
 import { FC, MouseEventHandler } from "react";
 import { create } from "zustand";
-import { useNotification } from "./Notification";
+import { useNotification, useNotificationStore } from "./Notification";
 import { open } from "@tauri-apps/api/dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { persist } from "zustand/middleware";
@@ -60,8 +60,6 @@ export const useImageDirPathConfiguratorStore = create<{
     }),
     {
       name: "image-dirs-storage",
-      // Check if store is hydrated
-      // https://github.com/pmndrs/zustand/blob/main/docs/integrations/persisting-store-data.md#how-can-i-check-if-my-store-has-been-hydrated
       partialize: (state) => ({ imageDirs: [...state.imageDirs] }),
       merge: (persisted, current) => {
         console.debug(
@@ -69,7 +67,6 @@ export const useImageDirPathConfiguratorStore = create<{
           persisted,
           current
         );
-        // return ({ ...current, ...persisted! });
 
         const parseResult = z
           .object({
@@ -77,8 +74,15 @@ export const useImageDirPathConfiguratorStore = create<{
           })
           .safeParse(persisted);
 
-        // TODO: show warning notification
-        if (!parseResult.success) return current;
+        if (!parseResult.success) {
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Warning",
+              "Fail to load image directories from local storage"
+            );
+          return current;
+        }
 
         const merged = new Set([
           ...current.imageDirs,
@@ -86,6 +90,8 @@ export const useImageDirPathConfiguratorStore = create<{
         ]);
         return { ...current, imageDirs: merged };
       },
+      // Check if store is hydrated
+      // https://github.com/pmndrs/zustand/blob/main/docs/integrations/persisting-store-data.md#how-can-i-check-if-my-store-has-been-hydrated
       onRehydrateStorage: () => (state) => {
         if (state) state.setHydrated(true);
       },

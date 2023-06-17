@@ -1,0 +1,39 @@
+/* https://reactflow.dev/docs/guides/theming/ */
+
+/* TODO: configure this in tailwind */
+
+.react-flow__handle {
+  position: unset;
+  width: 20px;
+  height: 20px;
+  background-color: rgb(28, 28, 28);
+  border-color: rgb(86, 86, 86);
+}
+
+.react-flow__handle-left {
+  transform: none;
+}
+
+.react-flow__handle-right {
+  transform: none;
+}
+
+.react-flow__handle-top {
+  transform: none;
+}
+
+.react-flow__handle-bottom {
+  transform: none;
+}
+
+.react-flow__attribution {
+  background-color: rgb(30, 30, 30);
+  border-color: rgb(47, 47, 47);
+  border-right-width: 1px;
+  border-top-width: 1px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-top-right-radius: 10px;
+}

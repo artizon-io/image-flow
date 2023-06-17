@@ -1,14 +1,25 @@
 import { FC, useEffect, useState } from "react";
 import { create } from "zustand";
-import { tailwind } from "../utils/cntl/tailwind";
+import { tailwind } from "../../utils/cntl/tailwind";
 import { twJoin } from "tailwind-merge";
-import Table from "./Table";
-import useImages from "../hooks/useImages";
+import Table from "../Table";
+import useImages from "../../hooks/useImages";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
-import ScrollArea from "./ScrollArea";
+import ScrollArea from "../ScrollArea";
 import { Masonry, RenderComponentProps } from "masonic";
+import Connector from "./connector/Connector";
+import { persist } from "zustand/middleware";
+import { z } from "zod";
+import { useNotificationStore } from "../Notification";
 
-export const layouts = ["Two Column", "Table Only", "Image Feed"] as const;
+// TODO: separate the concept of "workspace" from "layout"
+
+export const layouts = [
+  "Two Column",
+  "Table Only",
+  "Image Feed",
+  "Connector",
+] as const;
 
 export type Layout = (typeof layouts)[number];
 
@@ -16,16 +27,45 @@ export const useLayoutStore = create<{
   layout: Layout;
   switchLayout: (layout: Layout) => void;
   switchers: Record<Layout, () => void>;
-}>((set, get) => ({
-  layout: "Two Column",
-  switchLayout: (layout: Layout) =>
-    set((state) => ({ ...state, layout: layout })),
-  // Dict comprehension in JS
-  // https://stackoverflow.com/questions/11068247/in-javascript-a-dictionary-comprehension-or-an-object-map
-  switchers: Object.fromEntries(
-    layouts.map((w) => [w, () => get().switchLayout(w)])
-  ) as Record<Layout, () => void>,
-}));
+}>()(
+  persist(
+    (set, get) => ({
+      layout: "Two Column",
+      switchLayout: (layout: Layout) =>
+        set((state) => ({ ...state, layout: layout })),
+      // Dict comprehension in JS
+      // https://stackoverflow.com/questions/11068247/in-javascript-a-dictionary-comprehension-or-an-object-map
+      switchers: Object.fromEntries(
+        layouts.map((w) => [w, () => get().switchLayout(w)])
+      ) as Record<Layout, () => void>,
+    }),
+    {
+      name: "layout-storage",
+      partialize: (state) => ({ layout: state.layout }),
+      merge: (persisted, current) => {
+        console.debug("Merging Layout from local storage", persisted, current);
+
+        const parseResult = z
+          .object({
+            layout: z.enum(layouts),
+          })
+          .safeParse(persisted);
+
+        if (!parseResult.success) {
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Warning",
+              "Fail to load current layout from local storage."
+            );
+          return current;
+        }
+
+        return { ...current, layout: parseResult.data.layout };
+      },
+    }
+  )
+);
 
 export const useLayout = () => useLayoutStore((state) => state.switchers);
 
@@ -46,6 +86,8 @@ const LayoutManager: FC<{}> = () => {
     return <ImageFeed className={containerStyles} />;
   } else if (layout === "Table Only") {
     return <TableOnly className={containerStyles} />;
+  } else if (layout === "Connector") {
+    return <Connector className={containerStyles} />;
   } else {
     // TODO: throw error and provide fallback UI
     return null;

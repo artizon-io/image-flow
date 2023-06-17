@@ -8,9 +8,9 @@ import * as RadixToast from "@radix-ui/react-toast";
 import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import RootContextMenu from "./components/RootContextMenu";
-import LayoutManager from "./components/LayoutManager";
+import LayoutManager from "./components/layout/LayoutManager";
 import HelpTooltip, { HelpTooltipProvider } from "./components/HelpTooltip";
-import LayoutNav from "./components/LayoutNav";
+import LayoutNav from "./components/layout/LayoutNav";
 
 // TODO: add transitions
 
@@ -33,7 +33,10 @@ const Nav = () => {
           </button>
         </HelpTooltip>
         <HelpTooltip description="Command Palette">
-          <button className="naviconbutton-with-border" onClick={showCommandPalette}>
+          <button
+            className="naviconbutton-with-border"
+            onClick={showCommandPalette}
+          >
             <Component1Icon />
           </button>
         </HelpTooltip>

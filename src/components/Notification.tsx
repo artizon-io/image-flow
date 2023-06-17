@@ -4,7 +4,7 @@ import CloseButton from "./CloseButton";
 import { twJoin } from "tailwind-merge";
 import { create } from "zustand";
 
-const useNotificationStore = create<{
+export const useNotificationStore = create<{
   open: boolean;
   severity: Severity;
   message: string;

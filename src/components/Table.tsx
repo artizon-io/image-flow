@@ -15,6 +15,7 @@ import useImagesMetadata from "../hooks/useImagesMetadata";
 
 // TODO: reduce re-renders
 // TODO: render only visible rows using react-window or react-virtualized
+// TODO: render in canvas
 // TODO: use surreal-db locally
 
 const Table: FC<{
@@ -81,7 +82,7 @@ const Table: FC<{
       }),
       columnHelper.accessor("clipSkip", {
         id: "clipSkip",
-        header: "Clip Skip",
+        header: "CLIP Skip",
         cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("denoisingStrength", {
@@ -91,17 +92,17 @@ const Table: FC<{
       }),
       columnHelper.accessor("highResResize", {
         id: "highResResize",
-        header: "High Res Fix Resolution",
+        header: "Highres Fix Resolution",
         cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("highResSteps", {
         id: "highResSteps",
-        header: "High Res Fix Steps",
+        header: "Highres Fix Steps",
         cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("highResUpscaler", {
         id: "highResUpscaler",
-        header: "High Res Upscaler",
+        header: "Highres Sampler",
         cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("loraMap", {

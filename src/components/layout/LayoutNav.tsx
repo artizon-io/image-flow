@@ -3,11 +3,12 @@ import {
   ImageIcon,
   Component2Icon,
   ViewVerticalIcon,
+  CommitIcon,
 } from "@radix-ui/react-icons";
 import { Layout, useLayout, useLayoutStore } from "./LayoutManager";
 import { twJoin } from "tailwind-merge";
 import { FC, forwardRef } from "react";
-import HelpTooltip from "./HelpTooltip";
+import HelpTooltip from "../HelpTooltip";
 
 const layoutIconMap: Record<
   Layout,
@@ -18,6 +19,7 @@ const layoutIconMap: Record<
   "Image Feed": ImageIcon,
   "Table Only": Component2Icon,
   "Two Column": ViewVerticalIcon,
+  Connector: CommitIcon,
 };
 
 const navItemConfigs = Object.entries(useLayoutStore.getState().switchers).map(

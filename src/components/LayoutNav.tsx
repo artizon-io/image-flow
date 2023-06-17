@@ -2,7 +2,7 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import {
   ImageIcon,
   Component2Icon,
-  ViewVerticalIcon
+  ViewVerticalIcon,
 } from "@radix-ui/react-icons";
 import { Layout, useLayout, useLayoutStore } from "./LayoutManager";
 import { twJoin } from "tailwind-merge";
@@ -38,19 +38,22 @@ const LayoutNav = () => {
       value={layout}
     >
       {navItemConfigs.map((config) => (
-        <HelpTooltip description={config.label}>
-          <ToggleGroup.Item
-            key={config.label}
-            className={twJoin(
-              "naviconbutton",
-              "data-[state=on]:bg-neutral-850 data-[state=on]:text-neutral-300"
-            )}
-            value={config.label}
-            onClick={config.handler}
-          >
+        // TODO: figure out why wrapping the toggle group item
+        // with helper tooltip won't trigger the state update of
+        // the toggle group item
+        <ToggleGroup.Item
+          key={config.label}
+          className={twJoin(
+            "naviconbutton",
+            "data-[state=on]:bg-neutral-850 data-[state=on]:text-neutral-300"
+          )}
+          value={config.label}
+          onClick={config.handler}
+        >
+          <HelpTooltip description={config.label}>
             <config.icon />
-          </ToggleGroup.Item>
-        </HelpTooltip>
+          </HelpTooltip>
+        </ToggleGroup.Item>
       ))}
     </ToggleGroup.Root>
   );

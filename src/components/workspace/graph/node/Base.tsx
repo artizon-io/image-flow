@@ -7,7 +7,7 @@ import {
   NodeProps,
 } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
-import { tailwind } from "../../../../utils/cntl/tailwind";
+import { tailwind } from "../../../../utils/tailwind";
 
 type NodeEndpoint = {
   id: string;
@@ -27,6 +27,8 @@ export enum NodeEndpointType {
   Sampler = "sampler",
 }
 
+// TODO: load the colors from `.config`
+
 const nodeEndpointTypeColorHueMap: Record<NodeEndpointType, number> = {
   [NodeEndpointType.Number]: 0,
   [NodeEndpointType.NumberPair]: 0,
@@ -38,12 +40,11 @@ const nodeEndpointTypeColorHueMap: Record<NodeEndpointType, number> = {
   [NodeEndpointType.Image]: 300,
 };
 
-const getEndpointStyle = (
+const getEndpointColor = (
   endpointType: keyof typeof nodeEndpointTypeColorHueMap
 ) =>
-  // TODO: figure out why tailwind is not applying
-  // tailwind`bg-[hsl(${nodeEndpointTypeColorHueMap[nodeType]} 50% 15%)]`;
-  `hsl(${nodeEndpointTypeColorHueMap[endpointType]} 50% 15%)`;
+  // Tailwind doesn't support interpreted string(?)
+  `hsl(${nodeEndpointTypeColorHueMap[endpointType]} 50% 20%)`;
 
 export type NodeConfig = {
   inputs?: NodeEndpoint[];
@@ -70,10 +71,10 @@ const Endpoints: FC<{
           id={endpointConfig.id}
           key={endpointConfig.id}
           style={{
-            backgroundColor: getEndpointStyle(endpointConfig.type),
+            backgroundColor: getEndpointColor(endpointConfig.type),
           }}
         />
-        <p className="text-neutral-500 text-xs">{endpointConfig.label}</p>
+        <p className="text-neutral-400 text-xs">{endpointConfig.label}</p>
       </div>
     ))}
   </div>
@@ -89,8 +90,10 @@ const BaseNode: FC<
   return (
     <div
       className={twJoin(
-        "py-5 bg-neutral-850 border-[1px] border-neutral-700 rounded grid gap-5",
-        config.inputs && config.outputs ? "grid-cols-3" : "grid-cols-2",
+        "py-5 bg-neutral-850 border-2 border-neutral-700 rounded grid gap-5",
+        config.inputs && config.outputs
+          ? "grid-cols-[1fr_auto_1fr]"
+          : "grid-cols-[auto_auto]",
         !config.inputs ? "pl-5" : "",
         !config.outputs ? "pr-5" : ""
       )}
@@ -104,7 +107,15 @@ const BaseNode: FC<
       ) : null}
 
       <div className="flex flex-col gap-5 items-center">
-        <p className="text-neutral-400 font-medium text-sm">{label}</p>
+        <p
+          className={twJoin(
+            "text-neutral-300 font-medium text-sm",
+            !config.inputs ? "self-start" : "",
+            !config.outputs ? "self-end" : ""
+          )}
+        >
+          {label}
+        </p>
         {children}
       </div>
 

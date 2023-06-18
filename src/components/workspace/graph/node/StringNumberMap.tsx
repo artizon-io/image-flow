@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { FC, memo, useState } from "react";
 import {
   Handle,
   useReactFlow,
@@ -7,7 +7,8 @@ import {
   NodeProps,
 } from "reactflow";
 import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import { tailwind } from "../../../../utils/cntl/tailwind";
+import { inputStyles, labelStyles, twoColumnGridStyles } from "./styles";
+import { twMerge } from "tailwind-merge";
 
 export const config: NodeConfig = {
   outputs: [
@@ -23,7 +24,7 @@ export const config: NodeConfig = {
 };
 
 export type NodeData = {
-  value: Map<string, number>;
+  value?: Map<string, number>;
 };
 
 const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
@@ -31,10 +32,9 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
   data,
   ...props
 }) => {
-  const { value: values } = data;
-
-  const labelStyles = tailwind`text-neutral-500 font-medium text-s`;
-  const valueStyles = tailwind`text-neutral-300 font-normal text-s`;
+  const [values, setValues] = useState<Map<string, number>>(
+    data.value ?? new Map()
+  );
 
   return (
     <BaseNode
@@ -44,16 +44,52 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
       label="String Number Map"
       {...props}
     >
-      <div className="grid grid-cols-1 gap-2">
-        {[...values].map(([key, value]) => (
-          <div className="" key={key}>
-            <p className={labelStyles}>{key}</p>
-            <p className={valueStyles}>{value}</p>
-          </div>
+      <div className={twMerge(twoColumnGridStyles, "gap-x-1 gap-y-2")}>
+        {/* TODO: find a better key */}
+        {[...values].map(([string, number], index) => (
+          <Item
+            key={index}
+            string={string}
+            number={number}
+            setString={(newString) =>
+              setValues((state) => {
+                state.set(newString, number);
+                state.delete(string);
+                return state;
+              })
+            }
+            setNumber={(newNumber) =>
+              setValues((state) => {
+                state.set(string, newNumber);
+                return state;
+              })
+            }
+          />
         ))}
       </div>
     </BaseNode>
   );
 };
+
+const Item: FC<{
+  string: string;
+  number: number;
+  setString: (string: string) => void;
+  setNumber: (number: number) => void;
+}> = ({ string, number, setString, setNumber }) => (
+  <>
+    <input
+      className={inputStyles}
+      value={string}
+      onChange={(e) => setString(e.target.value)}
+    />
+    <input
+      className={inputStyles}
+      value={number}
+      type="number"
+      onChange={(e) => setNumber(parseInt(e.target.value))}
+    />
+  </>
+);
 
 export default StringNumberMapNode;

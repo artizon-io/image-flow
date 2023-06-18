@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { FC, memo, useState } from "react";
 import {
   Handle,
   useReactFlow,
@@ -7,12 +7,14 @@ import {
   NodeProps,
 } from "reactflow";
 import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import { tailwind } from "../../../../utils/cntl/tailwind";
+import { inputStyles, labelStyles } from "./styles";
+import { twoColumnGridStyles } from "./styles";
+import { twMerge } from "tailwind-merge";
 
 export const config: NodeConfig = {
   outputs: [
     {
-      id: "number-pair",
+      id: "output-number-pair",
       label: "Number Pair",
       type: NodeEndpointType.NumberPair,
       isConnectableTo(other) {
@@ -23,16 +25,11 @@ export const config: NodeConfig = {
 };
 
 export type NodeData = {
-  value: [number, number];
+  value?: [number, number];
 };
 
 const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const {
-    value: [x, y],
-  } = data;
-
-  const labelStyles = tailwind`text-neutral-500 font-medium text-s`;
-  const valueStyles = tailwind`text-neutral-300 font-normal text-s`;
+  const [value, setValue] = useState<[number, number]>(data.value ?? [0, 0]);
 
   return (
     <BaseNode
@@ -42,11 +39,25 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       label="Number Pair"
       {...props}
     >
-      <div className="grid grid-cols-2 gap-x-2">
-        <h3 className={labelStyles}>X:</h3>
-        <h3 className={valueStyles}>{x}</h3>
-        <p className={labelStyles}>Y:</p>
-        <p className={valueStyles}>{y}</p>
+      <div className={twoColumnGridStyles}>
+        <label className={labelStyles}>X:</label>
+        <input
+          className={inputStyles}
+          type="number"
+          value={value[0]}
+          onChange={(e) =>
+            setValue((state) => [parseInt(e.target.value), state[1]])
+          }
+        />
+        <label className={labelStyles}>Y:</label>
+        <input
+          className={inputStyles}
+          type="number"
+          value={value[1]}
+          onChange={(e) =>
+            setValue((state) => [state[0], parseInt(e.target.value)])
+          }
+        />
       </div>
     </BaseNode>
   );

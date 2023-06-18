@@ -195,6 +195,7 @@ export const useGraphStore = create<{
        * Return True if the node was added successfully, else return False
        */
       createNode: (nodeType, data, position = { x: 0, y: 0 }) => {
+        // TODO: spawn the node in better position
         const newNode = {
           id: uuidv4(),
           type: nodeType,
@@ -217,6 +218,8 @@ export const useGraphStore = create<{
 
       // Note: the persisted state is already partialized
       merge: (persisted, current) => {
+        if (!persisted) return current;
+
         console.debug(
           "Merging Graph state from local storage",
           persisted,

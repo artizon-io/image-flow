@@ -4,10 +4,10 @@ import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { Panel } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
 import { create } from "zustand";
-import { tailwind } from "../../../utils/cntl/tailwind";
 import { useGraphStore } from "./Graph";
 import { useRootContextMenuStore } from "../../singleton/RootContextMenu";
 import { useCommandPaletteStore } from "../../singleton/CommandPalette";
+import { tailwind } from "../../../utils/tailwind";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;
 const menuItemStyles = tailwind`flex flex-row justify-between items-center rounded-sm hover:bg-neutral-800 text-neutral-300 hover:text-neutral-50 border-none hover:border-none px-3 py-1.5 shadow-none hover:outline-none`;

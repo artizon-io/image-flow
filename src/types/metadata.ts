@@ -16,6 +16,7 @@ type SDMetadata = ModelParams & {
   negativeLoraMap: NegativeLoraMap | null;
 };
 
+type Lora = string;
 type LoraMap = WeightMap;
 type NegativeLoraMap = WeightMap;
 

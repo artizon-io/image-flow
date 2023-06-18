@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { FC, memo, useState } from "react";
 import {
   Handle,
   useReactFlow,
@@ -7,7 +7,12 @@ import {
   NodeProps,
 } from "reactflow";
 import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import { tailwind } from "../../../../utils/cntl/tailwind";
+import {
+  inputStyles,
+  labelStyles,
+  twoColumnGridStyles,
+  valueStyles,
+} from "./styles";
 
 export const config: NodeConfig = {
   outputs: [
@@ -23,8 +28,8 @@ export const config: NodeConfig = {
 };
 
 export type NodeData = {
-  modelName: string;
-  modelVersion: string;
+  modelName?: string;
+  modelVersion?: string;
 };
 
 const StableDiffusionModelNode: FC<NodeProps<NodeData>> = ({
@@ -32,10 +37,10 @@ const StableDiffusionModelNode: FC<NodeProps<NodeData>> = ({
   data,
   ...props
 }) => {
-  const { modelName, modelVersion } = data;
-
-  const labelStyles = tailwind`text-neutral-500 font-medium text-s`;
-  const valueStyles = tailwind`text-neutral-300 font-normal text-s`;
+  const [modelName, setModelName] = useState<string>(data.modelName ?? "");
+  const [modelVersion, setModelVersion] = useState<string>(
+    data.modelVersion ?? ""
+  );
 
   return (
     <BaseNode
@@ -45,11 +50,11 @@ const StableDiffusionModelNode: FC<NodeProps<NodeData>> = ({
       label="Stable Diffusion Model"
       {...props}
     >
-      <div className="grid grid-cols-2 gap-x-2">
-        <h3 className={labelStyles}>Model Name:</h3>
-        <h3 className={valueStyles}>{modelName}</h3>
-        <p className={labelStyles}>Version:</p>
-        <p className={valueStyles}>{modelVersion}</p>
+      <div className={twoColumnGridStyles}>
+        <label className={labelStyles}>Model Name:</label>
+        <input className={inputStyles} value={modelName} readOnly />
+        <label className={labelStyles}>Version:</label>
+        <input className={inputStyles} value={modelVersion} readOnly />
       </div>
     </BaseNode>
   );

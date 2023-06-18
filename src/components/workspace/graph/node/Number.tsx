@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { FC, memo, useState } from "react";
 import {
   Handle,
   useReactFlow,
@@ -7,11 +7,12 @@ import {
   NodeProps,
 } from "reactflow";
 import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
+import { inputStyles } from "./styles";
 
 export const config: NodeConfig = {
   outputs: [
     {
-      id: "number",
+      id: "output-number",
       label: "Number",
       type: NodeEndpointType.Number,
       isConnectableTo(other) {
@@ -22,17 +23,20 @@ export const config: NodeConfig = {
 };
 
 export type NodeData = {
-  value: number;
+  value?: number;
 };
 
 const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const { value } = data;
+  const [value, setValue] = useState<number>(data.value ?? 0);
 
   return (
     <BaseNode id={id} data={data} config={config} label="Number" {...props}>
-      <p className="font-mono text-neutral-400 text-xs bg-neutral-800 p-1">
-        {value}
-      </p>
+      <input
+        className={inputStyles}
+        type="number"
+        onChange={(e) => setValue(Number(e.target.value))}
+        value={value}
+      />
     </BaseNode>
   );
 };

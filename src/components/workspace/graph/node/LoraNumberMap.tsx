@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { FC, memo, useState } from "react";
 import {
   Handle,
   useReactFlow,
@@ -7,7 +7,8 @@ import {
   NodeProps,
 } from "reactflow";
 import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import { tailwind } from "../../../../utils/cntl/tailwind";
+import { inputStyles, twoColumnGridStyles } from "./styles";
+import { twMerge } from "tailwind-merge";
 
 export const config: NodeConfig = {
   outputs: [
@@ -23,14 +24,11 @@ export const config: NodeConfig = {
 };
 
 export type NodeData = {
-  value: LoraMap;
+  value?: LoraMap;
 };
 
 const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const { value: values } = data;
-
-  const labelStyles = tailwind`text-neutral-500 font-medium text-s`;
-  const valueStyles = tailwind`text-neutral-300 font-normal text-s`;
+  const [values, setValues] = useState<LoraMap>(data.value ?? new Map());
 
   return (
     <BaseNode
@@ -40,16 +38,48 @@ const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       label="Lora Number Map"
       {...props}
     >
-      <div className="grid grid-cols-1 gap-2">
-        {[...values].map(([key, value]) => (
-          <div className="" key={key}>
-            <p className={labelStyles}>{key}</p>
-            <p className={valueStyles}>{value}</p>
-          </div>
+      <div className={twMerge(twoColumnGridStyles, "gap-x-1 gap-y-2")}>
+        {/* TODO: find a better key */}
+        {[...values].map(([lora, number], index) => (
+          <Item
+            key={index}
+            lora={lora}
+            number={number}
+            setLora={(newLora) =>
+              setValues((state) => {
+                state.set(newLora, number);
+                state.delete(lora);
+                return state;
+              })
+            }
+            setNumber={(newNumber) =>
+              setValues((state) => {
+                state.set(lora, newNumber);
+                return state;
+              })
+            }
+          />
         ))}
       </div>
     </BaseNode>
   );
 };
+
+const Item: FC<{
+  lora: Lora;
+  number: number;
+  setLora: (lora: Lora) => void;
+  setNumber: (number: number) => void;
+}> = ({ lora, number, setLora, setNumber }) => (
+  <>
+    <input className={inputStyles} value={lora} readOnly />
+    <input
+      className={inputStyles}
+      value={number}
+      type="number"
+      onChange={(e) => setNumber(parseInt(e.target.value))}
+    />
+  </>
+);
 
 export default LoraNumberMap;

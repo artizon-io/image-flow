@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from "react";
 import { create } from "zustand";
-import { tailwind } from "../../utils/cntl/tailwind";
 import { twJoin } from "tailwind-merge";
 import Table from "./table/Table";
 import useImages from "../../hooks/useImages";
@@ -98,7 +97,7 @@ const WorkspaceManager: FC<{}> = () => {
     console.log(`Workspace changed to ${workspace}`);
   }, [workspace]);
 
-  const containerStyles = tailwind`w-full h-full`;
+  const containerStyles = "w-full h-full";
 
   if (workspace === "Image Feed") {
     return <ImageFeed className={containerStyles} />;

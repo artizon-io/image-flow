@@ -7,7 +7,7 @@ import {
   NodeProps,
 } from "reactflow";
 import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import { inputStyles } from "./styles";
+import { inputStyles, textareaStyles } from "./styles";
 import { twMerge } from "tailwind-merge";
 
 export const config: NodeConfig = {
@@ -33,7 +33,7 @@ const StringNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   return (
     <BaseNode id={id} data={data} config={config} label="String" {...props}>
       <textarea
-        className={twMerge(inputStyles, "h-20 w-60 [resize:both]")}
+        className={textareaStyles}
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />

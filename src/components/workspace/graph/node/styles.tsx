@@ -9,5 +9,9 @@ export const inputStyles = twMerge(
   valueStyles,
   tailwind`outline-none read-only:text-neutral-500`
 );
+export const textareaStyles = twMerge(
+  inputStyles,
+  tailwind`h-20 w-60 [resize:both]`
+);
 // https://tailwindcss.com/docs/adding-custom-styles#using-arbitrary-values
 export const twoColumnGridStyles = tailwind`grid gap-x-2 gap-y-1 grid-cols-[auto_auto]`;

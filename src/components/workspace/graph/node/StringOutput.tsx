@@ -7,6 +7,7 @@ import {
   NodeProps,
 } from "reactflow";
 import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
+import { inputStyles, textareaStyles } from "./styles";
 
 export const config: NodeConfig = {
   inputs: [
@@ -21,9 +22,13 @@ export const config: NodeConfig = {
   ],
 };
 
-export type NodeData = {};
+export type NodeData = {
+  value?: string;
+};
 
 const TextOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
+  const { value } = data;
+
   return (
     <BaseNode
       id={id}
@@ -31,7 +36,9 @@ const TextOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       config={config}
       label="String Output"
       {...props}
-    ></BaseNode>
+    >
+      <textarea value={value ?? "No Output"} className={textareaStyles} readOnly />
+    </BaseNode>
   );
 };
 

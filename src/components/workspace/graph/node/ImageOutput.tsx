@@ -21,9 +21,13 @@ export const config: NodeConfig = {
   ],
 };
 
-export type NodeData = {};
+export type NodeData = {
+  value?: string;
+};
 
 const ImageOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
+  const { value } = data;
+
   return (
     <BaseNode
       id={id}
@@ -31,7 +35,15 @@ const ImageOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       config={config}
       label="Image Output"
       {...props}
-    ></BaseNode>
+    >
+      {!!value ? (
+        <img src={value} />
+      ) : (
+        <div className="flex justify-center items-center w-[220px] h-[220px] bg-neutral-800">
+          <p className="text-neutral-500 text-xs font-mono">No Image</p>
+        </div>
+      )}
+    </BaseNode>
   );
 };
 

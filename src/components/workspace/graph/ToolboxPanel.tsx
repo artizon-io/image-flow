@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useEffect } from "react";
+import { FC, PropsWithChildren, useEffect, useMemo } from "react";
 import * as Menubar from "@radix-ui/react-menubar";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { Panel } from "reactflow";
@@ -7,6 +7,7 @@ import { create } from "zustand";
 import { tailwind } from "../../../utils/cntl/tailwind";
 import { useGraphStore } from "./Graph";
 import { useRootContextMenuStore } from "../../singleton/RootContextMenu";
+import { useCommandPaletteStore } from "../../singleton/CommandPalette";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;
 const menuItemStyles = tailwind`flex flex-row justify-between items-center rounded-sm hover:bg-neutral-800 text-neutral-300 hover:text-neutral-50 border-none hover:border-none px-3 py-1.5 shadow-none hover:outline-none`;
@@ -164,16 +165,65 @@ const ToolboxPanel: FC<{}> = ({}) => {
     (state) => state.menuItemConfigs
   );
 
+  const getHandlers = useMemo(
+    () =>
+      (menuItemConfigs: MenuItemConfig[]): MenuItemConfig[] =>
+        menuItemConfigs.reduce((acc: MenuItemConfig[], item) => {
+          if (item.handler) acc.push(item);
+          else
+            acc = acc.concat(
+              getHandlersRecursive(item.label, item.subItemConfigs!)
+            );
+
+          return acc;
+        }, []),
+    [menuItemConfigs]
+  );
+
+  const getHandlersRecursive = (
+    currentScope: string,
+    subMenuItemConfigs: MenuItemConfig[]
+  ): MenuItemConfig[] =>
+    subMenuItemConfigs.reduce((acc: MenuItemConfig[], item) => {
+      if (item.handler)
+        acc.push({
+          ...item,
+          label: `${currentScope} > ${item.label}`,
+        });
+      else
+        acc = acc.concat(
+          getHandlersRecursive(
+            `${currentScope} > ${item.label}`,
+            item.subItemConfigs!
+          )
+        );
+
+      return acc;
+    }, []);
+
   // Append the menu items also to the root context menu
   useEffect(() => {
     // Very convenient that both MenuItemConfig type matches
     useRootContextMenuStore.getState().addMenuItemConfigs(menuItemConfigs);
+
+    useCommandPaletteStore.getState().addActions(
+      getHandlers(menuItemConfigs).map((item) => ({
+        id: item.label,
+        title: item.label,
+        handler: item.handler,
+        section: "Graph",
+      }))
+    );
 
     // When unmount, remove the menu items
     return () => {
       useRootContextMenuStore
         .getState()
         .removeMenuItemConfigs(menuItemConfigs.map((item) => item.label));
+
+      useCommandPaletteStore
+        .getState()
+        .removeActions(getHandlers(menuItemConfigs).map((item) => item.label));
     };
   }, []);
 

@@ -14,9 +14,13 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 // Nesting is bugged, avoid it for now (use the grouping feature for now)
 
-type NinjaKeys = Omit<_NinjaKeys, "data"> & { data: NinjaAction[] };
+// Pressing down to scroll is bugged
 
-type NinjaAction = {
+// TODO: fork NinjaKeys and fix the bugs
+
+type NinjaKeys = Omit<_NinjaKeys, "data"> & { data: CommandPaletteAction[] };
+
+export type CommandPaletteAction = {
   id: string;
   title: string;
   hotkey?: string;
@@ -29,15 +33,17 @@ type NinjaAction = {
   // children?: NinjaAction[];
 };
 
-const useCommandPaletteStore = create<{
+export const useCommandPaletteStore = create<{
   // Because we cannot control the state of the NinjaKeys element,
   // so we cope with it
   shouldOpen: boolean;
   actions: NinjaKeys["data"];
   showCommandPalette: () => void;
   resetShouldOpen: () => void;
-  addAction: (action: NinjaAction) => void;
-  addActions: (actions: NinjaAction[]) => void;
+  addAction: (action: CommandPaletteAction) => void;
+  addActions: (actions: CommandPaletteAction[]) => void;
+  removeAction: (id: string) => void;
+  removeActions: (ids: string[]) => void;
 }>((set) => ({
   shouldOpen: false,
   actions: [
@@ -93,15 +99,29 @@ const useCommandPaletteStore = create<{
       shouldOpen: false,
     })),
   addAction: (action) => {
+    console.debug("Adding command palette action", action);
     set((state) => ({
       ...state,
       actions: [...state.actions, action],
     }));
   },
   addActions: (actions) => {
+    console.debug("Adding command palette actions", actions);
     set((state) => ({
       ...state,
       actions: [...state.actions, ...actions],
+    }));
+  },
+  removeAction: (id) => {
+    set((state) => ({
+      ...state,
+      actions: state.actions.filter((action) => action.id !== id),
+    }));
+  },
+  removeActions: (ids) => {
+    set((state) => ({
+      ...state,
+      actions: state.actions.filter((action) => !ids.includes(action.id)),
     }));
   },
 }));
@@ -133,16 +153,7 @@ const CommandPalette = () => {
     actions: actions,
     shouldOpen,
     resetShouldOpen,
-  } = useCommandPaletteStore(
-    (state) => state,
-    // Only re-render when "shouldOpen" changes from false to true
-    // https://github.com/pmndrs/zustand#selecting-multiple-state-slices
-    (prev, current) =>
-      prev.shouldOpen !== current.shouldOpen &&
-      !!current.shouldOpen &&
-      // https://github.com/pmndrs/zustand/discussions/1868
-      prev.resetShouldOpen !== prev.resetShouldOpen
-  );
+  } = useCommandPaletteStore((state) => state);
 
   useEffect(() => {
     if (!ninjaKeys.current) {
@@ -165,6 +176,17 @@ const CommandPalette = () => {
       resetShouldOpen();
     }
   }, [shouldOpen]);
+
+  useEffect(() => {
+    console.debug("Command palette actions updated", actions);
+
+    if (!ninjaKeys.current) {
+      showNotification("Error", "Command palette fails");
+      return;
+    }
+
+    ninjaKeys.current.data = actions;
+  }, [actions]);
 
   // @ts-ignore
   return <ninja-keys ref={ninjaKeys} />;

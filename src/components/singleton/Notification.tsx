@@ -30,13 +30,7 @@ type Severity = "Success" | "Error" | "Warning";
 
 const Notification: FC<{}> = ({ ...props }) => {
   const { open, message, severity, setOpen } = useNotificationStore(
-    (state) => state,
-    // Only re-render when "open" changes
-    // https://github.com/pmndrs/zustand#selecting-multiple-state-slices
-    (prev, current) =>
-      prev.open !== current.open &&
-      // https://github.com/pmndrs/zustand/discussions/1868
-      prev.setOpen !== current.setOpen
+    (state) => state
   );
 
   return (

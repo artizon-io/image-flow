@@ -86,10 +86,10 @@ export const useConnectorStore = create<{
     nodeType: T,
     data: NodesData[T],
     position?: { x: number; y: number }
-  ) => void;
+  ) => boolean;
+  onConnect: (connection: Connection) => boolean;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
-  onConnect: (connection: Connection) => void;
 }>()(
   persist(
     (set, get) => ({
@@ -106,11 +106,46 @@ export const useConnectorStore = create<{
           edges: applyEdgeChanges(changes, get().edges),
         });
       },
+      /**
+       * Return True if the connection was added successfully, else return False
+       */
       onConnect: (connection: Connection) => {
-        set({
-          edges: addEdge(connection, get().edges),
-        });
+        console.debug("onConnect", connection);
+
+        if (
+          !connection.source ||
+          !connection.target ||
+          !connection.sourceHandle ||
+          !connection.targetHandle
+        ) {
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Error",
+              `Fail to connect ${connection.sourceHandle} to ${connection.targetHandle}`
+            );
+          return false;
+        }
+        set((state) => ({
+          ...state,
+          edges: addEdge(
+            {
+              id: uuidv4(),
+              source: connection.source,
+              target: connection.target,
+              sourceHandle: connection.sourceHandle,
+              targetHandle: connection.targetHandle,
+              animated: true,
+              type: "smoothstep",
+            },
+            get().edges
+          ),
+        }));
+        return true;
       },
+      /**
+       * Return True if the node was added successfully, else return False
+       */
       createNode: (nodeType, data, position = { x: 0, y: 0 }) => {
         const newNode = {
           id: uuidv4(),
@@ -118,9 +153,11 @@ export const useConnectorStore = create<{
           data,
           position,
         };
-        set({
+        set((state) => ({
+          ...state,
           nodes: [...get().nodes, newNode],
-        });
+        }));
+        return true;
       },
     }),
     {

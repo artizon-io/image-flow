@@ -13,6 +13,7 @@ import HelpTooltip, { HelpTooltipProvider } from "./components/HelpTooltip";
 import LayoutNav from "./components/layout/LayoutNav";
 
 // TODO: add transitions
+// TODO: configure logger
 
 const Nav = () => {
   const showCommandPalette = useCommandPalette();

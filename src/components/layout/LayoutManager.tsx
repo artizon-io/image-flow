@@ -42,8 +42,11 @@ export const useLayoutStore = create<{
     {
       name: "layout-storage",
       partialize: (state) => ({ layout: state.layout }),
+      // Note: `merge` is not intended to be used for serialization
       merge: (persisted, current) => {
         console.debug("Merging Layout from local storage", persisted, current);
+
+        if (!persisted) return current;
 
         const parseResult = z
           .object({
@@ -58,6 +61,10 @@ export const useLayoutStore = create<{
               "Warning",
               "Fail to load current layout from local storage."
             );
+          console.error(
+            "Fail to parse current Layout from local storage",
+            parseResult.error.issues
+          );
           return current;
         }
 

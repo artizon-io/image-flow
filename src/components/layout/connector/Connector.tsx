@@ -136,7 +136,7 @@ export const useConnectorStore = create<{
               sourceHandle: connection.sourceHandle,
               targetHandle: connection.targetHandle,
               animated: true,
-              type: "smoothstep",
+              type: "default",
             },
             get().edges
           ),
@@ -163,56 +163,92 @@ export const useConnectorStore = create<{
     {
       name: "connector-storage",
       partialize: (state) => ({ nodes: state.nodes, edges: state.edges }),
-      // TODO: fix persisting connector state not working
+
+      // TODO: save connector state in a more performant storage
+      // TODO: reduce the frequency of writing connector state to storage (particular on node drag)
+
+      // Note: the persisted state is already partialized
+      merge: (persisted, current) => {
+        console.debug(
+          "Merging Connector state from local storage",
+          persisted,
+          current
+        );
+
+        // TODO: move the schemas somewhere else
+        const nodesSchema = z.array(
+          z.object({
+            id: z.string(),
+            position: z
+              .object({
+                x: z.number(),
+                y: z.number(),
+              })
+              .required(),
+            type: z.string().optional(),
+            // TODO: improve the schema (store the node data scheme in each node respectively)
+            // Passing through arbitrary node data for now
+            data: z.object({}).passthrough(),
+          })
+        );
+        const edgesSchema = z.array(
+          z.object({
+            id: z.string(),
+            source: z.string(),
+            target: z.string(),
+            type: z.string(),
+            animated: z.boolean(),
+            label: z.string().optional(),
+          })
+        );
+        const schema = z.object({
+          nodes: nodesSchema,
+          edges: edgesSchema,
+        });
+
+        const parseResult = schema.safeParse(persisted);
+
+        if (!parseResult.success) {
+          console.error(
+            "Fail to parse Connector state from local storage",
+            parseResult.error.issues
+          );
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Warning",
+              "Fail to load Connector state from local storage"
+            );
+          return current;
+        }
+
+        // const { nodes: newNodes, edges: newEdges } = persisted as z.infer<
+        //   typeof schema
+        // >;
+
+        return {
+          ...current,
+          nodes: [...current.nodes, ...parseResult.data.nodes],
+          edges: [...current.edges, ...parseResult.data.edges],
+        };
+      },
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name);
           if (!value) return null;
-          const deserializedValue = superjson.parse(value);
+          const deserializedValue: any = superjson.parse(value);
 
-          const parseResult = z
-            .object({
-              nodes: z.array(
-                z.object({
-                  id: z.string(),
-                  position: z
-                    .object({
-                      x: z.number(),
-                      y: z.number(),
-                    })
-                    .required(),
-                  type: z.string().optional(),
-                  data: z.object({}),
-                })
-              ),
-              edges: z.array(
-                z.object({
-                  id: z.string(),
-                  source: z.string(),
-                  target: z.string(),
-                  type: z.string(),
-                  animated: z.boolean(),
-                  label: z.string().optional(),
-                })
-              ),
-            })
-            .safeParse(deserializedValue);
-
-          if (!parseResult.success) {
-            useNotificationStore
-              .getState()
-              .showNotification(
-                "Warning",
-                "Fail to load Connector state from local storage"
-              );
-            return null;
-          }
+          console.debug(
+            "Retrieving connector state from local storage",
+            deserializedValue
+          );
 
           return {
             state: {
-              nodes: parseResult.data.nodes,
-              edges: parseResult.data.edges,
+              nodes: deserializedValue?.state?.nodes,
+              edges: deserializedValue?.state?.edges,
             },
+            version: deserializedValue?.version,
           };
         },
         setItem: (name, value) => {

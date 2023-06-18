@@ -61,12 +61,15 @@ export const useImageDirPathConfiguratorStore = create<{
     {
       name: "image-dirs-storage",
       partialize: (state) => ({ imageDirs: [...state.imageDirs] }),
+      // Note: `merge` is not intended to be used for serialization
       merge: (persisted, current) => {
         console.debug(
           "Merging Image Dirs from local storage",
           persisted,
           current
         );
+
+        if (!persisted) return current;
 
         const parseResult = z
           .object({
@@ -81,6 +84,10 @@ export const useImageDirPathConfiguratorStore = create<{
               "Warning",
               "Fail to load image directories from local storage"
             );
+          console.error(
+            "Fail to parse image directories from local storage",
+            parseResult.error.issues
+          );
           return current;
         }
 

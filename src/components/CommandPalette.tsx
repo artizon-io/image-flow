@@ -147,6 +147,7 @@ const CommandPalette = () => {
   useEffect(() => {
     if (!ninjaKeys.current) {
       showNotification("Error", "Command palette fail to load");
+      console.error("Ninja Keys fail to load");
       return;
     }
     ninjaKeys.current.data = actions;

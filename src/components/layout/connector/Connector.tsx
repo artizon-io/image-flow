@@ -126,6 +126,9 @@ export const useConnectorStore = create<{
             );
           return false;
         }
+
+        // TODO: check if the connection is valid by checking the endpoints/handles type
+
         set((state) => ({
           ...state,
           edges: addEdge(
@@ -196,6 +199,8 @@ export const useConnectorStore = create<{
             id: z.string(),
             source: z.string(),
             target: z.string(),
+            sourceHandle: z.string(),
+            targetHandle: z.string(),
             type: z.string(),
             animated: z.boolean(),
             label: z.string().optional(),
@@ -264,6 +269,9 @@ export const useConnectorStore = create<{
     }
   )
 );
+
+// TODO: change control to use <scroll> for panning, and <modifier + scroll> for zooming (like Blender)
+// TODO: colored endpoint/handle to indicate the type of connection
 
 const Connector: FC<{
   className: string;

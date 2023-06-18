@@ -42,7 +42,7 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
     >
       <div className="grid grid-cols-1 gap-2">
         {[...values].map(([key, value]) => (
-          <div className="">
+          <div className="" key={key}>
             <p className={labelStyles}>{key}</p>
             <p className={valueStyles}>{value}</p>
           </div>

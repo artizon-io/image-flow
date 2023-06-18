@@ -19,6 +19,22 @@ const config = {
       label: "Negative Prompt",
     },
     {
+      id: "prompt-map",
+      label: "Prompt Weight Map",
+    },
+    {
+      id: "negative-prompt-map",
+      label: "Negative Prompt Weight Map",
+    },
+    {
+      id: "lora-map",
+      label: "Lora Weight Map",
+    },
+    {
+      id: "negative-lora-map",
+      label: "Negative Lora Weight Map",
+    },
+    {
       id: "model",
       label: "Model",
     },
@@ -34,6 +50,26 @@ const config = {
       id: "input-image",
       label: "Image",
     },
+    {
+      id: "resolution",
+      label: "Resolution",
+    },
+    {
+      id: "denoising-strength",
+      label: "Denoising Strength",
+    },
+    {
+      id: "cfg-scale",
+      label: "CFG Scale",
+    },
+    {
+      id: "clip-skip",
+      label: "CLIP Skip",
+    },
+    {
+      id: "seed",
+      label: "Seed",
+    }
   ],
   outputs: [
     {

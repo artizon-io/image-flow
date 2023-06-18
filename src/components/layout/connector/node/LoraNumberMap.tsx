@@ -12,8 +12,8 @@ import { tailwind } from "../../../../utils/cntl/tailwind";
 const config = {
   outputs: [
     {
-      id: "number-pair",
-      label: "Number Pair",
+      id: "lora-number-map",
+      label: "Lora Number Map",
     },
   ],
 };

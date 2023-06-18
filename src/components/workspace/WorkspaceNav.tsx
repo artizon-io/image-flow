@@ -5,39 +5,38 @@ import {
   ViewVerticalIcon,
   CommitIcon,
 } from "@radix-ui/react-icons";
-import { Layout, useLayout, useLayoutStore } from "./LayoutManager";
+import { Workspace, useWorkspace, useWorkspaceStore } from "./WorkspaceManager";
 import { twJoin } from "tailwind-merge";
 import { FC, forwardRef } from "react";
 import HelpTooltip from "../HelpTooltip";
 
-const layoutIconMap: Record<
-  Layout,
+const workspaceIconMap: Record<
+  Workspace,
   FC<{
     className?: string;
   }>
 > = {
   "Image Feed": ImageIcon,
-  "Table Only": Component2Icon,
-  "Two Column": ViewVerticalIcon,
-  Connector: CommitIcon,
+  Table: Component2Icon,
+  Graph: CommitIcon,
 };
 
-const navItemConfigs = Object.entries(useLayoutStore.getState().switchers).map(
-  ([name, switcher]) => ({
-    label: name,
-    handler: switcher,
-    icon: layoutIconMap[name as Layout],
-  })
-);
+const navItemConfigs = Object.entries(
+  useWorkspaceStore.getState().switchers
+).map(([name, switcher]) => ({
+  label: name,
+  handler: switcher,
+  icon: workspaceIconMap[name as Workspace],
+}));
 
-const LayoutNav = () => {
-  const layout = useLayoutStore((state) => state.layout);
+const WorkspaceNav = () => {
+  const workspace = useWorkspaceStore((state) => state.workspace);
 
   return (
     <ToggleGroup.Root
       className="flex flex-row rounded items-stretch overflow-hidden"
       type="single"
-      value={layout}
+      value={workspace}
     >
       {navItemConfigs.map((config) => (
         // TODO: figure out why wrapping the toggle group item
@@ -61,4 +60,4 @@ const LayoutNav = () => {
   );
 };
 
-export default LayoutNav;
+export default WorkspaceNav;

@@ -6,8 +6,8 @@ import {
   ChevronRightIcon,
 } from "@radix-ui/react-icons";
 import { twJoin } from "tailwind-merge";
-import { tailwind } from "../utils/cntl/tailwind";
-import { useLayout, useLayoutStore } from "./layout/LayoutManager";
+import { tailwind } from "../../utils/cntl/tailwind";
+import { useWorkspace, useWorkspaceStore } from "../workspace/WorkspaceManager";
 import { create } from "zustand";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;

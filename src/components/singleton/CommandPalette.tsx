@@ -4,7 +4,7 @@ import type { NinjaKeys as _NinjaKeys } from "ninja-keys";
 import { create } from "zustand";
 import "./ninja-keys.css";
 import { AngleIcon } from "@radix-ui/react-icons";
-import { useLayout, useLayoutStore } from "./layout/LayoutManager";
+import { useWorkspace, useWorkspaceStore } from "../workspace/WorkspaceManager";
 import { subscribeWithSelector } from "zustand/middleware";
 
 // Fixing the NinjaKeys type
@@ -109,17 +109,17 @@ const useCommandPaletteStore = create<{
 // Interactions between stores
 // https://github.com/pmndrs/zustand#using-subscribe-with-selector
 
-const layoutActions = Object.entries(useLayoutStore.getState().switchers).map(
-  ([name, switcher]) => ({
-    id: name,
-    title: `Switch to ${name} Layout`,
-    section: "Layout",
-    // hotkey: "⌘+3",
-    handler: switcher,
-  })
-);
+const workspaceActions = Object.entries(
+  useWorkspaceStore.getState().switchers
+).map(([name, switcher]) => ({
+  id: name,
+  title: `Switch to ${name} Workspace`,
+  section: "Workspace",
+  // hotkey: "⌘+3",
+  handler: switcher,
+}));
 
-useCommandPaletteStore.getState().addActions(layoutActions);
+useCommandPaletteStore.getState().addActions(workspaceActions);
 
 export const useCommandPalette = () =>
   useCommandPaletteStore((state) => state.showCommandPalette);

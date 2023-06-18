@@ -5,8 +5,8 @@ import { Panel } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
 import { create } from "zustand";
 import { tailwind } from "../../../utils/cntl/tailwind";
-import { useConnectorStore } from "./Connector";
-import { useRootContextMenuStore } from "../../RootContextMenu";
+import { useGraphStore } from "./Graph";
+import { useRootContextMenuStore } from "../../singleton/RootContextMenu";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;
 const menuItemStyles = tailwind`flex flex-row justify-between items-center rounded-sm hover:bg-neutral-800 text-neutral-300 hover:text-neutral-50 border-none hover:border-none px-3 py-1.5 shadow-none hover:outline-none`;
@@ -57,7 +57,7 @@ type MenuItemConfig = {
   subItemConfigs?: MenuItemConfig[];
 };
 
-const useConnectorToolboxMenuStore = create<{
+const useGraphToolboxMenuStore = create<{
   menuItemConfigs: MenuItemConfig[];
   addMenuItemConfig: (menuItemConfig: MenuItemConfig) => void;
   addMenuItemConfigs: (menuItemConfigs: MenuItemConfig[]) => void;
@@ -73,14 +73,14 @@ const useConnectorToolboxMenuStore = create<{
             {
               label: "Automatic 1111",
               handler: () =>
-                useConnectorStore.getState().createNode("automatic-1111", {}),
+                useGraphStore.getState().createNode("automatic-1111", {}),
             },
           ],
         },
         {
           label: "Model",
           handler: () =>
-            useConnectorStore.getState().createNode("model", {
+            useGraphStore.getState().createNode("model", {
               modelName: "Dreamshaper",
               modelVersion: "v1",
             }),
@@ -91,28 +91,28 @@ const useConnectorToolboxMenuStore = create<{
             {
               label: "Number",
               handler: () =>
-                useConnectorStore.getState().createNode("number", {
+                useGraphStore.getState().createNode("number", {
                   value: 0.85,
                 }),
             },
             {
               label: "Number Pair",
               handler: () =>
-                useConnectorStore.getState().createNode("number-pair", {
+                useGraphStore.getState().createNode("number-pair", {
                   value: [512, 512],
                 }),
             },
             {
               label: "String",
               handler: () =>
-                useConnectorStore.getState().createNode("string", {
+                useGraphStore.getState().createNode("string", {
                   value: "Cute cat",
                 }),
             },
             {
               label: "String Number Map",
               handler: () =>
-                useConnectorStore.getState().createNode("string-number-map", {
+                useGraphStore.getState().createNode("string-number-map", {
                   value: new Map([
                     ["Cute cat", 3],
                     ["8k", 0.85],
@@ -125,7 +125,7 @@ const useConnectorToolboxMenuStore = create<{
         {
           label: "Lora Number Map",
           handler: () =>
-            useConnectorStore.getState().createNode("lora-number-map", {
+            useGraphStore.getState().createNode("lora-number-map", {
               value: new Map([["CatLora", 1]]),
             }),
         },
@@ -135,12 +135,12 @@ const useConnectorToolboxMenuStore = create<{
             {
               label: "Image",
               handler: () =>
-                useConnectorStore.getState().createNode("image-output", {}),
+                useGraphStore.getState().createNode("image-output", {}),
             },
             {
               label: "Text",
               handler: () =>
-                useConnectorStore.getState().createNode("text-output", {}),
+                useGraphStore.getState().createNode("text-output", {}),
             },
           ],
         },
@@ -160,7 +160,7 @@ const useConnectorToolboxMenuStore = create<{
 }));
 
 const ToolboxPanel: FC<{}> = ({}) => {
-  const menuItemConfigs = useConnectorToolboxMenuStore(
+  const menuItemConfigs = useGraphToolboxMenuStore(
     (state) => state.menuItemConfigs
   );
 

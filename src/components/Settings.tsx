@@ -5,7 +5,7 @@ import CloseButton from "./CloseButton";
 import { GearIcon } from "@radix-ui/react-icons";
 import ColorHueSlider from "./ColorHueSlider";
 import { create } from "zustand";
-import ImageDirPathConfigurator from "./ImageDirPathConfigurator";
+import ImageDirPathConfigurator from "./singleton/ImageDirPathConfigurator";
 
 const usePositiveWeightMapColorHueStore = create<{
   colorHue: number;
@@ -69,7 +69,10 @@ const SettingsDialog = forwardRef<
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button className={twMerge("naviconbutton-with-border", props.className)} ref={ref}>
+        <button
+          className={twMerge("naviconbutton-with-border", props.className)}
+          ref={ref}
+        >
           <GearIcon className="w-5 h-5" />
         </button>
       </Dialog.Trigger>

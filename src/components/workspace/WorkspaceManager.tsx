@@ -2,56 +2,53 @@ import { FC, useEffect, useState } from "react";
 import { create } from "zustand";
 import { tailwind } from "../../utils/cntl/tailwind";
 import { twJoin } from "tailwind-merge";
-import Table from "../Table";
+import Table from "./table/Table";
 import useImages from "../../hooks/useImages";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import ScrollArea from "../ScrollArea";
 import { Masonry, RenderComponentProps } from "masonic";
-import Connector from "./connector/Connector";
+import Graph from "./graph/Graph";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
-import { useNotificationStore } from "../Notification";
-import { useRootContextMenuStore } from "../RootContextMenu";
+import { useNotificationStore } from "../singleton/Notification";
+import { useRootContextMenuStore } from "../singleton/RootContextMenu";
 
-// TODO: separate the concept of "workspace" from "layout"
+export const workspaces = ["Table", "Image Feed", "Graph"] as const;
 
-export const layouts = [
-  "Two Column",
-  "Table Only",
-  "Image Feed",
-  "Connector",
-] as const;
+export type Workspace = (typeof workspaces)[number];
 
-export type Layout = (typeof layouts)[number];
-
-export const useLayoutStore = create<{
-  layout: Layout;
-  switchLayout: (layout: Layout) => void;
-  switchers: Record<Layout, () => void>;
+export const useWorkspaceStore = create<{
+  workspace: Workspace;
+  switchWorkspace: (workspace: Workspace) => void;
+  switchers: Record<Workspace, () => void>;
 }>()(
   persist(
     (set, get) => ({
-      layout: "Two Column",
-      switchLayout: (layout: Layout) =>
-        set((state) => ({ ...state, layout: layout })),
+      workspace: "Table",
+      switchWorkspace: (workspace: Workspace) =>
+        set((state) => ({ ...state, workspace: workspace })),
       // Dict comprehension in JS
       // https://stackoverflow.com/questions/11068247/in-javascript-a-dictionary-comprehension-or-an-object-map
       switchers: Object.fromEntries(
-        layouts.map((w) => [w, () => get().switchLayout(w)])
-      ) as Record<Layout, () => void>,
+        workspaces.map((w) => [w, () => get().switchWorkspace(w)])
+      ) as Record<Workspace, () => void>,
     }),
     {
-      name: "layout-storage",
-      partialize: (state) => ({ layout: state.layout }),
+      name: "workspace-storage",
+      partialize: (state) => ({ workspace: state.workspace }),
       // Note: `merge` is not intended to be used for serialization
       merge: (persisted, current) => {
-        console.debug("Merging Layout from local storage", persisted, current);
+        console.debug(
+          "Merging current Workspace from local storage",
+          persisted,
+          current
+        );
 
         if (!persisted) return current;
 
         const parseResult = z
           .object({
-            layout: z.enum(layouts),
+            workspace: z.enum(workspaces),
           })
           .safeParse(persisted);
 
@@ -60,81 +57,59 @@ export const useLayoutStore = create<{
             .getState()
             .showNotification(
               "Warning",
-              "Fail to load current layout from local storage."
+              "Fail to load current workspace from local storage."
             );
           console.error(
-            "Fail to parse current Layout from local storage",
+            "Fail to parse current workspace from local storage",
             parseResult.error.issues
           );
           return current;
         }
 
-        return { ...current, layout: parseResult.data.layout };
+        return { ...current, workspace: parseResult.data.workspace };
       },
     }
   )
 );
 
-export const useLayout = () => useLayoutStore((state) => state.switchers);
+export const useWorkspace = () => useWorkspaceStore((state) => state.switchers);
 
 // Interactions between stores
 // https://github.com/pmndrs/zustand#using-subscribe-with-selector
 
-const layoutMenuItemConfigs = Object.entries(
-  useLayoutStore.getState().switchers
+const workspaceMenuItemConfigs = Object.entries(
+  useWorkspaceStore.getState().switchers
 ).map(([name, switcher]) => ({
   label: name,
   handler: switcher,
 }));
 
 useRootContextMenuStore.getState().addMenuItemConfig({
-  label: "Switch Layout",
-  subItemConfigs: layoutMenuItemConfigs,
+  label: "Switch Workspace",
+  subItemConfigs: workspaceMenuItemConfigs,
 });
 
-// TODO: memorise table so it doesn't get rerendered when layout switched
+// TODO: memorise table so it doesn't get rerendered when workspace switched
 
-const LayoutManager: FC<{}> = () => {
-  const layout = useLayoutStore((state) => state.layout);
+const WorkspaceManager: FC<{}> = () => {
+  const workspace = useWorkspaceStore((state) => state.workspace);
 
   useEffect(() => {
-    console.log(`Layout changed to ${layout}`);
-  }, [layout]);
+    console.log(`Workspace changed to ${workspace}`);
+  }, [workspace]);
 
   const containerStyles = tailwind`w-full h-full`;
 
-  if (layout === "Two Column") {
-    return <TwoColumn className={containerStyles} />;
-  } else if (layout === "Image Feed") {
+  if (workspace === "Image Feed") {
     return <ImageFeed className={containerStyles} />;
-  } else if (layout === "Table Only") {
+  } else if (workspace === "Table") {
     return <TableOnly className={containerStyles} />;
-  } else if (layout === "Connector") {
-    return <Connector className={containerStyles} />;
+  } else if (workspace === "Graph") {
+    return <Graph className={containerStyles} />;
   } else {
     // TODO: throw error and provide fallback UI
     return null;
   }
-};
-
-const TwoColumn: FC<{ className: string }> = ({ className }) => {
-  const [image, setImage] = useState<string | null>(null);
-
-  return (
-    <div className={twJoin(className, "grid grid-cols-2 gap-2")}>
-      <ScrollArea>
-        <Table setImage={setImage} />
-      </ScrollArea>
-      <div className="flex justify-center items-center bg-neutral-900">
-        {image ? (
-          // Convert to something that is loadable by system web view
-          <img src={convertFileSrc(image)} className="" />
-        ) : (
-          <p className="text-neutral-500">No Image Selected</p>
-        )}
-      </div>
-    </div>
-  );
 };
 
 const TableOnly: FC<{ className: string }> = ({ className }) => {
@@ -193,4 +168,4 @@ const ImageFeedImage: FC<
   );
 };
 
-export default LayoutManager;
+export default WorkspaceManager;

@@ -38,7 +38,7 @@ import type { NodeData as TextOutputNodeData } from "./node/TextOutput";
 import type { NodeData as NumberPairNodeData } from "./node/NumberPair";
 import type { NodeData as StringNumberMapNodeData } from "./node/StringNumberMap";
 import type { NodeData as LoraNumberMapNodeData } from "./node/LoraNumberMap";
-import { useNotificationStore } from "../../Notification";
+import { useNotificationStore } from "../../singleton/Notification";
 
 // TODO: for each node, show input dialog instead of fixing the value
 
@@ -78,7 +78,7 @@ type NodesData = {
   "lora-number-map": LoraNumberMapNodeData;
 };
 
-export const useConnectorStore = create<{
+export const useGraphStore = create<{
   nodeTypes: NodeTypes;
   nodes: Node[];
   edges: Edge[];
@@ -164,16 +164,16 @@ export const useConnectorStore = create<{
       },
     }),
     {
-      name: "connector-storage",
+      name: "graph-storage",
       partialize: (state) => ({ nodes: state.nodes, edges: state.edges }),
 
-      // TODO: save connector state in a more performant storage
-      // TODO: reduce the frequency of writing connector state to storage (particular on node drag)
+      // TODO: save graph state in a more performant storage
+      // TODO: reduce the frequency of writing graph state to storage (particular on node drag)
 
       // Note: the persisted state is already partialized
       merge: (persisted, current) => {
         console.debug(
-          "Merging Connector state from local storage",
+          "Merging Graph state from local storage",
           persisted,
           current
         );
@@ -215,14 +215,14 @@ export const useConnectorStore = create<{
 
         if (!parseResult.success) {
           console.error(
-            "Fail to parse Connector state from local storage",
+            "Fail to parse Graph state from local storage",
             parseResult.error.issues
           );
           useNotificationStore
             .getState()
             .showNotification(
               "Warning",
-              "Fail to load Connector state from local storage"
+              "Fail to load Graph state from local storage"
             );
           return current;
         }
@@ -244,7 +244,7 @@ export const useConnectorStore = create<{
           const deserializedValue: any = superjson.parse(value);
 
           console.debug(
-            "Retrieving connector state from local storage",
+            "Retrieving Graph state from local storage",
             deserializedValue
           );
 
@@ -259,7 +259,7 @@ export const useConnectorStore = create<{
         setItem: (name, value) => {
           const serializedValue = superjson.stringify(value);
           console.debug(
-            "Saving Connector state to local storage",
+            "Saving Graph state to local storage",
             serializedValue
           );
           localStorage.setItem(name, serializedValue);
@@ -273,11 +273,11 @@ export const useConnectorStore = create<{
 // TODO: change control to use <scroll> for panning, and <modifier + scroll> for zooming (like Blender)
 // TODO: colored endpoint/handle to indicate the type of connection
 
-const Connector: FC<{
+const Graph: FC<{
   className: string;
 }> = ({ className }) => {
   const { edges, nodes, onConnect, onEdgesChange, onNodesChange, nodeTypes } =
-    useConnectorStore((state) => state);
+    useGraphStore((state) => state);
 
   return (
     <div className={twMerge(className, "")}>
@@ -297,4 +297,4 @@ const Connector: FC<{
   );
 };
 
-export default Connector;
+export default Graph;

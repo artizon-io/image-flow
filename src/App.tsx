@@ -3,14 +3,16 @@ import { configDir } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/api/shell";
 import SettingsDialog from "./components/Settings";
 import "ninja-keys";
-import _Notification, { useNotification } from "./components/Notification";
+import _Notification, {
+  useNotification,
+} from "./components/singleton/Notification";
 import * as RadixToast from "@radix-ui/react-toast";
-import CommandPalette, { useCommandPalette } from "./components/CommandPalette";
+import CommandPalette, { useCommandPalette } from "./components/singleton/CommandPalette";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
-import RootContextMenu from "./components/RootContextMenu";
-import LayoutManager from "./components/layout/LayoutManager";
+import RootContextMenu from "./components/singleton/RootContextMenu";
+import WorkspaceManager from "./components/workspace/WorkspaceManager";
 import HelpTooltip, { HelpTooltipProvider } from "./components/HelpTooltip";
-import LayoutNav from "./components/layout/LayoutNav";
+import WorkspaceNav from "./components/workspace/WorkspaceNav";
 
 // TODO: add transitions
 // TODO: configure logger
@@ -21,7 +23,7 @@ const Nav = () => {
   return (
     <HelpTooltipProvider>
       <div className="fixed top-3 right-5 flex flex-row gap-3">
-        <LayoutNav />
+        <WorkspaceNav />
 
         <HelpTooltip description="GitHub">
           <button
@@ -62,7 +64,7 @@ function App() {
       <Notification />
       <CommandPalette />
       <RootContextMenu>
-        <LayoutManager />
+        <WorkspaceManager />
       </RootContextMenu>
       <Nav />
     </RadixToast.Provider>

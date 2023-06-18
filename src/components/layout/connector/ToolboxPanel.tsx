@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from "react";
+import { FC, PropsWithChildren, useEffect } from "react";
 import * as Menubar from "@radix-ui/react-menubar";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { Panel } from "reactflow";
@@ -6,6 +6,7 @@ import { twJoin, twMerge } from "tailwind-merge";
 import { create } from "zustand";
 import { tailwind } from "../../../utils/cntl/tailwind";
 import { useConnectorStore } from "./Connector";
+import { useRootContextMenuStore } from "../../RootContextMenu";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;
 const menuItemStyles = tailwind`flex flex-row justify-between items-center rounded-sm hover:bg-neutral-800 text-neutral-300 hover:text-neutral-50 border-none hover:border-none px-3 py-1.5 shadow-none hover:outline-none`;
@@ -162,6 +163,19 @@ const ToolboxPanel: FC<{}> = ({}) => {
   const menuItemConfigs = useConnectorToolboxMenuStore(
     (state) => state.menuItemConfigs
   );
+
+  // Append the menu items also to the root context menu
+  useEffect(() => {
+    // Very convenient that both MenuItemConfig type matches
+    useRootContextMenuStore.getState().addMenuItemConfigs(menuItemConfigs);
+
+    // When unmount, remove the menu items
+    return () => {
+      useRootContextMenuStore
+        .getState()
+        .removeMenuItemConfigs(menuItemConfigs.map((item) => item.label));
+    };
+  }, []);
 
   return (
     <Panel position={"top-left"}>

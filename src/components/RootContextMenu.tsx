@@ -73,10 +73,12 @@ type MenuItemConfig = {
   subItemConfigs?: MenuItemConfig[];
 };
 
-const useRootContextMenuStore = create<{
+export const useRootContextMenuStore = create<{
   menuItemConfigs: MenuItemConfig[];
   addMenuItemConfig: (menuItemConfig: MenuItemConfig) => void;
   addMenuItemConfigs: (menuItemConfigs: MenuItemConfig[]) => void;
+  removeMenuItemConfig: (label: string) => void;
+  removeMenuItemConfigs: (labels: string[]) => void;
 }>((set) => ({
   menuItemConfigs: [],
   addMenuItemConfig: (menuItemConfig) =>
@@ -89,22 +91,27 @@ const useRootContextMenuStore = create<{
       ...state,
       menuItemConfigs: [...state.menuItemConfigs, ...menuItemConfigs],
     })),
+  removeMenuItemConfig: (label) =>
+    set((state) => ({
+      ...state,
+      menuItemConfigs: state.menuItemConfigs.filter(
+        (item) => item.label !== label
+      ),
+    })),
+  removeMenuItemConfigs: (labels) =>
+    set((state) => ({
+      ...state,
+      menuItemConfigs: state.menuItemConfigs.filter(
+        (item) => !labels.includes(item.label)
+      ),
+    })),
 }));
 
-// Interactions between stores
-// https://github.com/pmndrs/zustand#using-subscribe-with-selector
-
-const layoutMenuItemConfigs = Object.entries(
-  useLayoutStore.getState().switchers
-).map(([name, switcher]) => ({
-  label: name,
-  handler: switcher,
-}));
-
-useRootContextMenuStore.getState().addMenuItemConfig({
-  label: "Switch Layout",
-  subItemConfigs: layoutMenuItemConfigs,
-});
+if (import.meta.env.DEV)
+  useRootContextMenuStore.getState().addMenuItemConfig({
+    label: "Reload App",
+    handler: () => window.location.reload(),
+  });
 
 const RootContextMenu: FC<PropsWithChildren> = ({ children }) => {
   const menuItemConfigs = useRootContextMenuStore(

@@ -11,6 +11,7 @@ import Connector from "./connector/Connector";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
 import { useNotificationStore } from "../Notification";
+import { useRootContextMenuStore } from "../RootContextMenu";
 
 // TODO: separate the concept of "workspace" from "layout"
 
@@ -75,6 +76,21 @@ export const useLayoutStore = create<{
 );
 
 export const useLayout = () => useLayoutStore((state) => state.switchers);
+
+// Interactions between stores
+// https://github.com/pmndrs/zustand#using-subscribe-with-selector
+
+const layoutMenuItemConfigs = Object.entries(
+  useLayoutStore.getState().switchers
+).map(([name, switcher]) => ({
+  label: name,
+  handler: switcher,
+}));
+
+useRootContextMenuStore.getState().addMenuItemConfig({
+  label: "Switch Layout",
+  subItemConfigs: layoutMenuItemConfigs,
+});
 
 // TODO: memorise table so it doesn't get rerendered when layout switched
 

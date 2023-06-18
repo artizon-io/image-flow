@@ -9,18 +9,49 @@ import {
 import { twJoin, twMerge } from "tailwind-merge";
 import { tailwind } from "../../../../utils/cntl/tailwind";
 
-type Endpoint = {
+type NodeEndpoint = {
   id: string;
   label: string;
+  type: NodeEndpointType;
+  isConnectableTo: (other: NodeEndpoint) => boolean;
 };
 
-type Config = {
-  inputs?: Endpoint[];
-  outputs?: Endpoint[];
+export enum NodeEndpointType {
+  Number = "number",
+  String = "string",
+  StringNumberMap = "string-number-map",
+  LoraNumberMap = "lora-number-map",
+  Model = "model",
+  Image = "image",
+  NumberPair = "number-pair",
+  Sampler = "sampler",
+}
+
+const nodeEndpointTypeColorHueMap: Record<NodeEndpointType, number> = {
+  [NodeEndpointType.Number]: 0,
+  [NodeEndpointType.NumberPair]: 0,
+  [NodeEndpointType.String]: 40,
+  [NodeEndpointType.StringNumberMap]: 160,
+  [NodeEndpointType.LoraNumberMap]: 200,
+  [NodeEndpointType.Sampler]: 260,
+  [NodeEndpointType.Model]: 260,
+  [NodeEndpointType.Image]: 300,
+};
+
+const getEndpointStyle = (
+  endpointType: keyof typeof nodeEndpointTypeColorHueMap
+) =>
+  // TODO: figure out why tailwind is not applying
+  // tailwind`bg-[hsl(${nodeEndpointTypeColorHueMap[nodeType]} 50% 15%)]`;
+  `hsl(${nodeEndpointTypeColorHueMap[endpointType]} 50% 15%)`;
+
+export type NodeConfig = {
+  inputs?: NodeEndpoint[];
+  outputs?: NodeEndpoint[];
 };
 
 const Endpoints: FC<{
-  endpointsConfig: Endpoint[];
+  endpointsConfig: NodeEndpoint[];
   position: "left" | "right";
   className: string;
 }> = ({ endpointsConfig, className, position }) => (
@@ -38,6 +69,9 @@ const Endpoints: FC<{
           position={position === "left" ? Position.Left : Position.Right}
           id={endpointConfig.id}
           key={endpointConfig.id}
+          style={{
+            backgroundColor: getEndpointStyle(endpointConfig.type),
+          }}
         />
         <p className="text-neutral-500 text-xs">{endpointConfig.label}</p>
       </div>
@@ -49,7 +83,7 @@ const BaseNode: FC<
   NodeProps &
     PropsWithChildren<{
       label: string;
-      config: Config;
+      config: NodeConfig;
     }>
 > = ({ id, data, config, children, label }) => {
   return (

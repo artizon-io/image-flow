@@ -6,13 +6,17 @@ import {
   Position,
   NodeProps,
 } from "reactflow";
-import BaseNode from "./Base";
+import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
 
-const config = {
+export const config: NodeConfig = {
   inputs: [
     {
-      id: "text",
-      label: "Text",
+      id: "string",
+      label: "String",
+      type: NodeEndpointType.String,
+      isConnectableTo(other) {
+        return other.type === this.type;
+      },
     },
   ],
 };
@@ -25,7 +29,7 @@ const TextOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       id={id}
       data={data}
       config={config}
-      label="Text Output"
+      label="String Output"
       {...props}
     ></BaseNode>
   );

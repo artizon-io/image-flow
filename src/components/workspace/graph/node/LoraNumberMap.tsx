@@ -6,14 +6,18 @@ import {
   Position,
   NodeProps,
 } from "reactflow";
-import BaseNode from "./Base";
+import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
 import { tailwind } from "../../../../utils/cntl/tailwind";
 
-const config = {
+export const config: NodeConfig = {
   outputs: [
     {
       id: "lora-number-map",
       label: "Lora Number Map",
+      type: NodeEndpointType.LoraNumberMap,
+      isConnectableTo(other) {
+        return other.type === this.type;
+      },
     },
   ],
 };

@@ -14,16 +14,27 @@ import ReactFlow, {
 import { twMerge } from "tailwind-merge";
 import "reactflow/dist/style.css";
 import "./react-flow.css";
-import ModelNode from "./node/Model";
-import ToolboxPanel from "./ToolboxPanel";
-import StringNode from "./node/String";
-import ImageOutputNode from "./node/ImageOutput";
-import NumberPairNode from "./node/NumberPair";
-import NumberNode from "./node/Number";
-import Automatic1111Node from "./node/Automatic1111";
-import TextOutputNode from "./node/TextOutput";
-import StringNumberMapNode from "./node/StringNumberMap";
-import LoraNumberMap from "./node/LoraNumberMap";
+import Automatic1111Node, {
+  config as automatic1111NodeConfig,
+} from "./node/Automatic1111";
+import StringNode, { config as stringNodeConfig } from "./node/String";
+import NumberNode, { config as numberNodeConfig } from "./node/Number";
+import ImageOutputNode, {
+  config as imageOutputNodeConfig,
+} from "./node/ImageOutput";
+import TextOutputNode, {
+  config as textOutputNodeConfig,
+} from "./node/StringOutput";
+import NumberPairNode, {
+  config as numberPairNodeConfig,
+} from "./node/NumberPair";
+import StringNumberMapNode, {
+  config as stringNumberMapNodeConfig,
+} from "./node/StringNumberMap";
+import LoraNumberMapNode, {
+  config as loraNumberMapNodeConfig,
+} from "./node/LoraNumberMap";
+import ModelNode, { config as modelNodeConfig } from "./node/Model";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
@@ -34,25 +45,14 @@ import type { NodeData as Automatic1111NodeData } from "./node/Automatic1111";
 import type { NodeData as NumberNodeData } from "./node/Number";
 import type { NodeData as StringNodeData } from "./node/String";
 import type { NodeData as ImageOutputNodeData } from "./node/ImageOutput";
-import type { NodeData as TextOutputNodeData } from "./node/TextOutput";
+import type { NodeData as TextOutputNodeData } from "./node/StringOutput";
 import type { NodeData as NumberPairNodeData } from "./node/NumberPair";
 import type { NodeData as StringNumberMapNodeData } from "./node/StringNumberMap";
 import type { NodeData as LoraNumberMapNodeData } from "./node/LoraNumberMap";
 import { useNotificationStore } from "../../singleton/Notification";
+import ToolboxPanel from "./ToolboxPanel";
 
 // TODO: for each node, show input dialog instead of fixing the value
-
-const customNodes = {
-  "automatic-1111": Automatic1111Node,
-  model: ModelNode,
-  number: NumberNode,
-  string: StringNode,
-  "image-output": ImageOutputNode,
-  "text-output": TextOutputNode,
-  "number-pair": NumberPairNode,
-  "string-number-map": StringNumberMapNode,
-  "lora-number-map": LoraNumberMap,
-};
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
@@ -63,8 +63,22 @@ const nodeTypes = {
   "text-output": TextOutputNode,
   "number-pair": NumberPairNode,
   "string-number-map": StringNumberMapNode,
-  "lora-number-map": LoraNumberMap,
+  "lora-number-map": LoraNumberMapNode,
 } as const;
+
+const nodeTypeConfigs = {
+  "automatic-1111": automatic1111NodeConfig,
+  model: modelNodeConfig,
+  number: numberNodeConfig,
+  string: stringNodeConfig,
+  "image-output": imageOutputNodeConfig,
+  "text-output": textOutputNodeConfig,
+  "number-pair": numberPairNodeConfig,
+  "string-number-map": stringNumberMapNodeConfig,
+  "lora-number-map": loraNumberMapNodeConfig,
+} as const;
+
+// TODO: construct this type from `typeof nodeTypes`
 
 type NodesData = {
   "automatic-1111": Automatic1111NodeData;
@@ -82,7 +96,7 @@ export const useGraphStore = create<{
   nodeTypes: NodeTypes;
   nodes: Node[];
   edges: Edge[];
-  createNode: <T extends keyof typeof customNodes>(
+  createNode: <T extends keyof typeof nodeTypes>(
     nodeType: T,
     data: NodesData[T],
     position?: { x: number; y: number }
@@ -110,8 +124,6 @@ export const useGraphStore = create<{
        * Return True if the connection was added successfully, else return False
        */
       onConnect: (connection: Connection) => {
-        console.debug("onConnect", connection);
-
         if (
           !connection.source ||
           !connection.target ||
@@ -120,14 +132,47 @@ export const useGraphStore = create<{
         ) {
           useNotificationStore
             .getState()
-            .showNotification(
-              "Error",
-              `Fail to connect ${connection.sourceHandle} to ${connection.targetHandle}`
-            );
+            .showNotification("Error", `Fail to connect nodes`);
           return false;
         }
 
-        // TODO: check if the connection is valid by checking the endpoints/handles type
+        // TODO: optimize the performance by appending the node type data to the connection
+        const findNodeTypeById = (id: string) =>
+          get().nodes.find((n) => n.id === id)?.type;
+
+        // Just to stop TS from complaining that we might be indexing with
+        // a non-existent key or an `undefined` key
+        const sourceNodeType = findNodeTypeById(
+          connection.source
+        ) as keyof typeof nodeTypeConfigs;
+        const targetNodeType = findNodeTypeById(
+          connection.target
+        ) as keyof typeof nodeTypeConfigs;
+
+        const sourceEndpoint = nodeTypeConfigs[sourceNodeType]?.outputs?.find(
+          (o) => o.id === connection.sourceHandle
+        );
+
+        const targetEndpoint = nodeTypeConfigs[targetNodeType]?.inputs?.find(
+          (i) => i.id === connection.targetHandle
+        );
+
+        if (
+          !(
+            sourceEndpoint &&
+            targetEndpoint &&
+            sourceEndpoint.isConnectableTo(targetEndpoint) &&
+            targetEndpoint.isConnectableTo(sourceEndpoint)
+          )
+        ) {
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Error",
+              `Fail to connect ${sourceNodeType}'s ${connection.sourceHandle} to ${targetEndpoint}'s ${connection.targetHandle}`
+            );
+          return false;
+        }
 
         set((state) => ({
           ...state,
@@ -258,10 +303,7 @@ export const useGraphStore = create<{
         },
         setItem: (name, value) => {
           const serializedValue = superjson.stringify(value);
-          console.debug(
-            "Saving Graph state to local storage",
-            serializedValue
-          );
+          console.debug("Saving Graph state to local storage", serializedValue);
           localStorage.setItem(name, serializedValue);
         },
         removeItem: (name) => localStorage.removeItem(name),

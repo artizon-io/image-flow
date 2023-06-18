@@ -6,14 +6,18 @@ import {
   Position,
   NodeProps,
 } from "reactflow";
-import BaseNode from "./Base";
+import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
 import { tailwind } from "../../../../utils/cntl/tailwind";
 
-const config = {
+export const config: NodeConfig = {
   outputs: [
     {
       id: "model",
       label: "Model",
+      type: NodeEndpointType.Model,
+      isConnectableTo(other) {
+        return other.type === this.type;
+      },
     },
   ],
 };

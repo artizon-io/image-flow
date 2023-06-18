@@ -6,13 +6,17 @@ import {
   Position,
   NodeProps,
 } from "reactflow";
-import BaseNode from "./Base";
+import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
 
-const config = {
+export const config: NodeConfig = {
   inputs: [
     {
       id: "image",
       label: "Image",
+      type: NodeEndpointType.Image,
+      isConnectableTo(other) {
+        return other.type === this.type;
+      },
     },
   ],
 };

@@ -6,8 +6,7 @@
   position: unset;
   width: 20px;
   height: 20px;
-  background-color: rgb(28, 28, 28);
-  border-color: rgb(86, 86, 86);
+  border-color: rgb(66, 66, 66);
 }
 
 .react-flow__handle-left {

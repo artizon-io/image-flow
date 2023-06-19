@@ -1,4 +1,6 @@
 src/assets/sample-exifs
+.env.development
+.env.production
 
 # Logs
 logs

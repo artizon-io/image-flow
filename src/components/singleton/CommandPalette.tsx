@@ -47,44 +47,13 @@ export const useCommandPaletteStore = create<{
 }>((set) => ({
   shouldOpen: false,
   actions: [
-    // Search
-    {
-      id: "Advance Filter",
-      title: "Advance Filter With Query Syntax",
-      // hotkey: "⌘+p",
-      section: "Search",
-      handler: () => {},
-      // https://github.com/ssleptsov/ninja-keys#icons
-      // mdIcon: "",
-    },
-    {
-      id: "Manage Columns",
-      title: "Reorder/Show/Hide Table Columns",
-      section: "Table",
-      handler: () => {},
-    },
-    // Theme
-    // {
-    //   id: "Light Theme",
-    //   title: "Switch to Light Theme",
-    //   keywords: "theme",
-    //   section: 'Theme',
-    //   parent: "Theme",
-    //   handler: () => {},
-    // },
-    // {
-    //   id: "Dark Theme",
-    //   title: "Switch to Dark Theme",
-    //   keywords: "theme",
-    //   section: 'Theme',
-    //   parent: "Theme",
-    //   handler: () => {},
-    // },
     // Settings
     {
       id: "Settings",
       title: "Open Settings",
       section: "Settings",
+      // https://github.com/ssleptsov/ninja-keys#icons
+      // mdIcon: "",
       handler: () => {},
     },
   ],

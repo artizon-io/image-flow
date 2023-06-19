@@ -39,7 +39,7 @@ const ImageOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       {!!value ? (
         <img src={value} />
       ) : (
-        <div className="flex justify-center items-center w-[220px] h-[220px] bg-neutral-800">
+        <div className="flex justify-center items-center w-[220px] h-[220px] bg-neutral-800 opacity-90">
           <p className="text-neutral-500 text-xs font-mono">No Image</p>
         </div>
       )}

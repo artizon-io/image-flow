@@ -10,6 +10,7 @@ import ReactFlow, {
   NodeTypes,
   applyEdgeChanges,
   applyNodeChanges,
+  SelectionMode,
 } from "reactflow";
 import { twMerge } from "tailwind-merge";
 import "reactflow/dist/style.css";
@@ -315,9 +316,6 @@ export const useGraphStore = create<{
   )
 );
 
-// TODO: change control to use <scroll> for panning, and <modifier + scroll> for zooming (like Blender)
-// TODO: colored endpoint/handle to indicate the type of connection
-
 const Graph: FC<{
   className: string;
 }> = ({ className }) => {
@@ -334,6 +332,10 @@ const Graph: FC<{
         onNodesChange={onNodesChange}
         attributionPosition="bottom-left"
         nodeTypes={nodeTypes}
+        panOnScroll
+        selectionOnDrag
+        selectionMode={SelectionMode.Partial}
+        panOnDrag={[1, 2]}
       >
         <ToolboxPanel />
         <Background className="bg-neutral-900" gap={30} />

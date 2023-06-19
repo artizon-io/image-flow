@@ -3,7 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { twMerge } from "tailwind-merge";
 import CloseButton from "../../components/CloseButton";
 import { GearIcon } from "@radix-ui/react-icons";
-import ColorHueSlider from "../../components/ColorHueSlider";
+import CustomSlider from "../../components/Slider";
 import ImageDirPathConfigurator from "../ImageDirPathConfigurator";
 import { useSettingsStore } from "./Store";
 import { useCommandPaletteStore } from "../commandPalette/Store";
@@ -89,16 +89,41 @@ const SettingsDialog = forwardRef<
           </div>
           <Section sectionTitle="Weight Map Color Hue (0°-360°)">
             <FieldGroup label="Positive">
-              <ColorHueSlider
-                colorHue={positiveColorHue}
-                setColorHue={setPositiveColorHue}
+              <CustomSlider
+                value={positiveColorHue}
+                setValue={setPositiveColorHue}
                 disabled={true}
+                min={0}
+                max={360}
               />
             </FieldGroup>
             <FieldGroup label="Negative">
-              <ColorHueSlider
-                colorHue={negativeColorHue}
-                setColorHue={setNegativeColorHue}
+              <CustomSlider
+                value={negativeColorHue}
+                setValue={setNegativeColorHue}
+                disabled={true}
+                min={0}
+                max={360}
+              />
+            </FieldGroup>
+          </Section>
+          <Section sectionTitle="Graph Control">
+            <FieldGroup label="Pan Sensitivity">
+              <CustomSlider
+                value={positiveColorHue}
+                setValue={setPositiveColorHue}
+                min={0}
+                max={1}
+                step={0.01}
+              />
+            </FieldGroup>
+            <FieldGroup label="Zoom Sensitivity">
+              <CustomSlider
+                value={negativeColorHue}
+                setValue={setNegativeColorHue}
+                min={0}
+                max={1}
+                step={0.01}
                 disabled={true}
               />
             </FieldGroup>
@@ -109,10 +134,6 @@ const SettingsDialog = forwardRef<
           >
             <ImageDirPathConfigurator />
           </Section>
-          {/* <Section sectionTitle="Theme">
-          </Section> */}
-          {/* <Section sectionTitle="Shortcuts Key Mapping">
-          </Section> */}
           <Dialog.Close asChild>
             <CloseButton className="top-4 right-4" size="Big" />
           </Dialog.Close>

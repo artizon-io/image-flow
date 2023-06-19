@@ -14,6 +14,7 @@ import type { NodeData as StringNumberMapNodeData } from "./node/StringNumberMap
 import type { NodeData as LoraNumberMapNodeData } from "./node/LoraNumberMap";
 import ToolboxPanel from "./ToolboxPanel";
 import { useGraphStore } from "./Store";
+import { useSettingsStore } from "../../singleton/settings/Store";
 
 // TODO: construct this type from `typeof nodeTypes`
 
@@ -35,6 +36,11 @@ const Graph: FC<{
   const { edges, nodes, onConnect, onEdgesChange, onNodesChange, nodeTypes } =
     useGraphStore((state) => state);
 
+  const { panSensitivity, zoomSensitivity } = useSettingsStore((state) => ({
+    panSensitivity: state.panSensitivity,
+    zoomSensitivity: state.zoomSensitivity,
+  }));
+
   return (
     <div className={twMerge(className, "")}>
       <ReactFlow
@@ -49,6 +55,7 @@ const Graph: FC<{
         selectionOnDrag
         selectionMode={SelectionMode.Partial}
         panOnDrag={false}
+        panOnScrollSpeed={panSensitivity}
       >
         <ToolboxPanel />
         <Background className="bg-neutral-900" gap={30} />

@@ -1,20 +1,20 @@
 import * as Slider from "@radix-ui/react-slider";
-import { FC } from "react";
+import { ComponentProps, FC } from "react";
 
-const ColorHueSlider: FC<{
-  colorHue: number;
-  setColorHue: (colorHue: number) => void;
-  disabled?: boolean;
-}> = ({ colorHue, setColorHue, disabled }) => {
+const CustomSlider: FC<
+  // TODO: TS can be better
+  Omit<ComponentProps<typeof Slider.Root>, "value" | "setValue"> & {
+    value: number;
+    setValue: (value: number) => void;
+  }
+> = ({ value: value, setValue: setValue, ...props }) => {
   return (
     <Slider.Root
       className="relative flex items-center select-none touch-none w-[300px] h-5"
-      min={0}
-      max={360}
-      value={[colorHue]}
+      value={[value]}
       step={1}
-      onValueChange={(value) => setColorHue(value[0])}
-      disabled={disabled}
+      onValueChange={(value) => setValue(value[0])}
+      {...props}
     >
       <Slider.Track className="bg-neutral-600 relative grow rounded-full h-[3px]">
         <Slider.Range className="absolute bg-neutral-300 rounded-full h-full" />
@@ -27,4 +27,4 @@ const ColorHueSlider: FC<{
   );
 };
 
-export default ColorHueSlider;
+export default CustomSlider;

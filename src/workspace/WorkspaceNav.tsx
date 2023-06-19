@@ -8,7 +8,7 @@ import {
 import { Workspace, useWorkspace, useWorkspaceStore } from "./WorkspaceManager";
 import { twJoin } from "tailwind-merge";
 import { FC, forwardRef } from "react";
-import HelpTooltip from "../HelpTooltip";
+import HelpTooltip from "../components/HelpTooltip";
 
 const workspaceIconMap: Record<
   Workspace,

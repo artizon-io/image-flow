@@ -2,7 +2,7 @@ import { FC, PropsWithChildren } from "react";
 import * as ContextMenu from "@radix-ui/react-context-menu";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { twJoin } from "tailwind-merge";
-import { tailwind } from "../../../utils/tailwind";
+import { tailwind } from "../../utils/tailwind";
 import { MenuItemConfig, useRootContextMenuStore } from "./Store";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;

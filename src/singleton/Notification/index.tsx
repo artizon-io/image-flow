@@ -1,6 +1,6 @@
 import * as Toast from "@radix-ui/react-toast";
 import { FC } from "react";
-import CloseButton from "../../CloseButton";
+import CloseButton from "../../components/CloseButton";
 import { twJoin } from "tailwind-merge";
 import { useNotificationStore } from "./Store";
 

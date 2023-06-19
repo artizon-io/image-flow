@@ -114,7 +114,7 @@ export const useGraphStore = create<{
       },
       /**
        * Return True if the connection was added successfully, else return False
-       * 
+       *
        * Note that the connection validation check can actually be performed by
        * the source handle, however, it would make more sense to put this validation
        * check in the store because the validation checks might involve nodes/edges

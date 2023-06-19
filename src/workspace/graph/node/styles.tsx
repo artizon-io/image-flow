@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
-import { tailwind } from "../../../../utils/tailwind";
+import { tailwind } from "../../../utils/tailwind";
 
 // String won't be interpreted as tailwind string if the string
 // is stored in non-tsx/jsx file

@@ -7,10 +7,10 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import WeightMap from "../../WeightMap";
+import WeightMap from "../../components/WeightMap";
 import { twJoin } from "tailwind-merge";
 import { useNotification } from "../../singleton/Notification/Store";
-import useImagesMetadata from "../../../hooks/useImagesMetadata";
+import useImagesMetadata from "../../hooks/useImagesMetadata";
 
 // TODO: reduce re-renders
 // TODO: render only visible rows using react-window or react-virtualized

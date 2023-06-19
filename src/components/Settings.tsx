@@ -5,7 +5,7 @@ import CloseButton from "./CloseButton";
 import { GearIcon } from "@radix-ui/react-icons";
 import ColorHueSlider from "./ColorHueSlider";
 import { create } from "zustand";
-import ImageDirPathConfigurator from "./singleton/ImageDirPathConfigurator";
+import ImageDirPathConfigurator from "../singleton/ImageDirPathConfigurator";
 
 const usePositiveWeightMapColorHueStore = create<{
   colorHue: number;

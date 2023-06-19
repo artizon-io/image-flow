@@ -1,12 +1,7 @@
-import { FC, memo } from "react";
-import {
-  Handle,
-  useReactFlow,
-  useStoreApi,
-  Position,
-  NodeProps,
-} from "reactflow";
-import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
+import { FC } from "react";
+import { NodeProps } from "reactflow";
+import BaseNode, { NodeConfig } from "./Base";
+import { NodeEndpointType } from "./BaseHandle";
 
 export const config: NodeConfig = {
   inputs: [

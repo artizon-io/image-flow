@@ -4,9 +4,6 @@
 
 .react-flow__handle {
   position: unset;
-  width: 20px;
-  height: 20px;
-  border-color: rgb(97, 97, 97);
 }
 
 .react-flow__handle-left {

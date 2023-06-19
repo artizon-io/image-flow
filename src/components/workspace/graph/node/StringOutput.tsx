@@ -1,13 +1,8 @@
-import { FC, memo } from "react";
-import {
-  Handle,
-  useReactFlow,
-  useStoreApi,
-  Position,
-  NodeProps,
-} from "reactflow";
-import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import { inputStyles, textareaStyles } from "./styles";
+import { FC } from "react";
+import { NodeProps } from "reactflow";
+import BaseNode, { NodeConfig } from "./Base";
+import { NodeEndpointType } from "./BaseHandle";
+import { textareaStyles } from "./styles";
 
 export const config: NodeConfig = {
   inputs: [
@@ -37,7 +32,11 @@ const TextOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       label="String Output"
       {...props}
     >
-      <textarea value={value ?? "No Output"} className={textareaStyles} readOnly />
+      <textarea
+        value={value ?? "No Output"}
+        className={textareaStyles}
+        readOnly
+      />
     </BaseNode>
   );
 };

@@ -1,12 +1,7 @@
-import { FC, memo, useState } from "react";
-import {
-  Handle,
-  useReactFlow,
-  useStoreApi,
-  Position,
-  NodeProps,
-} from "reactflow";
-import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
+import { FC, useState } from "react";
+import { NodeProps } from "reactflow";
+import BaseNode, { NodeConfig } from "./Base";
+import { NodeEndpointType } from "./BaseHandle";
 import { inputStyles, twoColumnGridStyles } from "./styles";
 import { twMerge } from "tailwind-merge";
 

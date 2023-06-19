@@ -1,50 +1,7 @@
 import { FC, PropsWithChildren, memo } from "react";
-import {
-  Handle,
-  useReactFlow,
-  useStoreApi,
-  Position,
-  NodeProps,
-} from "reactflow";
+import { NodeProps } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
-import { tailwind } from "../../../../utils/tailwind";
-
-type NodeEndpoint = {
-  id: string;
-  label: string;
-  type: NodeEndpointType;
-  isConnectableTo: (other: NodeEndpoint) => boolean;
-};
-
-export enum NodeEndpointType {
-  Number = "number",
-  String = "string",
-  StringNumberMap = "string-number-map",
-  LoraNumberMap = "lora-number-map",
-  Model = "model",
-  Image = "image",
-  NumberPair = "number-pair",
-  Sampler = "sampler",
-}
-
-// TODO: load the colors from `.config`
-
-const nodeEndpointTypeColorHueMap: Record<NodeEndpointType, number> = {
-  [NodeEndpointType.Number]: 0,
-  [NodeEndpointType.NumberPair]: 0,
-  [NodeEndpointType.String]: 40,
-  [NodeEndpointType.StringNumberMap]: 160,
-  [NodeEndpointType.LoraNumberMap]: 200,
-  [NodeEndpointType.Sampler]: 260,
-  [NodeEndpointType.Model]: 260,
-  [NodeEndpointType.Image]: 300,
-};
-
-const getEndpointColor = (
-  endpointType: keyof typeof nodeEndpointTypeColorHueMap
-) =>
-  // Tailwind doesn't support interpreted string(?)
-  `hsl(${nodeEndpointTypeColorHueMap[endpointType]} 50% 20%)`;
+import BaseHandle, { NodeEndpoint } from "./BaseHandle";
 
 export type NodeConfig = {
   inputs?: NodeEndpoint[];
@@ -53,26 +10,22 @@ export type NodeConfig = {
 
 const Endpoints: FC<{
   endpointsConfig: NodeEndpoint[];
-  position: "left" | "right";
+  type: "input" | "output";
   className: string;
-}> = ({ endpointsConfig, className, position }) => (
+}> = ({ endpointsConfig, className, type }) => (
   <div className={twMerge(`flex flex-col gap-2`, className)}>
     {endpointsConfig.map((endpointConfig, index) => (
       <div
         key={endpointConfig.id}
         className={twJoin(
           `flex flex-row gap-3 justify-start items-center`,
-          position === "right" ? "flex-row-reverse" : ""
+          type === "output" ? "flex-row-reverse" : ""
         )}
       >
-        <Handle
-          type={position === "left" ? "target" : "source"}
-          position={position === "left" ? Position.Left : Position.Right}
-          id={endpointConfig.id}
+        <BaseHandle
+          endpointConfig={endpointConfig}
+          type={type}
           key={endpointConfig.id}
-          style={{
-            backgroundColor: getEndpointColor(endpointConfig.type),
-          }}
         />
         <p className="text-neutral-400 text-xs">{endpointConfig.label}</p>
       </div>
@@ -101,7 +54,7 @@ const BaseNode: FC<
       {config.inputs ? (
         <Endpoints
           className="ml-[-10px] mt-8"
-          position="left"
+          type="input"
           endpointsConfig={config.inputs}
         />
       ) : null}
@@ -122,7 +75,7 @@ const BaseNode: FC<
       {config.outputs ? (
         <Endpoints
           className="mr-[-10px] mt-8"
-          position="right"
+          type="output"
           endpointsConfig={config.outputs}
         />
       ) : null}

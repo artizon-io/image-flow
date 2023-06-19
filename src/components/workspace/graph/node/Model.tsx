@@ -1,18 +1,8 @@
-import { FC, memo, useState } from "react";
-import {
-  Handle,
-  useReactFlow,
-  useStoreApi,
-  Position,
-  NodeProps,
-} from "reactflow";
-import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import {
-  inputStyles,
-  labelStyles,
-  twoColumnGridStyles,
-  valueStyles,
-} from "./styles";
+import { FC, useState } from "react";
+import { NodeProps } from "reactflow";
+import BaseNode, { NodeConfig } from "./Base";
+import { NodeEndpointType } from "./BaseHandle";
+import { inputStyles, labelStyles, twoColumnGridStyles } from "./styles";
 
 export const config: NodeConfig = {
   outputs: [

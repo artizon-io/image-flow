@@ -1,14 +1,8 @@
-import { FC, memo, useState } from "react";
-import {
-  Handle,
-  useReactFlow,
-  useStoreApi,
-  Position,
-  NodeProps,
-} from "reactflow";
-import BaseNode, { NodeConfig, NodeEndpointType } from "./Base";
-import { inputStyles, textareaStyles } from "./styles";
-import { twMerge } from "tailwind-merge";
+import { FC, useState } from "react";
+import { NodeProps } from "reactflow";
+import BaseNode, { NodeConfig } from "./Base";
+import { NodeEndpointType } from "./BaseHandle";
+import { textareaStyles } from "./styles";
 
 export const config: NodeConfig = {
   outputs: [

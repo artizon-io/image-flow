@@ -1,15 +1,11 @@
 import { FC, useEffect } from "react";
-import { twJoin } from "tailwind-merge";
-import Table from "./table/Table";
-import useImages from "../hooks/useImages";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import ScrollArea from "../components/ScrollArea";
-import { Masonry, RenderComponentProps } from "masonic";
+import Table from "./table";
 import Graph from "./graph";
 import { useWorkspaceStore } from "./Store";
 import { useRootContextMenuStore } from "../singleton/rootContextMenu/Store";
 import { tailwind } from "../utils/tailwind";
 import { useCommandPaletteStore } from "../singleton/commandPalette/Store";
+import ImageFeed from "./imageFeed";
 
 const containerStyles = tailwind`w-full h-full`;
 
@@ -66,69 +62,13 @@ const WorkspaceManager: FC<{}> = () => {
   if (workspace === "Image Feed") {
     return <ImageFeed className={containerStyles} />;
   } else if (workspace === "Table") {
-    return <TableOnly className={containerStyles} />;
+    return <Table className={containerStyles} />;
   } else if (workspace === "Graph") {
     return <Graph className={containerStyles} />;
   } else {
     // TODO: throw error and provide fallback UI
     return null;
   }
-};
-
-const TableOnly: FC<{ className: string }> = ({ className }) => {
-  return (
-    <div className={twJoin(className, "grid")}>
-      <ScrollArea>
-        <Table />
-      </ScrollArea>
-    </div>
-  );
-};
-
-const ImageFeed: FC<{ className: string }> = ({ className }) => {
-  const images = useImages();
-
-  if (images.length === 0)
-    return (
-      <div className="flex justify-center items-center w-full h-full">
-        <p className="text-neutral-500">Cannot locate any images</p>
-      </div>
-    );
-
-  return (
-    <ScrollArea>
-      <Masonry
-        // TODO: use a better key
-        items={images.map((image, index) => ({
-          id: index,
-          image,
-        }))}
-        render={ImageFeedImage}
-        // Grid cell spacing
-        columnGutter={8}
-        // Column min width
-        columnWidth={300}
-        // Pre-renders 5 windows worth of content
-        overscanBy={10}
-      />
-    </ScrollArea>
-  );
-};
-
-const ImageFeedImage: FC<
-  RenderComponentProps<{
-    id: number;
-    image: string;
-  }>
-> = ({ index, data: { id, image }, width }) => {
-  return (
-    <div className="rounded-md overflow-hidden">
-      <img
-        src={convertFileSrc(image)}
-        className="hover:scale-105 transition-transform cursor-pointer"
-      />
-    </div>
-  );
 };
 
 export default WorkspaceManager;

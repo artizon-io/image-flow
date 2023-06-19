@@ -1,7 +1,7 @@
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { ImageIcon, Component2Icon, CommitIcon } from "@radix-ui/react-icons";
 import { twJoin } from "tailwind-merge";
-import { FC, forwardRef, useMemo } from "react";
+import { FC, useMemo } from "react";
 import HelpTooltip from "../components/HelpTooltip";
 import { Workspace, useWorkspaceStore } from "./Store";
 

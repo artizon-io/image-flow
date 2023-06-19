@@ -12,6 +12,7 @@ import { twJoin } from "tailwind-merge";
 import { useNotification } from "../../singleton/Notification/Store";
 import useImagesMetadata from "../../hooks/useImagesMetadata";
 import { useSettingsStore } from "../../singleton/settings/Store";
+import ScrollArea from "../../components/ScrollArea";
 
 // TODO: reduce re-renders
 // TODO: render only visible rows using react-window or react-virtualized
@@ -20,7 +21,8 @@ import { useSettingsStore } from "../../singleton/settings/Store";
 
 const Table: FC<{
   setImage?: (image: string | null) => void;
-}> = ({ setImage, ...props }) => {
+  className?: string;
+}> = ({ setImage, className, ...props }) => {
   const columnHelper = createColumnHelper<Metadata>();
 
   const showNotification = useNotification();
@@ -36,10 +38,7 @@ const Table: FC<{
         header: "Prompt",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap
-              weightMap={info.getValue()!}
-              colorHue={220}
-            />
+            <WeightMap weightMap={info.getValue()!} colorHue={220} />
           ) : (
             "N/A"
           ),
@@ -49,10 +48,7 @@ const Table: FC<{
         header: "Negative Prompt",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap
-              weightMap={info.getValue()!}
-              colorHue={0}
-            />
+            <WeightMap weightMap={info.getValue()!} colorHue={0} />
           ) : (
             "N/A"
           ),
@@ -120,10 +116,7 @@ const Table: FC<{
         header: "Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap
-              weightMap={info.getValue()!}
-              colorHue={220}
-            />
+            <WeightMap weightMap={info.getValue()!} colorHue={220} />
           ) : (
             "N/A"
           ),
@@ -133,10 +126,7 @@ const Table: FC<{
         header: "Negative Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap
-              weightMap={info.getValue()!}
-              colorHue={0}
-            />
+            <WeightMap weightMap={info.getValue()!} colorHue={0} />
           ) : (
             "N/A"
           ),
@@ -268,11 +258,15 @@ const Table: FC<{
     );
 
   return (
-    <table className={`bg-neutral-900 border-collapse`} {...props}>
-      <TableHeader />
-      <TableBody />
-      <TableFooter />
-    </table>
+    <div className={twJoin(className, "grid")}>
+      <ScrollArea>
+        <table className={`bg-neutral-900 border-collapse`} {...props}>
+          <TableHeader />
+          <TableBody />
+          <TableFooter />
+        </table>
+      </ScrollArea>
+    </div>
   );
 };
 

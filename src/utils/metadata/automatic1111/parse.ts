@@ -7,7 +7,7 @@ import {
   addTagToWeightMap,
   combineNodesToWeightMap,
   multiplyTagWeightInWeightMap,
-} from "../weightMap";
+} from "../../weightMap";
 
 const resourceDirPath = await resourceDir();
 const documentDirPath = await documentDir();

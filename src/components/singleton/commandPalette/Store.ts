@@ -1,11 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import _Notification, { useNotification } from "./Notification";
+import _Notification from "../Notification";
 import type { NinjaKeys as _NinjaKeys } from "ninja-keys";
 import { create } from "zustand";
 import "./ninja-keys.css";
-import { AngleIcon } from "@radix-ui/react-icons";
-import { useWorkspace, useWorkspaceStore } from "../workspace/WorkspaceManager";
-import { subscribeWithSelector } from "zustand/middleware";
+import { useWorkspaceStore } from "../../workspace/WorkspaceManager";
 
 // Fixing the NinjaKeys type
 // https://github.com/ssleptsov/ninja-keys#data
@@ -18,7 +15,9 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 // TODO: fork NinjaKeys and fix the bugs
 
-type NinjaKeys = Omit<_NinjaKeys, "data"> & { data: CommandPaletteAction[] };
+export type NinjaKeys = Omit<_NinjaKeys, "data"> & {
+  data: CommandPaletteAction[];
+};
 
 export type CommandPaletteAction = {
   id: string;
@@ -112,53 +111,3 @@ useCommandPaletteStore.getState().addActions(workspaceActions);
 
 export const useCommandPalette = () =>
   useCommandPaletteStore((state) => state.showCommandPalette);
-
-const CommandPalette = () => {
-  const showNotification = useNotification();
-
-  // Reference to the "ninja-keys" element
-  const ninjaKeys = useRef<NinjaKeys>(null);
-  const {
-    actions: actions,
-    shouldOpen,
-    resetShouldOpen,
-  } = useCommandPaletteStore((state) => state);
-
-  useEffect(() => {
-    if (!ninjaKeys.current) {
-      showNotification("Error", "Command palette fail to load");
-      console.error("Ninja Keys fail to load");
-      return;
-    }
-    ninjaKeys.current.data = actions;
-    ninjaKeys.current.hideBreadcrumbs = true;
-  }, []);
-
-  useEffect(() => {
-    if (!ninjaKeys.current) {
-      showNotification("Error", "Command palette fails");
-      return;
-    }
-
-    if (shouldOpen) {
-      ninjaKeys.current.open();
-      resetShouldOpen();
-    }
-  }, [shouldOpen]);
-
-  useEffect(() => {
-    console.debug("Command palette actions updated", actions);
-
-    if (!ninjaKeys.current) {
-      showNotification("Error", "Command palette fails");
-      return;
-    }
-
-    ninjaKeys.current.data = actions;
-  }, [actions]);
-
-  // @ts-ignore
-  return <ninja-keys ref={ninjaKeys} />;
-};
-
-export default CommandPalette;

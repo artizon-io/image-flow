@@ -2,11 +2,11 @@ import { FC, PropsWithChildren, useEffect, useMemo } from "react";
 import * as Menubar from "@radix-ui/react-menubar";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { Panel } from "reactflow";
-import { twJoin, twMerge } from "tailwind-merge";
+import { twMerge } from "tailwind-merge";
 import { create } from "zustand";
-import { useGraphStore } from "./Graph";
-import { useRootContextMenuStore } from "../../singleton/RootContextMenu";
-import { useCommandPaletteStore } from "../../singleton/CommandPalette";
+import { useGraphStore } from "./Store";
+import { useRootContextMenuStore } from "../../singleton/rootContextMenu/Store";
+import { useCommandPaletteStore } from "../../singleton/commandPalette/Store";
 import { tailwind } from "../../../utils/tailwind";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;

@@ -1,14 +1,9 @@
-import React, { FC, PropsWithChildren, useMemo } from "react";
+import { FC, PropsWithChildren } from "react";
 import * as ContextMenu from "@radix-ui/react-context-menu";
-import {
-  DotFilledIcon,
-  CheckIcon,
-  ChevronRightIcon,
-} from "@radix-ui/react-icons";
+import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { twJoin } from "tailwind-merge";
-import { useWorkspace, useWorkspaceStore } from "../workspace/WorkspaceManager";
-import { create } from "zustand";
-import { tailwind } from "../../utils/tailwind";
+import { tailwind } from "../../../utils/tailwind";
+import { MenuItemConfig, useRootContextMenuStore } from "./Store";
 
 const menuStyles = tailwind`min-w-[200px] bg-neutral-900 rounded-md overflow-hidden px-1 py-2 border-neutral-800 border-[1px] flex flex-col`;
 
@@ -67,53 +62,6 @@ const MenuItem: FC<
 const Separator = () => (
   <ContextMenu.Separator className="h-[1px] bg-neutral-900 m-1" />
 );
-
-type MenuItemConfig = {
-  label: string;
-  handler?: () => void;
-  hotkey?: string;
-  subItemConfigs?: MenuItemConfig[];
-};
-
-export const useRootContextMenuStore = create<{
-  menuItemConfigs: MenuItemConfig[];
-  addMenuItemConfig: (menuItemConfig: MenuItemConfig) => void;
-  addMenuItemConfigs: (menuItemConfigs: MenuItemConfig[]) => void;
-  removeMenuItemConfig: (label: string) => void;
-  removeMenuItemConfigs: (labels: string[]) => void;
-}>((set) => ({
-  menuItemConfigs: [],
-  addMenuItemConfig: (menuItemConfig) =>
-    set((state) => ({
-      ...state,
-      menuItemConfigs: [...state.menuItemConfigs, menuItemConfig],
-    })),
-  addMenuItemConfigs: (menuItemConfigs) =>
-    set((state) => ({
-      ...state,
-      menuItemConfigs: [...state.menuItemConfigs, ...menuItemConfigs],
-    })),
-  removeMenuItemConfig: (label) =>
-    set((state) => ({
-      ...state,
-      menuItemConfigs: state.menuItemConfigs.filter(
-        (item) => item.label !== label
-      ),
-    })),
-  removeMenuItemConfigs: (labels) =>
-    set((state) => ({
-      ...state,
-      menuItemConfigs: state.menuItemConfigs.filter(
-        (item) => !labels.includes(item.label)
-      ),
-    })),
-}));
-
-if (import.meta.env.DEV)
-  useRootContextMenuStore.getState().addMenuItemConfig({
-    label: "Reload App",
-    handler: () => window.location.reload(),
-  });
 
 const RootContextMenu: FC<PropsWithChildren> = ({ children }) => {
   const menuItemConfigs = useRootContextMenuStore(

@@ -1,7 +1,5 @@
-import { FC } from "react";
-import ReactFlow, {
+import {
   addEdge,
-  Background,
   Node,
   Edge,
   NodeChange,
@@ -10,9 +8,7 @@ import ReactFlow, {
   NodeTypes,
   applyEdgeChanges,
   applyNodeChanges,
-  SelectionMode,
 } from "reactflow";
-import { twMerge } from "tailwind-merge";
 import "reactflow/dist/style.css";
 import "./react-flow.css";
 import Automatic1111Node, {
@@ -50,10 +46,19 @@ import type { NodeData as TextOutputNodeData } from "./node/StringOutput";
 import type { NodeData as NumberPairNodeData } from "./node/NumberPair";
 import type { NodeData as StringNumberMapNodeData } from "./node/StringNumberMap";
 import type { NodeData as LoraNumberMapNodeData } from "./node/LoraNumberMap";
-import { useNotificationStore } from "../../singleton/Notification";
-import ToolboxPanel from "./ToolboxPanel";
+import { useNotificationStore } from "../../singleton/Notification/Store";
 
-// TODO: for each node, show input dialog instead of fixing the value
+type NodesData = {
+  "automatic-1111": Automatic1111NodeData;
+  model: ModelNodeData;
+  number: NumberNodeData;
+  string: StringNodeData;
+  "image-output": ImageOutputNodeData;
+  "text-output": TextOutputNodeData;
+  "number-pair": NumberPairNodeData;
+  "string-number-map": StringNumberMapNodeData;
+  "lora-number-map": LoraNumberMapNodeData;
+};
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
@@ -78,20 +83,6 @@ const nodeTypeConfigs = {
   "string-number-map": stringNumberMapNodeConfig,
   "lora-number-map": loraNumberMapNodeConfig,
 } as const;
-
-// TODO: construct this type from `typeof nodeTypes`
-
-type NodesData = {
-  "automatic-1111": Automatic1111NodeData;
-  model: ModelNodeData;
-  number: NumberNodeData;
-  string: StringNodeData;
-  "image-output": ImageOutputNodeData;
-  "text-output": TextOutputNodeData;
-  "number-pair": NumberPairNodeData;
-  "string-number-map": StringNumberMapNodeData;
-  "lora-number-map": LoraNumberMapNodeData;
-};
 
 export const useGraphStore = create<{
   nodeTypes: NodeTypes;
@@ -315,33 +306,3 @@ export const useGraphStore = create<{
     }
   )
 );
-
-const Graph: FC<{
-  className: string;
-}> = ({ className }) => {
-  const { edges, nodes, onConnect, onEdgesChange, onNodesChange, nodeTypes } =
-    useGraphStore((state) => state);
-
-  return (
-    <div className={twMerge(className, "")}>
-      <ReactFlow
-        edges={edges}
-        nodes={nodes}
-        onConnect={onConnect}
-        onEdgesChange={onEdgesChange}
-        onNodesChange={onNodesChange}
-        attributionPosition="bottom-left"
-        nodeTypes={nodeTypes}
-        panOnScroll
-        selectionOnDrag
-        selectionMode={SelectionMode.Partial}
-        panOnDrag={[1, 2]}
-      >
-        <ToolboxPanel />
-        <Background className="bg-neutral-900" gap={30} />
-      </ReactFlow>
-    </div>
-  );
-};
-
-export default Graph;

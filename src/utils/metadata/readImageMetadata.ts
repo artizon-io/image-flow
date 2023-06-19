@@ -1,6 +1,6 @@
-import { exists, readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
+import { exists, readBinaryFile } from "@tauri-apps/api/fs";
 import * as ExifReader from "exifreader";
-import parseAutomatic1111Metadata from "./automatic1111/parseAutomatic1111";
+import parseAutomatic1111Metadata from "./automatic1111/parse";
 import constructEmptyImageMetadata from "./constructEmptyImageMetadata";
 
 const parseSDMetadata = (rawSDMetadata: string): Promise<SDMetadata | null> => {

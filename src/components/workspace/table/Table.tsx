@@ -1,5 +1,4 @@
 import { useState, useMemo, FC } from "react";
-import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
 import { sep } from "@tauri-apps/api/path";
 import {
   Row,
@@ -9,8 +8,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import WeightMap from "../../WeightMap";
-import { twJoin, twMerge } from "tailwind-merge";
-import { useNotification } from "../../singleton/Notification";
+import { twJoin } from "tailwind-merge";
+import { useNotification } from "../../singleton/Notification/Store";
 import useImagesMetadata from "../../../hooks/useImagesMetadata";
 
 // TODO: reduce re-renders

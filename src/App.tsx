@@ -1,15 +1,14 @@
-import { useState, useMemo, useRef, useEffect } from "react";
-import { configDir } from "@tauri-apps/api/path";
+import { useMemo } from "react";
 import { open } from "@tauri-apps/api/shell";
 import SettingsDialog from "./components/Settings";
 import "ninja-keys";
-import _Notification, {
-  useNotification,
-} from "./components/singleton/Notification";
+import _Notification from "./components/singleton/Notification";
+import { useNotification } from "./components/singleton/Notification/Store";
 import * as RadixToast from "@radix-ui/react-toast";
-import CommandPalette, { useCommandPalette } from "./components/singleton/CommandPalette";
+import CommandPalette from "./components/singleton/commandPalette";
+import { useCommandPalette } from "./components/singleton/commandPalette/Store";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
-import RootContextMenu from "./components/singleton/RootContextMenu";
+import RootContextMenu from "./components/singleton/rootContextMenu";
 import WorkspaceManager from "./components/workspace/WorkspaceManager";
 import HelpTooltip, { HelpTooltipProvider } from "./components/HelpTooltip";
 import WorkspaceNav from "./components/workspace/WorkspaceNav";

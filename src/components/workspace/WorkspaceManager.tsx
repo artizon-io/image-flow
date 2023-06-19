@@ -6,11 +6,11 @@ import useImages from "../../hooks/useImages";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import ScrollArea from "../ScrollArea";
 import { Masonry, RenderComponentProps } from "masonic";
-import Graph from "./graph/Graph";
+import Graph from "./graph";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
-import { useNotificationStore } from "../singleton/Notification";
-import { useRootContextMenuStore } from "../singleton/RootContextMenu";
+import { useNotificationStore } from "../singleton/Notification/Store";
+import { useRootContextMenuStore } from "../singleton/rootContextMenu/Store";
 
 export const workspaces = ["Table", "Image Feed", "Graph"] as const;
 

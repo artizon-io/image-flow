@@ -1,32 +1,8 @@
 import * as Toast from "@radix-ui/react-toast";
-import { FC, useState } from "react";
-import CloseButton from "../CloseButton";
+import { FC } from "react";
+import CloseButton from "../../CloseButton";
 import { twJoin } from "tailwind-merge";
-import { create } from "zustand";
-
-export const useNotificationStore = create<{
-  open: boolean;
-  severity: Severity;
-  message: string;
-  showNotification: (severity: Severity, message: string) => void;
-  setOpen: (open: boolean) => void; // Required by Radix Toast
-}>((set) => ({
-  open: false,
-  severity: "Success",
-  message: "",
-  showNotification: (severity: Severity, message: string) =>
-    set((state) => ({
-      open: true,
-      severity,
-      message,
-    })),
-  setOpen: (open: boolean) => set((state) => ({ ...state, open })),
-}));
-
-export const useNotification = () =>
-  useNotificationStore((state) => state.showNotification);
-
-type Severity = "Success" | "Error" | "Warning";
+import { useNotificationStore } from "./Store";
 
 const Notification: FC<{}> = ({ ...props }) => {
   const { open, message, severity, setOpen } = useNotificationStore(

@@ -2,7 +2,6 @@ import _Notification from "../Notification";
 import type { NinjaKeys as _NinjaKeys } from "ninja-keys";
 import { create } from "zustand";
 import "./ninja-keys.css";
-import { useWorkspaceStore } from "../../workspace/WorkspaceManager";
 
 // Fixing the NinjaKeys type
 // https://github.com/ssleptsov/ninja-keys#data
@@ -83,21 +82,6 @@ export const useCommandPaletteStore = create<{
     }));
   },
 }));
-
-// Interactions between stores
-// https://github.com/pmndrs/zustand#using-subscribe-with-selector
-
-const workspaceActions = Object.entries(
-  useWorkspaceStore.getState().switchers
-).map(([name, switcher]) => ({
-  id: name,
-  title: `Switch to ${name} Workspace`,
-  section: "Workspace",
-  // hotkey: "⌘+3",
-  handler: switcher,
-}));
-
-useCommandPaletteStore.getState().addActions(workspaceActions);
 
 export const useCommandPalette = () =>
   useCommandPaletteStore((state) => state.showCommandPalette);

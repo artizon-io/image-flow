@@ -1,14 +1,9 @@
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
-import {
-  ImageIcon,
-  Component2Icon,
-  ViewVerticalIcon,
-  CommitIcon,
-} from "@radix-ui/react-icons";
-import { Workspace, useWorkspace, useWorkspaceStore } from "./WorkspaceManager";
+import { ImageIcon, Component2Icon, CommitIcon } from "@radix-ui/react-icons";
 import { twJoin } from "tailwind-merge";
-import { FC, forwardRef } from "react";
+import { FC, forwardRef, useMemo } from "react";
 import HelpTooltip from "../components/HelpTooltip";
+import { Workspace, useWorkspaceStore } from "./Store";
 
 const workspaceIconMap: Record<
   Workspace,
@@ -21,16 +16,19 @@ const workspaceIconMap: Record<
   Graph: CommitIcon,
 };
 
-const navItemConfigs = Object.entries(
-  useWorkspaceStore.getState().switchers
-).map(([name, switcher]) => ({
-  label: name,
-  handler: switcher,
-  icon: workspaceIconMap[name as Workspace],
-}));
-
 const WorkspaceNav = () => {
   const workspace = useWorkspaceStore((state) => state.workspace);
+
+  const switchers = useWorkspaceStore((state) => state.switchers);
+  const navItemConfigs = useMemo(
+    () =>
+      Object.entries(switchers).map(([name, switcher]) => ({
+        label: name,
+        handler: switcher,
+        icon: workspaceIconMap[name as Workspace],
+      })),
+    [switchers]
+  );
 
   return (
     <ToggleGroup.Root

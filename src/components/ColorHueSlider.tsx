@@ -4,7 +4,8 @@ import { FC } from "react";
 const ColorHueSlider: FC<{
   colorHue: number;
   setColorHue: (colorHue: number) => void;
-}> = ({ colorHue, setColorHue }) => {
+  disabled?: boolean;
+}> = ({ colorHue, setColorHue, disabled }) => {
   return (
     <Slider.Root
       className="relative flex items-center select-none touch-none w-[300px] h-5"
@@ -13,6 +14,7 @@ const ColorHueSlider: FC<{
       value={[colorHue]}
       step={1}
       onValueChange={(value) => setColorHue(value[0])}
+      disabled={disabled}
     >
       <Slider.Track className="bg-neutral-600 relative grow rounded-full h-[3px]">
         <Slider.Range className="absolute bg-neutral-300 rounded-full h-full" />

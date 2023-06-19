@@ -1,33 +1,12 @@
-import { FC, PropsWithChildren, forwardRef } from "react";
+import { FC, PropsWithChildren, forwardRef, useEffect } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { twMerge } from "tailwind-merge";
-import CloseButton from "./CloseButton";
+import CloseButton from "../../components/CloseButton";
 import { GearIcon } from "@radix-ui/react-icons";
-import ColorHueSlider from "./ColorHueSlider";
-import { create } from "zustand";
-import ImageDirPathConfigurator from "../singleton/ImageDirPathConfigurator";
-
-const usePositiveWeightMapColorHueStore = create<{
-  colorHue: number;
-  setColorHue: (colorHue: number) => void;
-}>((set) => ({
-  colorHue: 0,
-  setColorHue: (colorHue: number) => set((state) => ({ ...state, colorHue })),
-}));
-
-export const usePositiveWeightMapColorHue = () =>
-  usePositiveWeightMapColorHueStore((state) => state.colorHue);
-
-const useNegativeWeightMapColorHueStore = create<{
-  colorHue: number;
-  setColorHue: (colorHue: number) => void;
-}>((set) => ({
-  colorHue: 0,
-  setColorHue: (colorHue: number) => set((state) => ({ ...state, colorHue })),
-}));
-
-export const useNegativeWeightMapColorHue = () =>
-  useNegativeWeightMapColorHueStore((state) => state.colorHue);
+import ColorHueSlider from "../../components/ColorHueSlider";
+import ImageDirPathConfigurator from "../ImageDirPathConfigurator";
+import { useSettingsStore } from "./Store";
+import { useCommandPaletteStore } from "../commandPalette/Store";
 
 const Section: FC<
   PropsWithChildren<{
@@ -61,13 +40,34 @@ const SettingsDialog = forwardRef<
     className?: string;
   }
 >(({ ...props }, ref) => {
-  const { colorHue: positiveColorHue, setColorHue: setPositiveColorHue } =
-    usePositiveWeightMapColorHueStore((state) => state);
-  const { colorHue: negativeColorHue, setColorHue: setNegativeColorHue } =
-    useNegativeWeightMapColorHueStore((state) => state);
+  const {
+    isOpen,
+    setOpen,
+    positiveColorHue,
+    setPositiveColorHue,
+    negativeColorHue,
+    setNegativeColorHue,
+  } = useSettingsStore((state) => state);
+
+  const { addCommandPaletteAction, removeCommandPaletteAction } =
+    useCommandPaletteStore((state) => ({
+      addCommandPaletteAction: state.addAction,
+      removeCommandPaletteAction: state.removeAction,
+    }));
+
+  useEffect(() => {
+    addCommandPaletteAction({
+      id: "settings",
+      title: "Open Settings",
+      section: "Settings",
+      handler: () => setOpen(true),
+    });
+
+    return () => removeCommandPaletteAction("settings");
+  }, []);
 
   return (
-    <Dialog.Root>
+    <Dialog.Root open={isOpen} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <button
           className={twMerge("naviconbutton-with-border", props.className)}
@@ -92,12 +92,14 @@ const SettingsDialog = forwardRef<
               <ColorHueSlider
                 colorHue={positiveColorHue}
                 setColorHue={setPositiveColorHue}
+                disabled={true}
               />
             </FieldGroup>
             <FieldGroup label="Negative">
               <ColorHueSlider
                 colorHue={negativeColorHue}
                 setColorHue={setNegativeColorHue}
+                disabled={true}
               />
             </FieldGroup>
           </Section>

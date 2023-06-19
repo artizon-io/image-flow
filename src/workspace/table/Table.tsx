@@ -11,6 +11,7 @@ import WeightMap from "../../components/WeightMap";
 import { twJoin } from "tailwind-merge";
 import { useNotification } from "../../singleton/Notification/Store";
 import useImagesMetadata from "../../hooks/useImagesMetadata";
+import { useSettingsStore } from "../../singleton/settings/Store";
 
 // TODO: reduce re-renders
 // TODO: render only visible rows using react-window or react-virtualized
@@ -23,6 +24,10 @@ const Table: FC<{
   const columnHelper = createColumnHelper<Metadata>();
 
   const showNotification = useNotification();
+  const { positiveColorHue, negativeColorHue } = useSettingsStore((state) => ({
+    positiveColorHue: state.positiveColorHue,
+    negativeColorHue: state.negativeColorHue,
+  }));
 
   const columns = useMemo(
     () => [
@@ -31,7 +36,10 @@ const Table: FC<{
         header: "Prompt",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorHue={220} />
+            <WeightMap
+              weightMap={info.getValue()!}
+              colorHue={220}
+            />
           ) : (
             "N/A"
           ),
@@ -41,7 +49,10 @@ const Table: FC<{
         header: "Negative Prompt",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorHue={0} />
+            <WeightMap
+              weightMap={info.getValue()!}
+              colorHue={0}
+            />
           ) : (
             "N/A"
           ),
@@ -109,7 +120,10 @@ const Table: FC<{
         header: "Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorHue={220} />
+            <WeightMap
+              weightMap={info.getValue()!}
+              colorHue={220}
+            />
           ) : (
             "N/A"
           ),
@@ -119,7 +133,10 @@ const Table: FC<{
         header: "Negative Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorHue={0} />
+            <WeightMap
+              weightMap={info.getValue()!}
+              colorHue={0}
+            />
           ) : (
             "N/A"
           ),

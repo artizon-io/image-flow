@@ -48,7 +48,7 @@ const Graph: FC<{
         panOnScroll
         selectionOnDrag
         selectionMode={SelectionMode.Partial}
-        panOnDrag={[1, 2]}
+        panOnDrag={false}
       >
         <ToolboxPanel />
         <Background className="bg-neutral-900" gap={30} />

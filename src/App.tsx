@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { open } from "@tauri-apps/api/shell";
-import SettingsDialog from "./components/Settings";
+import SettingsDialog from "./singleton/settings";
 import "ninja-keys";
 import _Notification from "./singleton/Notification";
 import { useNotification } from "./singleton/Notification/Store";
@@ -9,9 +9,9 @@ import CommandPalette from "./singleton/commandPalette";
 import { useCommandPalette } from "./singleton/commandPalette/Store";
 import { Component1Icon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import RootContextMenu from "./singleton/rootContextMenu";
-import WorkspaceManager from "./workspace/WorkspaceManager";
+import WorkspaceManager from "./workspace";
 import HelpTooltip, { HelpTooltipProvider } from "./components/HelpTooltip";
-import WorkspaceNav from "./workspace/WorkspaceNav";
+import WorkspaceNav from "./workspace/Nav";
 
 // TODO: add transitions
 // TODO: configure logger

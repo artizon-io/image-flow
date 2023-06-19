@@ -45,17 +45,7 @@ export const useCommandPaletteStore = create<{
   removeActions: (ids: string[]) => void;
 }>((set) => ({
   shouldOpen: false,
-  actions: [
-    // Settings
-    {
-      id: "Settings",
-      title: "Open Settings",
-      section: "Settings",
-      // https://github.com/ssleptsov/ninja-keys#icons
-      // mdIcon: "",
-      handler: () => {},
-    },
-  ],
+  actions: [],
   showCommandPalette: () =>
     set((state) => ({
       ...state,

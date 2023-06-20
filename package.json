@@ -35,6 +35,7 @@
     "@vitejs/plugin-react": "^3.0.0",
     "autoprefixer": "^10.4.14",
     "exifreader": "^4.12.1",
+    "immer": "^10.0.2",
     "masonic": "^3.7.0",
     "ninja-keys": "^1.2.2",
     "ohm-js": "^17.1.0",

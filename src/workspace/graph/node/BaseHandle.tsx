@@ -1,22 +1,13 @@
 import { FC } from "react";
 import { Handle, Position } from "reactflow";
 import { twJoin } from "tailwind-merge";
+import { z } from "zod";
 
-export type Endpoint = {
-  id: string;
-  label: string;
-  type: EndpointType;
-};
+export type InputEndpoint = z.infer<typeof inputEndpointSchema>;
 
-export type InputEndpoint = Endpoint & {
-  isConnectableTo: (output: OutputEndpoint) => boolean;
-};
+export type OutputEndpoint = z.infer<typeof outputEndpointSchema>;
 
-export type OutputEndpoint = Endpoint & {
-  value?: any;
-};
-
-export type EndpointType = null | EndpointDataType | EndpointDataType[];
+export type EndpointType = EndpointDataType | EndpointDataType[];
 
 export enum EndpointDataType {
   Number = "number",
@@ -28,6 +19,32 @@ export enum EndpointDataType {
   NumberPair = "number-pair",
   Sampler = "sampler",
 }
+
+export const outputEndpointSchema = z
+  .object({
+    id: z.string(),
+    label: z.string(),
+    type: z.union([
+      z.nativeEnum(EndpointDataType),
+      z.array(z.nativeEnum(EndpointDataType)),
+    ]),
+    value: z.any(),
+  })
+  .refine((val) => {
+    switch (val.type) {
+      case EndpointDataType.Number:
+        return typeof val.value === "number";
+      case EndpointDataType.String:
+        return typeof val.value === "string";
+    }
+  });
+
+export const inputEndpointSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  type: z.nativeEnum(EndpointDataType),
+  isConnectableTo: z.function().args(outputEndpointSchema).returns(z.boolean()),
+});
 
 // TODO: load the colors from `.config`
 
@@ -46,8 +63,6 @@ const getEndpointColor = (endpointType: EndpointType): string => {
   if (!endpointType) return `hsl(0 0% 15%)`;
   else if (Array.isArray(endpointType)) return `hsl(0 0% 25%)`;
   else if (endpointType in dataTypeColorHueMap)
-    // Tailwind doesn't support interpreted string
-    // https://tailwindcss.com/docs/content-configuration#dynamic-class-names
     return `hsl(${dataTypeColorHueMap[endpointType]} 50% 20%)`;
   else throw Error(`Unknown endpoint type ${endpointType}`);
 };

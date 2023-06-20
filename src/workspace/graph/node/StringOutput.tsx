@@ -1,42 +1,46 @@
-import { FC, useEffect, useMemo } from "react";
+import { FC } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeData } from "./Base";
-import { EndpointDataType, OutputEndpoint } from "./BaseHandle";
+import BaseNode from "./Base";
+import {
+  EndpointDataType,
+  OutputEndpoint,
+  inputEndpointSchema,
+} from "./BaseHandle";
 import { textareaStyles } from "./styles";
-import { useGraphStore } from "../Store";
+import { z } from "zod";
 
-export type StringOutputNodeData = NodeData & {
-  stringOutput?: string;
+const createData = (): NodeData => ({
+  stringOutput: "",
+  inputs: [
+    {
+      id: "string",
+      label: "String",
+      type: EndpointDataType.String,
+      isConnectableTo(output: OutputEndpoint) {
+        return output.type === this.type;
+      },
+    },
+  ],
+});
+
+const dataSchema = z.object({
+  stringOutput: z.string(),
+  inputs: z.tuple([
+    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Image),
+  ]),
+});
+
+type NodeData = z.infer<typeof dataSchema>;
+
+export {
+  createData as createStringOutputNodeData,
+  dataSchema as stringOutputNodeDataSchema,
 };
 
-const StringOutputNode: FC<NodeProps<StringOutputNodeData>> = ({
-  id,
-  data,
-  ...props
-}) => {
-  const initialData = useMemo(
-    () => ({
-      inputs: [
-        {
-          id: "string",
-          label: "String",
-          type: EndpointDataType.String,
-          isConnectableTo(output: OutputEndpoint) {
-            return output.type === this.type;
-          },
-        },
-      ],
-    }),
-    []
-  );
+export type { NodeData as StringOutputNodeData };
 
+const StringOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { inputs, stringOutput } = data;
-
-  const setNodeData = useGraphStore((state) => state.setNodeData);
-
-  useEffect(() => {
-    setNodeData<typeof initialData>(id, initialData);
-  }, []);
 
   return (
     <BaseNode id={id} data={data} label="String Output" {...props}>

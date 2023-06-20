@@ -3,7 +3,7 @@ import { NodeProps } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
 import BaseHandle, { InputEndpoint, OutputEndpoint } from "./BaseHandle";
 
-export type NodeData = {
+export type BaseNodeData = {
   inputs?: InputEndpoint[];
   outputs?: OutputEndpoint[];
 };
@@ -35,7 +35,7 @@ const BaseHandles: FC<{
 
 interface PropTypes extends NodeProps {
   label?: string;
-  data: NodeData;
+  data: BaseNodeData;
 }
 
 const BaseNode: FC<PropsWithChildren<PropTypes>> = ({

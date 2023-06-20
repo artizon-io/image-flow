@@ -74,61 +74,39 @@ const useGraphToolboxMenuStore = create<{
             {
               label: "Automatic 1111",
               handler: () =>
-                useGraphStore.getState().createNode("automatic-1111", {}),
+                useGraphStore.getState().createNode("automatic-1111"),
             },
           ],
         },
         {
           label: "Model",
-          handler: () =>
-            useGraphStore.getState().createNode("model", {
-              modelName: "Dreamshaper",
-              modelVersion: "v1",
-            }),
+          handler: () => useGraphStore.getState().createNode("model"),
         },
         {
           label: "Primitive",
           subItemConfigs: [
             {
               label: "Number",
-              handler: () =>
-                useGraphStore.getState().createNode("number", {
-                  value: 0.85,
-                }),
+              handler: () => useGraphStore.getState().createNode("number"),
             },
             {
               label: "Number Pair",
-              handler: () =>
-                useGraphStore.getState().createNode("number-pair", {
-                  value: [512, 512],
-                }),
+              handler: () => useGraphStore.getState().createNode("number-pair"),
             },
             {
               label: "String",
-              handler: () =>
-                useGraphStore.getState().createNode("string", {
-                  initialValue: "Cute cat",
-                }),
+              handler: () => useGraphStore.getState().createNode("string"),
             },
             {
               label: "String Number Map",
               handler: () =>
-                useGraphStore.getState().createNode("string-number-map", {
-                  value: new Map([
-                    ["Cute cat", 3],
-                    ["8k", 0.85],
-                    ["Cartoon", 1],
-                  ]),
-                }),
+                useGraphStore.getState().createNode("string-number-map"),
             },
           ],
         },
         {
           label: "Lora Number Map",
-          handler: () =>
-            useGraphStore.getState().createNode("lora-number-map", {
-              value: new Map([["CatLora", 1]]),
-            }),
+          handler: () => useGraphStore.getState().createNode("lora-number-map"),
         },
         {
           label: "Output",
@@ -136,12 +114,12 @@ const useGraphToolboxMenuStore = create<{
             {
               label: "Image",
               handler: () =>
-                useGraphStore.getState().createNode("image-output", {}),
+                useGraphStore.getState().createNode("image-output"),
             },
             {
               label: "Text",
               handler: () =>
-                useGraphStore.getState().createNode("text-output", {}),
+                useGraphStore.getState().createNode("string-output"),
             },
           ],
         },

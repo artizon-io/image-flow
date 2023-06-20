@@ -1,59 +1,50 @@
-import { ChangeEventHandler, FC, useEffect, useMemo } from "react";
+import { ChangeEventHandler, FC } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeData } from "./Base";
-import { EndpointDataType, OutputEndpoint } from "./BaseHandle";
+import BaseNode from "./Base";
+import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles } from "./styles";
 import { useGraphStore } from "../Store";
+import { produce } from "immer";
+import { z } from "zod";
 
-export type NumberNodeData = NodeData & {
-  initialValue?: number;
+const createData = (value?: number): NodeData => ({
+  outputs: [
+    {
+      id: "output-number",
+      label: "Number",
+      type: EndpointDataType.Number,
+      value: value ?? 0,
+    },
+  ],
+});
+
+const dataSchema = z.object({
+  outputs: z.tuple([
+    outputEndpointSchema.refine((val) => val.type === EndpointDataType.Number),
+  ]),
+});
+
+type NodeData = z.infer<typeof dataSchema>;
+
+export {
+  createData as createNumberNodeData,
+  dataSchema as numberNodeDataSchema,
 };
 
-const NumberNode: FC<NodeProps<NumberNodeData>> = ({ id, data, ...props }) => {
-  const initialData = useMemo(
-    () =>
-      ({
-        outputs: [
-          {
-            id: "output-number",
-            label: "Number",
-            type: EndpointDataType.Number,
-            value: 0,
-          },
-        ] as [OutputEndpoint],
-      }),
-    []
-  );
+export type { NodeData as NumberNodeData };
 
+const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
 
-  useEffect(() => {
-    setNodeData<typeof initialData>(id, {
-      ...initialData,
-      outputs: [
-        {
-          ...initialData.outputs[0],
-          value: data.initialValue ?? 0,
-        },
-      ],
-    });
-  }, []);
-
   const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    console.debug(e.target.value);
-    setNodeData(id, {
-      ...data,
-      outputs: [
-        {
-          ...outputs![0],
-          value: parseInt(e.target.value),
-        },
-      ],
-    });
+    setNodeData<NodeData>(
+      id,
+      produce(data, (draft) => {
+        draft.outputs[0].value = parseInt(e.target.value);
+      })
+    );
   };
-
-  if (!outputs) return null;
 
   return (
     <BaseNode id={id} data={data} label="Number" {...props}>

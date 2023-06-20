@@ -1,67 +1,67 @@
-import { FC, useEffect, useMemo, useRef } from "react";
+import { FC, useEffect, useRef } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeData } from "./Base";
-import { EndpointDataType, OutputEndpoint } from "./BaseHandle";
+import BaseNode from "./Base";
+import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, labelStyles } from "./styles";
 import { twoColumnGridStyles } from "./styles";
 import { useGraphStore } from "../Store";
+import { z } from "zod";
+import { produce } from "immer";
 
-export type NumberPairNodeData = NodeData & {
-  initialValue?: [number, number];
+const createData = (value?: [number, number]): NodeData => ({
+  outputs: [
+    {
+      id: "output-number-pair",
+      label: "Number Pair",
+      type: EndpointDataType.NumberPair,
+      value: value ?? [0, 0],
+    },
+  ],
+});
+
+const dataSchema = z.object({
+  outputs: z.tuple([
+    outputEndpointSchema.refine(
+      (val) => val.type === EndpointDataType.NumberPair
+    ),
+  ]),
+});
+
+type NodeData = z.infer<typeof dataSchema>;
+
+export {
+  createData as createNumberPairNodeData,
+  dataSchema as numberPairNodeDataSchema,
 };
 
-const NumberPairNode: FC<NodeProps<NumberPairNodeData>> = ({
-  id,
-  data,
-  ...props
-}) => {
-  const initialData = useMemo(
-    () =>
-      ({
-        outputs: [
-          {
-            id: "output-number-pair",
-            label: "Number Pair",
-            type: EndpointDataType.NumberPair,
-            value: [0, 0] as [number, number],
-          },
-        ] as [OutputEndpoint],
-      }),
-    []
-  );
+export type { NodeData as NumberPairNodeData };
 
+const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
   const xRef = useRef<HTMLInputElement>(null);
   const yRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setNodeData<typeof initialData>(id, {
-      ...initialData,
-      outputs: [
-        {
-          ...initialData.outputs[0],
-          value: data.initialValue ?? [0, 0],
-        },
-      ],
-    });
-  }, []);
-
-  const handleValueChange = () => {
+  const handleValueChange = (type: "x" | "y", value: string) => {
     if (!xRef.current || !yRef.current) return;
 
-    setNodeData(id, {
-      ...data,
-      outputs: [
-        {
-          ...outputs![0],
-          value: [parseInt(xRef.current.value), parseInt(yRef.current.value)],
-        },
-      ],
-    });
+    setNodeData(
+      id,
+      produce(data, (draft) => {
+        if (type === "x") {
+          draft.outputs[0].value = [
+            parseInt(value),
+            parseInt(yRef.current!.value),
+          ];
+        } else {
+          draft.outputs[0].value = [
+            parseInt(xRef.current!.value),
+            parseInt(value),
+          ];
+        }
+      })
+    );
   };
-
-  if (!outputs) return null;
 
   return (
     <BaseNode id={id} data={data} label="Number Pair" {...props}>
@@ -70,17 +70,17 @@ const NumberPairNode: FC<NodeProps<NumberPairNodeData>> = ({
         <input
           className={inputStyles}
           type="number"
-          value={outputs![0].value[0]}
+          value={outputs[0].value[0]}
           ref={xRef}
-          onChange={(e) => handleValueChange()}
+          onChange={(e) => handleValueChange("x", e.target.value)}
         />
         <label className={labelStyles}>Y:</label>
         <input
           className={inputStyles}
           type="number"
-          value={outputs![0].value[1]}
+          value={outputs[0].value[1]}
           ref={yRef}
-          onChange={(e) => handleValueChange()}
+          onChange={(e) => handleValueChange("y", e.target.value)}
         />
       </div>
     </BaseNode>

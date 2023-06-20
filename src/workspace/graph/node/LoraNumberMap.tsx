@@ -1,75 +1,70 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeData } from "./Base";
-import { InputEndpoint, EndpointDataType } from "./BaseHandle";
+import BaseNode from "./Base";
+import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, twoColumnGridStyles } from "./styles";
 import { twMerge } from "tailwind-merge";
 import { useGraphStore } from "../Store";
+import { z } from "zod";
+import { produce } from "immer";
 
-export type LoraNumberMapNodeData = NodeData & {
-  initialValue?: LoraMap;
+const createData = (value?: LoraMap): NodeData => ({
+  outputs: [
+    {
+      id: "lora-number-map",
+      label: "Lora Number Map",
+      type: EndpointDataType.LoraNumberMap,
+      value: value ?? new Map(),
+    },
+  ],
+});
+
+const dataSchema = z.object({
+  outputs: z.tuple([
+    outputEndpointSchema.refine(
+      (val) => val.type === EndpointDataType.LoraNumberMap
+    ),
+  ]),
+});
+
+type NodeData = z.infer<typeof dataSchema>;
+
+export {
+  createData as createLoraNumberMapNodeData,
+  dataSchema as loraNumberMapNodeDataSchema,
 };
 
-const LoraNumberMap: FC<NodeProps<LoraNumberMapNodeData>> = ({
-  id,
-  data,
-  ...props
-}) => {
-  const initialData = useMemo(
-    () => ({
-      outputs: [
-        {
-          id: "lora-number-map",
-          label: "Lora Number Map",
-          type: EndpointDataType.LoraNumberMap,
-          isConnectableTo(input: InputEndpoint) {
-            return input.type === this.type;
-          },
-          value: new Map() as LoraMap,
-        },
-      ],
-    }),
-    []
-  );
+export type { NodeData as LoraNumberMapNodeData };
 
+const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
-
-  useEffect(() => {
-    setNodeData<typeof initialData>(id, {
-      ...initialData,
-      outputs: [
-        {
-          ...initialData.outputs[0],
-          value: data.initialValue ?? new Map(),
-        },
-      ],
-    });
-  }, []);
-
-  if (!outputs) return null;
 
   return (
     <BaseNode id={id} data={data} label="Lora Number Map" {...props}>
       <div className={twMerge(twoColumnGridStyles, "gap-x-1 gap-y-2")}>
         {/* TODO: find a better key */}
-        {[...outputs![0].value].map(([lora, number], index) => (
+        {[...outputs[0].value].map(([lora, number], index) => (
           <Item
             key={index}
             lora={lora}
             number={number}
             setLora={(newLora) => {
-              outputs![0].value.set(newLora, number);
-              outputs![0].value.delete(lora);
-              setNodeData(id, {
-                ...data,
-              });
+              setNodeData(
+                id,
+                produce(data, (draft) => {
+                  draft.outputs[0].value.set(newLora, number);
+                  draft.outputs[0].value.delete(lora);
+                })
+              );
             }}
             setNumber={(newNumber) => {
-              outputs![0].value.set(lora, newNumber);
-              setNodeData(id, {
-                ...data,
-              });
+              setNodeData(
+                id,
+                produce(data, (draft) => {
+                  draft.outputs[0].value.set(lora, newNumber);
+                })
+              );
             }}
           />
         ))}

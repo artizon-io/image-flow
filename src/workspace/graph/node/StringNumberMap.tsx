@@ -1,72 +1,74 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeData } from "./Base";
-import { EndpointDataType, InputEndpoint } from "./BaseHandle";
+import BaseNode from "./Base";
+import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, twoColumnGridStyles } from "./styles";
 import { twMerge } from "tailwind-merge";
 import { useGraphStore } from "../Store";
+import { produce } from "immer";
+import { z } from "zod";
 
-export type StringNumberMapNodeData = NodeData & {
-  initialValue?: Map<string, number>;
+const createData = (value?: Map<string, number>): NodeData => ({
+  outputs: [
+    {
+      id: "string-number-map",
+      label: "String Number Map",
+      type: EndpointDataType.StringNumberMap,
+      value: value ?? new Map<string, number>(),
+    },
+  ],
+});
+
+const dataSchema = z.object({
+  outputs: z.tuple([
+    outputEndpointSchema.refine(
+      (val) => val.type === EndpointDataType.StringNumberMap
+    ),
+  ]),
+});
+
+type NodeData = z.infer<typeof dataSchema>;
+
+export {
+  createData as createStringNumberMapNodeData,
+  dataSchema as stringNumberMapNodeDataSchema,
 };
 
-const StringNumberMapNode: FC<NodeProps<StringNumberMapNodeData>> = ({
+export type { NodeData as StringNumberMapNodeData };
+
+const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
   id,
   data,
   ...props
 }) => {
-  const initialData = useMemo(
-    () => ({
-      outputs: [
-        {
-          id: "string-number-map",
-          label: "String Number Map",
-          type: EndpointDataType.StringNumberMap,
-          value: new Map() as Map<string, number>,
-        },
-      ],
-    }),
-    []
-  );
-
   const { outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
-
-  useEffect(() => {
-    setNodeData<typeof initialData>(id, {
-      ...initialData,
-      outputs: [
-        {
-          ...initialData.outputs[0],
-          value: data.initialValue ?? new Map(),
-        },
-      ],
-    });
-  }, []);
-
-  if (!outputs) return null;
 
   return (
     <BaseNode id={id} data={data} label="String Number Map" {...props}>
       <div className={twMerge(twoColumnGridStyles, "gap-x-1 gap-y-2")}>
         {/* TODO: find a better key */}
-        {[...outputs![0].value].map(([string, number], index) => (
+        {[...outputs[0].value].map(([string, number], index) => (
           <Item
             key={index}
             string={string}
             number={number}
             setString={(newString) => {
-              outputs![0].value.set(newString, number);
-              outputs![0].value.delete(string);
-              setNodeData(id, {
-                ...data,
-              });
+              setNodeData(
+                id,
+                produce(data, (draft) => {
+                  draft.outputs[0].value.set(newString, number);
+                  draft.outputs[0].value.delete(string);
+                })
+              );
             }}
             setNumber={(newNumber) => {
-              outputs![0].value.set(string, newNumber);
-              setNodeData(id, {
-                ...data,
-              });
+              setNodeData(
+                id,
+                produce(data, (draft) => {
+                  draft.outputs[0].value.set(string, newNumber);
+                })
+              );
             }}
           />
         ))}

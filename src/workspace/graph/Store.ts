@@ -11,44 +11,103 @@ import {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "./react-flow.css";
-import Automatic1111Node, { Automatic1111NodeData } from "./node/Automatic1111";
-import ImageOutputNode, { ImageOutputNodeData } from "./node/ImageOutput";
-import StringOutputNode, { StringOutputNodeData } from "./node/StringOutput";
-import NumberPairNode, { NumberPairNodeData } from "./node/NumberPair";
-import StringNumberMapNode, {
-  StringNumberMapNodeData,
-} from "./node/StringNumberMap";
-import LoraNumberMapNode, { LoraNumberMapNodeData } from "./node/LoraNumberMap";
-import ModelNode, { ModelNodeData } from "./node/Model";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
 import superjson from "superjson";
 import { v4 as uuidv4 } from "uuid";
 import { useNotificationStore } from "../../singleton/Notification/Store";
-import { NodeData } from "./node/Base";
-import NumberNode, { NumberNodeData } from "./node/Number";
-import StringNode, { StringNodeData } from "./node/String";
+import { BaseNodeData } from "./node/Base";
+
+import Automatic1111Node, {
+  Automatic1111NodeData,
+  automatic1111NodeDataSchema,
+  createAutomatic1111NodeData,
+} from "./node/Automatic1111";
+import NumberNode, {
+  NumberNodeData,
+  createNumberNodeData,
+  numberNodeDataSchema,
+} from "./node/Number";
+import StringNode, {
+  StringNodeData,
+  createStringNodeData,
+  stringNodeDataSchema,
+} from "./node/String";
+import ImageOutputNode, {
+  ImageOutputNodeData,
+  createImageOutputNodeData,
+  imageOutputNodeDataSchema,
+} from "./node/ImageOutput";
+import StringOutputNode, {
+  StringOutputNodeData,
+  createStringOutputNodeData,
+  stringOutputNodeDataSchema,
+} from "./node/StringOutput";
+import ModelNode, {
+  ModelNodeData,
+  createModelNodeData,
+  modelNodeDataSchema,
+} from "./node/Model";
+import NumberPairNode, {
+  NumberPairNodeData,
+  createNumberPairNodeData,
+  numberPairNodeDataSchema,
+} from "./node/NumberPair";
+import StringNumberMapNode, {
+  StringNumberMapNodeData,
+  createStringNumberMapNodeData,
+  stringNumberMapNodeDataSchema,
+} from "./node/StringNumberMap";
+import LoraNumberMapNode, {
+  LoraNumberMapNodeData,
+  createLoraNumberMapNodeData,
+  loraNumberMapNodeDataSchema,
+} from "./node/LoraNumberMap";
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
-  model: ModelNode,
   number: NumberNode,
   string: StringNode,
   "image-output": ImageOutputNode,
-  "text-output": StringOutputNode,
+  "string-output": StringOutputNode,
+  model: ModelNode,
   "number-pair": NumberPairNode,
   "string-number-map": StringNumberMapNode,
   "lora-number-map": LoraNumberMapNode,
 } as const;
 
+const nodeDataSchemas = {
+  "automatic-1111": automatic1111NodeDataSchema,
+  number: numberNodeDataSchema,
+  string: stringNodeDataSchema,
+  "image-output": imageOutputNodeDataSchema,
+  "string-output": stringOutputNodeDataSchema,
+  model: modelNodeDataSchema,
+  "number-pair": numberPairNodeDataSchema,
+  "string-number-map": stringNumberMapNodeDataSchema,
+  "lora-number-map": loraNumberMapNodeDataSchema,
+} as const;
+
+const nodeCreateDataFunctions = {
+  "automatic-1111": createAutomatic1111NodeData,
+  number: createNumberNodeData,
+  string: createStringNodeData,
+  "image-output": createImageOutputNodeData,
+  "string-output": createStringOutputNodeData,
+  model: createModelNodeData,
+  "number-pair": createNumberPairNodeData,
+  "string-number-map": createStringNumberMapNodeData,
+  "lora-number-map": createLoraNumberMapNodeData,
+} as const;
+
 type NodeDataMap = {
   "automatic-1111": Automatic1111NodeData;
-  model: ModelNodeData;
   number: NumberNodeData;
   string: StringNodeData;
   "image-output": ImageOutputNodeData;
-  "text-output": StringOutputNodeData;
+  "string-output": StringOutputNodeData;
+  model: ModelNodeData;
   "number-pair": NumberPairNodeData;
   "string-number-map": StringNumberMapNodeData;
   "lora-number-map": LoraNumberMapNodeData;
@@ -64,11 +123,10 @@ export const useGraphStore = create<{
   getEdge: (id: string) => Edge | undefined;
   createNode: <T extends keyof typeof nodeTypes>(
     nodeType: T,
-    data: NodeDataMap[T],
-    position?: { x: number; y: number }
+    data?: NodeDataMap[T]
   ) => boolean;
-  setNodeData: <T extends NodeData>(id: string, data: T) => boolean;
-  getNodeData: <T extends NodeData>(id: string) => T | undefined;
+  setNodeData: <T extends BaseNodeData>(id: string, data: T) => boolean;
+  getNodeData: <T extends BaseNodeData>(id: string) => T | undefined;
   onConnect: (connection: Connection) => boolean;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
@@ -108,7 +166,7 @@ export const useGraphStore = create<{
         }));
         return true;
       },
-      getNodeData: <T extends NodeData>(id: string) =>
+      getNodeData: <T extends BaseNodeData>(id: string) =>
         get().getNode(id)?.data as T | undefined,
       /**
        * Return True if the connection was added successfully, else return False
@@ -189,14 +247,14 @@ export const useGraphStore = create<{
       /**
        * Return True if the node was added successfully, else return False
        */
-      createNode: (nodeType, data, position = { x: 0, y: 0 }) => {
+      createNode: (nodeType, data) => {
         // TODO: spawn the node in better position
         const id = uuidv4();
         const newNode = {
           id,
           type: nodeType,
-          data,
-          position,
+          data: data ?? nodeCreateDataFunctions[nodeType](),
+          position: { x: 0, y: 0 },
         };
         set((state) => ({
           ...state,
@@ -277,10 +335,6 @@ export const useGraphStore = create<{
           return current;
         }
 
-        // const { nodes: newNodes, edges: newEdges } = persisted as z.infer<
-        //   typeof schema
-        // >;
-
         return {
           ...current,
           nodes: [...current.nodes, ...parseResult.data.nodes],
@@ -295,7 +349,7 @@ export const useGraphStore = create<{
           ]),
         };
       },
-      // TODO: hash it to prevent tempering
+      // TODO: reconstruct indicies?
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name);

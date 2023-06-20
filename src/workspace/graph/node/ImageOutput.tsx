@@ -1,42 +1,45 @@
-import { FC, useEffect, useMemo } from "react";
+import { FC } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeData } from "./Base";
-import { EndpointDataType, InputEndpoint, OutputEndpoint } from "./BaseHandle";
-import { useGraphStore } from "../Store";
+import BaseNode from "./Base";
+import {
+  EndpointDataType,
+  OutputEndpoint,
+  inputEndpointSchema,
+} from "./BaseHandle";
+import { z } from "zod";
 
-export type ImageOutputNodeData = NodeData & {
-  imageOutput?: string;
+const createData = (): NodeData => ({
+  imageOutput: "",
+  inputs: [
+    {
+      id: "image",
+      label: "Image",
+      type: EndpointDataType.Image,
+      isConnectableTo(output: OutputEndpoint) {
+        return output.type === this.type;
+      },
+    },
+  ],
+});
+
+const dataSchema = z.object({
+  imageOutput: z.string(),
+  inputs: z.tuple([
+    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Image),
+  ]),
+});
+
+type NodeData = z.infer<typeof dataSchema>;
+
+export {
+  createData as createImageOutputNodeData,
+  dataSchema as imageOutputNodeDataSchema,
 };
 
-const ImageOutputNode: FC<NodeProps<ImageOutputNodeData>> = ({
-  id,
-  data,
-  ...props
-}) => {
-  const initialData = useMemo(
-    () =>
-      ({
-        inputs: [
-          {
-            id: "image",
-            label: "Image",
-            type: EndpointDataType.Image,
-            isConnectableTo(output: OutputEndpoint) {
-              return output.type === this.type;
-            },
-          },
-        ] as [InputEndpoint],
-      }),
-    []
-  );
+export type { NodeData as ImageOutputNodeData };
 
+const ImageOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { inputs, imageOutput } = data;
-
-  const setNodeData = useGraphStore((state) => state.setNodeData);
-
-  useEffect(() => {
-    setNodeData<typeof initialData>(id, initialData);
-  }, []);
 
   return (
     <BaseNode id={id} data={data} label="Image Output" {...props}>

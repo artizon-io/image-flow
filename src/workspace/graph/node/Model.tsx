@@ -1,60 +1,45 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeData } from "./Base";
-import { EndpointDataType, OutputEndpoint } from "./BaseHandle";
+import BaseNode from "./Base";
+import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, labelStyles, twoColumnGridStyles } from "./styles";
-import { useGraphStore } from "../Store";
+import { z } from "zod";
 
-class Model {}
+const createData = (model?: {
+  modelName: string;
+  modelVersion: string;
+}): NodeData => ({
+  modelName: model?.modelName ?? "",
+  modelVersion: model?.modelVersion ?? "",
+  outputs: [
+    {
+      id: "model",
+      label: "Model",
+      type: EndpointDataType.Model,
+      value: model ?? {},
+    },
+  ],
+});
 
-export type ModelNodeData = NodeData & {
-  initialModelName?: string;
-  initialModelVersion?: string;
-  modelName?: string;
-  modelVersion?: string;
-};
+const dataSchema = z.object({
+  modelName: z.string(),
+  modelVersion: z.string(),
+  outputs: z.tuple([
+    outputEndpointSchema.refine((val) => val.type === EndpointDataType.Model),
+  ]),
+});
 
-const StableDiffusionModelNode: FC<NodeProps<ModelNodeData>> = ({
+type NodeData = z.infer<typeof dataSchema>;
+
+export { createData as createModelNodeData, dataSchema as modelNodeDataSchema };
+
+export type { NodeData as ModelNodeData };
+
+const ModelNode: FC<NodeProps<NodeData>> = ({
   id,
   data,
   ...props
 }) => {
-  const initialData = useMemo(
-    () => ({
-      modelName: "" as string,
-      modelVersion: "" as string,
-      outputs: [
-        {
-          id: "model",
-          label: "Model",
-          type: EndpointDataType.Model,
-          value: new Model(),
-        },
-      ] as [OutputEndpoint],
-    }),
-    []
-  );
-
-  const { outputs } = data;
-  const setNodeData = useGraphStore((state) => state.setNodeData);
-
-  useEffect(() => {
-    setNodeData<typeof initialData>(id, {
-      ...initialData,
-      modelName: data.initialModelName ?? "",
-      modelVersion: data.initialModelVersion ?? "",
-      outputs: [
-        {
-          ...initialData.outputs[0],
-          // TODO: create model class
-          value: new Model(),
-        },
-      ],
-    });
-  }, []);
-
-  if (!outputs) return null;
-
   return (
     <BaseNode id={id} data={data} label="Stable Diffusion Model" {...props}>
       <div className={twoColumnGridStyles}>
@@ -71,4 +56,4 @@ const StableDiffusionModelNode: FC<NodeProps<ModelNodeData>> = ({
   );
 };
 
-export default StableDiffusionModelNode;
+export default ModelNode;

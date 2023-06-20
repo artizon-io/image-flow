@@ -70,7 +70,7 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
         <input
           className={inputStyles}
           type="number"
-          value={outputs[0].value[0]}
+          value={isNaN(outputs[0].value[0]) ? 0 : outputs[0].value[0]}
           ref={xRef}
           onChange={(e) => handleValueChange("x", e.target.value)}
         />
@@ -78,7 +78,7 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
         <input
           className={inputStyles}
           type="number"
-          value={outputs[0].value[1]}
+          value={isNaN(outputs[0].value[1]) ? 0 : outputs[0].value[1]}
           ref={yRef}
           onChange={(e) => handleValueChange("y", e.target.value)}
         />

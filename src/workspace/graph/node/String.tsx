@@ -1,5 +1,5 @@
 import { ChangeEventHandler, FC } from "react";
-import { NodeProps } from "reactflow";
+import { NodeProps, useUpdateNodeInternals } from "reactflow";
 import BaseNode from "./Base";
 import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { textareaStyles } from "./styles";

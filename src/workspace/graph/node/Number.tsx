@@ -38,10 +38,11 @@ const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const setNodeData = useGraphStore((state) => state.setNodeData);
 
   const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const value = parseInt(e.target.value);
     setNodeData<NodeData>(
       id,
       produce(data, (draft) => {
-        draft.outputs[0].value = parseInt(e.target.value);
+        draft.outputs[0].value = value;
       })
     );
   };
@@ -52,7 +53,7 @@ const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
         className={inputStyles}
         type="number"
         onChange={handleValueChange}
-        value={outputs![0].value}
+        value={isNaN(outputs[0].value) ? 0 : outputs[0].value}
       />
     </BaseNode>
   );

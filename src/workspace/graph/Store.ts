@@ -18,6 +18,7 @@ import superjson from "superjson";
 import { v4 as uuidv4 } from "uuid";
 import { useNotificationStore } from "../../singleton/Notification/Store";
 import { BaseNodeData } from "./node/Base";
+import { produce } from "immer";
 
 import Automatic1111Node, {
   Automatic1111NodeData,
@@ -113,13 +114,15 @@ type NodeDataMap = {
   "lora-number-map": LoraNumberMapNodeData;
 };
 
+// TODO: create index for efficient lookup of nodes and edges
+
 export const useGraphStore = create<{
   nodeTypes: NodeTypes;
   nodes: Node[];
-  nodeIndex: Map<string, Node>;
+  // nodeIndex: Map<string, Node>;
   getNode: (id: string) => Node | undefined;
   edges: Edge[];
-  edgeIndex: Map<string, Edge>;
+  // edgeIndex: Map<string, Edge>;
   getEdge: (id: string) => Edge | undefined;
   createNode: <T extends keyof typeof nodeTypes>(
     nodeType: T,
@@ -136,10 +139,17 @@ export const useGraphStore = create<{
       nodeTypes: nodeTypes,
       nodes: [],
       edges: [],
-      nodeIndex: new Map(),
-      edgeIndex: new Map(),
+      // nodeIndex: new Map(),
+      // edgeIndex: new Map(),
       onNodesChange: (changes: NodeChange[]) => {
         console.debug("Triggering onNodesChange", changes);
+        // changes.forEach((change) => {
+        //   if (change.type === "remove") {
+        //     const removeSuccess = get().nodeIndex.delete(change.id);
+        //     if (!removeSuccess)
+        //       console.error("Failed to remove node from index", change);
+        //   }
+        // });
         set({
           nodes: applyNodeChanges(changes, get().nodes),
         });
@@ -150,20 +160,22 @@ export const useGraphStore = create<{
           edges: applyEdgeChanges(changes, get().edges),
         });
       },
-      getNode: (id) => get().nodeIndex.get(id),
-      getEdge: (id) => get().edgeIndex.get(id),
-      // Node data should only be updated by the nodes themselves
+      // getNode: (id) => get().nodeIndex.get(id),
+      getNode: (id) => get().nodes.find((node) => node.id === id),
+      // getEdge: (id) => get().edgeIndex.get(id),
+      getEdge: (id) => get().edges.find((edge) => edge.id === id),
       setNodeData: (id, data) => {
-        const node = get().getNode(id);
-        if (!node) {
+        const nodes = produce(get().nodes, (draft) => {
+          const node = draft.find((n) => n.id === id);
+          if (!node) return;
+
+          node.data = data;
+        });
+        if (!nodes) {
           console.error(`Fail to find node ${id}`);
           return false;
         }
-        node.data = data;
-        set((state) => ({
-          ...state,
-          nodes: [...state.nodes],
-        }));
+        set({ nodes });
         return true;
       },
       getNodeData: <T extends BaseNodeData>(id: string) =>
@@ -183,52 +195,47 @@ export const useGraphStore = create<{
           !connection.sourceHandle ||
           !connection.targetHandle
         ) {
-          useNotificationStore
-            .getState()
-            .showNotification("Error", `Fail to connect nodes`);
+          console.error("Connection information is incomplete");
           return false;
         }
 
-        // // TODO: optimize the performance by appending the node type data to the connection
-        // const findNodeTypeById = (id: string) =>
-        //   get().nodes.find((n) => n.id === id)?.type;
+        const targetNode = get().getNode(connection.target);
+        const sourceNode = get().getNode(connection.source);
 
-        // // Just to stop TS from complaining that we might be indexing with
-        // // a non-existent key or an `undefined` key
-        // const sourceNodeType = findNodeTypeById(
-        //   connection.source
-        // ) as keyof typeof nodeTypeConfigs;
-        // const targetNodeType = findNodeTypeById(
-        //   connection.target
-        // ) as keyof typeof nodeTypeConfigs;
+        if (!targetNode || !sourceNode) {
+          console.error(
+            "Fail to find source/target node of connection",
+            connection
+          );
+          return false;
+        }
 
-        // const sourceEndpoint = nodeTypeConfigs[sourceNodeType]?.outputs?.find(
-        //   (o) => o.id === connection.sourceHandle
-        // );
+        const targetEndpoint = (targetNode.data as BaseNodeData).inputs?.find(
+          (i) => i.id === connection.targetHandle
+        );
+        const sourceEndpoint = (sourceNode.data as BaseNodeData).outputs?.find(
+          (o) => o.id === connection.sourceHandle
+        );
 
-        // const targetEndpoint = nodeTypeConfigs[targetNodeType]?.inputs?.find(
-        //   (i) => i.id === connection.targetHandle
-        // );
+        if (!targetEndpoint || !sourceEndpoint) {
+          console.error(
+            "Fail to find source/target handle of connection",
+            connection
+          );
+          return false;
+        }
 
-        // if (
-        //   !(
-        //     sourceEndpoint &&
-        //     targetEndpoint &&
-        //     sourceEndpoint.isConnectableTo(targetEndpoint) &&
-        //     targetEndpoint.isConnectableTo(sourceEndpoint)
-        //   )
-        // ) {
-        //   useNotificationStore
-        //     .getState()
-        //     .showNotification(
-        //       "Error",
-        //       `Fail to connect ${sourceNodeType}'s ${connection.sourceHandle} to ${targetEndpoint}'s ${connection.targetHandle}`
-        //     );
-        //   return false;
-        // }
+        if (!targetEndpoint.isConnectableTo(sourceEndpoint)) {
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Error",
+              `Fail to connect ${targetEndpoint.label} to ${sourceEndpoint.label}`
+            );
+          return false;
+        }
 
-        set((state) => ({
-          ...state,
+        set({
           edges: addEdge(
             {
               id: uuidv4(),
@@ -241,7 +248,7 @@ export const useGraphStore = create<{
             },
             get().edges
           ),
-        }));
+        });
         return true;
       },
       /**
@@ -256,11 +263,10 @@ export const useGraphStore = create<{
           data: data ?? nodeCreateDataFunctions[nodeType](),
           position: { x: 0, y: 0 },
         };
-        set((state) => ({
-          ...state,
+        set({
           nodes: [...get().nodes, newNode],
-        }));
-        get().nodeIndex.set(id, newNode);
+        });
+        // get().nodeIndex.set(id, newNode);
         return true;
       },
     }),
@@ -269,12 +275,13 @@ export const useGraphStore = create<{
       partialize: (state) => ({
         nodes: state.nodes,
         edges: state.edges,
-        nodeIndex: state.nodeIndex,
-        edgeIndex: state.edgeIndex,
+        // nodeIndex: state.nodeIndex,
+        // edgeIndex: state.edgeIndex,
       }),
 
       // TODO: save graph state in a more performant storage
       // TODO: reduce the frequency of writing graph state to storage (particular on node drag)
+      // TODO: improve safety
 
       // Note: the persisted state is already partialized
       merge: (persisted, current) => {
@@ -310,13 +317,13 @@ export const useGraphStore = create<{
           animated: z.boolean(),
           label: z.string().optional(),
         });
-        const nodeIndexSchema = z.map(z.string(), nodeSchema);
-        const edgeIndexSchema = z.map(z.string(), edgeSchema);
+        // const nodeIndexSchema = z.map(z.string(), nodeSchema);
+        // const edgeIndexSchema = z.map(z.string(), edgeSchema);
         const schema = z.object({
           nodes: z.array(nodeSchema),
           edges: z.array(edgeSchema),
-          nodeIndex: nodeIndexSchema,
-          edgeIndex: edgeIndexSchema,
+          // nodeIndex: nodeIndexSchema,
+          // edgeIndex: edgeIndexSchema,
         });
 
         const parseResult = schema.safeParse(persisted);
@@ -339,14 +346,14 @@ export const useGraphStore = create<{
           ...current,
           nodes: [...current.nodes, ...parseResult.data.nodes],
           edges: [...current.edges, ...parseResult.data.edges],
-          nodeIndex: new Map([
-            ...current.nodeIndex,
-            ...parseResult.data.nodeIndex,
-          ]),
-          edgeIndex: new Map([
-            ...current.edgeIndex,
-            ...parseResult.data.edgeIndex,
-          ]),
+          // nodeIndex: new Map([
+          //   ...current.nodeIndex,
+          //   ...parseResult.data.nodeIndex,
+          // ]),
+          // edgeIndex: new Map([
+          //   ...current.edgeIndex,
+          //   ...parseResult.data.edgeIndex,
+          // ]),
         };
       },
       // TODO: reconstruct indicies?
@@ -365,15 +372,15 @@ export const useGraphStore = create<{
             state: {
               nodes: deserializedValue?.state?.nodes,
               edges: deserializedValue?.state?.edges,
-              nodeIndex: deserializedValue?.state?.nodeIndex,
-              edgeIndex: deserializedValue?.state?.edgeIndex,
+              // nodeIndex: deserializedValue?.state?.nodeIndex,
+              // edgeIndex: deserializedValue?.state?.edgeIndex,
             },
             version: deserializedValue?.version,
           };
         },
         setItem: (name, value) => {
           const serializedValue = superjson.stringify(value);
-          console.debug("Saving Graph state to local storage", serializedValue);
+          // console.debug("Saving Graph state to local storage", serializedValue);
           localStorage.setItem(name, serializedValue);
         },
         removeItem: (name) => localStorage.removeItem(name),

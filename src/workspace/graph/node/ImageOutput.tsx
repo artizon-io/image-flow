@@ -1,38 +1,47 @@
-import { FC } from "react";
+import { FC, useEffect, useMemo } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeConfig } from "./Base";
-import { NodeEndpointType } from "./BaseHandle";
+import BaseNode, { NodeData } from "./Base";
+import { EndpointDataType, InputEndpoint, OutputEndpoint } from "./BaseHandle";
+import { useGraphStore } from "../Store";
 
-export const config: NodeConfig = {
-  inputs: [
-    {
-      id: "image",
-      label: "Image",
-      type: NodeEndpointType.Image,
-      isConnectableTo(other) {
-        return other.type === this.type;
-      },
-    },
-  ],
+export type ImageOutputNodeData = NodeData & {
+  imageOutput?: string;
 };
 
-export type NodeData = {
-  value?: string;
-};
+const ImageOutputNode: FC<NodeProps<ImageOutputNodeData>> = ({
+  id,
+  data,
+  ...props
+}) => {
+  const initialData = useMemo(
+    () =>
+      ({
+        inputs: [
+          {
+            id: "image",
+            label: "Image",
+            type: EndpointDataType.Image,
+            isConnectableTo(output: OutputEndpoint) {
+              return output.type === this.type;
+            },
+          },
+        ] as [InputEndpoint],
+      }),
+    []
+  );
 
-const ImageOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const { value } = data;
+  const { inputs, imageOutput } = data;
+
+  const setNodeData = useGraphStore((state) => state.setNodeData);
+
+  useEffect(() => {
+    setNodeData<typeof initialData>(id, initialData);
+  }, []);
 
   return (
-    <BaseNode
-      id={id}
-      data={data}
-      config={config}
-      label="Image Output"
-      {...props}
-    >
-      {!!value ? (
-        <img src={value} />
+    <BaseNode id={id} data={data} label="Image Output" {...props}>
+      {!!imageOutput ? (
+        <img src={imageOutput} />
       ) : (
         <div className="flex justify-center items-center w-[220px] h-[220px] bg-neutral-800 opacity-90">
           <p className="text-neutral-500 text-xs font-mono">No Image</p>

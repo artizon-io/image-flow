@@ -2,14 +2,23 @@ import { FC } from "react";
 import { Handle, Position } from "reactflow";
 import { twJoin } from "tailwind-merge";
 
-export type NodeEndpoint = {
+export type Endpoint = {
   id: string;
   label: string;
-  type: NodeEndpointType;
-  isConnectableTo: (other: NodeEndpoint) => boolean;
+  type: EndpointType;
 };
 
-export enum NodeEndpointType {
+export type InputEndpoint = Endpoint & {
+  isConnectableTo: (output: OutputEndpoint) => boolean;
+};
+
+export type OutputEndpoint = Endpoint & {
+  value?: any;
+};
+
+export type EndpointType = null | EndpointDataType | EndpointDataType[];
+
+export enum EndpointDataType {
   Number = "number",
   String = "string",
   StringNumberMap = "string-number-map",
@@ -22,26 +31,29 @@ export enum NodeEndpointType {
 
 // TODO: load the colors from `.config`
 
-const nodeEndpointTypeColorHueMap: Record<NodeEndpointType, number> = {
-  [NodeEndpointType.Number]: 0,
-  [NodeEndpointType.NumberPair]: 0,
-  [NodeEndpointType.String]: 40,
-  [NodeEndpointType.StringNumberMap]: 160,
-  [NodeEndpointType.LoraNumberMap]: 200,
-  [NodeEndpointType.Sampler]: 260,
-  [NodeEndpointType.Model]: 260,
-  [NodeEndpointType.Image]: 300,
+const dataTypeColorHueMap: Record<EndpointDataType, number> = {
+  [EndpointDataType.Number]: 0,
+  [EndpointDataType.NumberPair]: 0,
+  [EndpointDataType.String]: 40,
+  [EndpointDataType.StringNumberMap]: 160,
+  [EndpointDataType.LoraNumberMap]: 200,
+  [EndpointDataType.Sampler]: 260,
+  [EndpointDataType.Model]: 260,
+  [EndpointDataType.Image]: 300,
 };
 
-const getEndpointColor = (
-  endpointType: keyof typeof nodeEndpointTypeColorHueMap
-) =>
-  // Tailwind doesn't support interpreted string
-  // https://tailwindcss.com/docs/content-configuration#dynamic-class-names
-  `hsl(${nodeEndpointTypeColorHueMap[endpointType]} 50% 20%)`;
+const getEndpointColor = (endpointType: EndpointType): string => {
+  if (!endpointType) return `hsl(0 0% 15%)`;
+  else if (Array.isArray(endpointType)) return `hsl(0 0% 25%)`;
+  else if (endpointType in dataTypeColorHueMap)
+    // Tailwind doesn't support interpreted string
+    // https://tailwindcss.com/docs/content-configuration#dynamic-class-names
+    return `hsl(${dataTypeColorHueMap[endpointType]} 50% 20%)`;
+  else throw Error(`Unknown endpoint type ${endpointType}`);
+};
 
 const BaseHandle: FC<{
-  endpointConfig: NodeEndpoint;
+  endpointConfig: InputEndpoint | OutputEndpoint;
   type: "input" | "output";
 }> = ({ endpointConfig, type }) => {
   return (

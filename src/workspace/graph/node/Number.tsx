@@ -1,36 +1,67 @@
-import { FC, useState } from "react";
+import { ChangeEventHandler, FC, useEffect, useMemo } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeConfig } from "./Base";
-import { NodeEndpointType } from "./BaseHandle";
+import BaseNode, { NodeData } from "./Base";
+import { EndpointDataType, OutputEndpoint } from "./BaseHandle";
 import { inputStyles } from "./styles";
+import { useGraphStore } from "../Store";
 
-export const config: NodeConfig = {
-  outputs: [
-    {
-      id: "output-number",
-      label: "Number",
-      type: NodeEndpointType.Number,
-      isConnectableTo(other) {
-        return other.type === this.type;
-      },
-    },
-  ],
+export type NumberNodeData = NodeData & {
+  initialValue?: number;
 };
 
-export type NodeData = {
-  value?: number;
-};
+const NumberNode: FC<NodeProps<NumberNodeData>> = ({ id, data, ...props }) => {
+  const initialData = useMemo(
+    () =>
+      ({
+        outputs: [
+          {
+            id: "output-number",
+            label: "Number",
+            type: EndpointDataType.Number,
+            value: 0,
+          },
+        ] as [OutputEndpoint],
+      }),
+    []
+  );
 
-const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const [value, setValue] = useState<number>(data.value ?? 0);
+  const { outputs } = data;
+  const setNodeData = useGraphStore((state) => state.setNodeData);
+
+  useEffect(() => {
+    setNodeData<typeof initialData>(id, {
+      ...initialData,
+      outputs: [
+        {
+          ...initialData.outputs[0],
+          value: data.initialValue ?? 0,
+        },
+      ],
+    });
+  }, []);
+
+  const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    console.debug(e.target.value);
+    setNodeData(id, {
+      ...data,
+      outputs: [
+        {
+          ...outputs![0],
+          value: parseInt(e.target.value),
+        },
+      ],
+    });
+  };
+
+  if (!outputs) return null;
 
   return (
-    <BaseNode id={id} data={data} config={config} label="Number" {...props}>
+    <BaseNode id={id} data={data} label="Number" {...props}>
       <input
         className={inputStyles}
         type="number"
-        onChange={(e) => setValue(Number(e.target.value))}
-        value={value}
+        onChange={handleValueChange}
+        value={outputs![0].value}
       />
     </BaseNode>
   );

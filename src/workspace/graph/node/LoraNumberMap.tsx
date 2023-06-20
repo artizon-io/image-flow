@@ -1,58 +1,76 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeConfig } from "./Base";
-import { NodeEndpointType } from "./BaseHandle";
+import BaseNode, { NodeData } from "./Base";
+import { InputEndpoint, EndpointDataType } from "./BaseHandle";
 import { inputStyles, twoColumnGridStyles } from "./styles";
 import { twMerge } from "tailwind-merge";
+import { useGraphStore } from "../Store";
 
-export const config: NodeConfig = {
-  outputs: [
-    {
-      id: "lora-number-map",
-      label: "Lora Number Map",
-      type: NodeEndpointType.LoraNumberMap,
-      isConnectableTo(other) {
-        return other.type === this.type;
-      },
-    },
-  ],
+export type LoraNumberMapNodeData = NodeData & {
+  initialValue?: LoraMap;
 };
 
-export type NodeData = {
-  value?: LoraMap;
-};
+const LoraNumberMap: FC<NodeProps<LoraNumberMapNodeData>> = ({
+  id,
+  data,
+  ...props
+}) => {
+  const initialData = useMemo(
+    () => ({
+      outputs: [
+        {
+          id: "lora-number-map",
+          label: "Lora Number Map",
+          type: EndpointDataType.LoraNumberMap,
+          isConnectableTo(input: InputEndpoint) {
+            return input.type === this.type;
+          },
+          value: new Map() as LoraMap,
+        },
+      ],
+    }),
+    []
+  );
 
-const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const [values, setValues] = useState<LoraMap>(data.value ?? new Map());
+  const { outputs } = data;
+  const setNodeData = useGraphStore((state) => state.setNodeData);
+
+  useEffect(() => {
+    setNodeData<typeof initialData>(id, {
+      ...initialData,
+      outputs: [
+        {
+          ...initialData.outputs[0],
+          value: data.initialValue ?? new Map(),
+        },
+      ],
+    });
+  }, []);
+
+  if (!outputs) return null;
 
   return (
-    <BaseNode
-      id={id}
-      data={data}
-      config={config}
-      label="Lora Number Map"
-      {...props}
-    >
+    <BaseNode id={id} data={data} label="Lora Number Map" {...props}>
       <div className={twMerge(twoColumnGridStyles, "gap-x-1 gap-y-2")}>
         {/* TODO: find a better key */}
-        {[...values].map(([lora, number], index) => (
+        {[...outputs![0].value].map(([lora, number], index) => (
           <Item
             key={index}
             lora={lora}
             number={number}
-            setLora={(newLora) =>
-              setValues((state) => {
-                state.set(newLora, number);
-                state.delete(lora);
-                return state;
-              })
-            }
-            setNumber={(newNumber) =>
-              setValues((state) => {
-                state.set(lora, newNumber);
-                return state;
-              })
-            }
+            setLora={(newLora) => {
+              outputs![0].value.set(newLora, number);
+              outputs![0].value.delete(lora);
+              setNodeData(id, {
+                ...data,
+              });
+            }}
+            setNumber={(newNumber) => {
+              outputs![0].value.set(lora, newNumber);
+              setNodeData(id, {
+                ...data,
+              });
+            }}
           />
         ))}
       </div>

@@ -1,39 +1,47 @@
-import { FC } from "react";
+import { FC, useEffect, useMemo } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeConfig } from "./Base";
-import { NodeEndpointType } from "./BaseHandle";
+import BaseNode, { NodeData } from "./Base";
+import { EndpointDataType, OutputEndpoint } from "./BaseHandle";
 import { textareaStyles } from "./styles";
+import { useGraphStore } from "../Store";
 
-export const config: NodeConfig = {
-  inputs: [
-    {
-      id: "string",
-      label: "String",
-      type: NodeEndpointType.String,
-      isConnectableTo(other) {
-        return other.type === this.type;
-      },
-    },
-  ],
+export type StringOutputNodeData = NodeData & {
+  stringOutput?: string;
 };
 
-export type NodeData = {
-  value?: string;
-};
+const StringOutputNode: FC<NodeProps<StringOutputNodeData>> = ({
+  id,
+  data,
+  ...props
+}) => {
+  const initialData = useMemo(
+    () => ({
+      inputs: [
+        {
+          id: "string",
+          label: "String",
+          type: EndpointDataType.String,
+          isConnectableTo(output: OutputEndpoint) {
+            return output.type === this.type;
+          },
+        },
+      ],
+    }),
+    []
+  );
 
-const TextOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const { value } = data;
+  const { inputs, stringOutput } = data;
+
+  const setNodeData = useGraphStore((state) => state.setNodeData);
+
+  useEffect(() => {
+    setNodeData<typeof initialData>(id, initialData);
+  }, []);
 
   return (
-    <BaseNode
-      id={id}
-      data={data}
-      config={config}
-      label="String Output"
-      {...props}
-    >
+    <BaseNode id={id} data={data} label="String Output" {...props}>
       <textarea
-        value={value ?? "No Output"}
+        value={stringOutput ?? "No Output"}
         className={textareaStyles}
         readOnly
       />
@@ -41,4 +49,4 @@ const TextOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   );
 };
 
-export default TextOutputNode;
+export default StringOutputNode;

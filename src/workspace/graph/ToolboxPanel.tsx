@@ -107,7 +107,7 @@ const useGraphToolboxMenuStore = create<{
               label: "String",
               handler: () =>
                 useGraphStore.getState().createNode("string", {
-                  value: "Cute cat",
+                  initialValue: "Cute cat",
                 }),
             },
             {

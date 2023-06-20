@@ -1,35 +1,64 @@
-import { FC, useState } from "react";
+import { ChangeEventHandler, FC, useEffect, useMemo } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { NodeConfig } from "./Base";
-import { NodeEndpointType } from "./BaseHandle";
+import BaseNode, { NodeData } from "./Base";
+import { EndpointDataType, OutputEndpoint } from "./BaseHandle";
 import { textareaStyles } from "./styles";
+import { useGraphStore } from "../Store";
 
-export const config: NodeConfig = {
-  outputs: [
-    {
-      id: "output-string",
-      label: "String",
-      type: NodeEndpointType.String,
-      isConnectableTo(other) {
-        return other.type === this.type;
-      },
-    },
-  ],
+export type StringNodeData = NodeData & {
+  initialValue?: string;
 };
 
-export type NodeData = {
-  value?: string;
-};
+const StringNode: FC<NodeProps<StringNodeData>> = ({ id, data, ...props }) => {
+  const initialData = useMemo(
+    () => ({
+      outputs: [
+        {
+          id: "output-string",
+          label: "String",
+          type: EndpointDataType.String,
+          value: "" as string,
+        },
+      ] as [OutputEndpoint],
+    }),
+    []
+  );
 
-const StringNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
-  const [value, setValue] = useState<string>(data.value ?? "");
+  const { outputs } = data;
+  const setNodeData = useGraphStore((state) => state.setNodeData);
+
+  useEffect(() => {
+    setNodeData<typeof initialData>(id, {
+      ...initialData,
+      outputs: [
+        {
+          ...initialData.outputs[0],
+          value: data.initialValue ?? "",
+        },
+      ],
+    });
+  }, []);
+
+  const handleValueChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+    setNodeData(id, {
+      ...data,
+      outputs: [
+        {
+          ...outputs![0],
+          value: e.target.value,
+        },
+      ],
+    });
+  };
+
+  if (!outputs) return null;
 
   return (
-    <BaseNode id={id} data={data} config={config} label="String" {...props}>
+    <BaseNode id={id} data={data} label="String" {...props}>
       <textarea
         className={textareaStyles}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        value={outputs![0].value}
+        onChange={handleValueChange}
       />
     </BaseNode>
   );

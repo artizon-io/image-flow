@@ -1,15 +1,15 @@
 import { FC, PropsWithChildren, memo } from "react";
 import { NodeProps } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
-import BaseHandle, { NodeEndpoint } from "./BaseHandle";
+import BaseHandle, { InputEndpoint, OutputEndpoint } from "./BaseHandle";
 
-export type NodeConfig = {
-  inputs?: NodeEndpoint[];
-  outputs?: NodeEndpoint[];
+export type NodeData = {
+  inputs?: InputEndpoint[];
+  outputs?: OutputEndpoint[];
 };
 
-const Endpoints: FC<{
-  endpointsConfig: NodeEndpoint[];
+const BaseHandles: FC<{
+  endpointsConfig: (InputEndpoint | OutputEndpoint)[];
   type: "input" | "output";
   className: string;
 }> = ({ endpointsConfig, className, type }) => (
@@ -33,50 +33,58 @@ const Endpoints: FC<{
   </div>
 );
 
-const BaseNode: FC<
-  NodeProps &
-    PropsWithChildren<{
-      label: string;
-      config: NodeConfig;
-    }>
-> = ({ id, data, config, children, label }) => {
+interface PropTypes extends NodeProps {
+  label?: string;
+  data: NodeData;
+}
+
+const BaseNode: FC<PropsWithChildren<PropTypes>> = ({
+  id,
+  data,
+  children,
+  label,
+}) => {
+  const { inputs, outputs } = data;
+
   return (
     <div
       className={twJoin(
         "py-5 bg-neutral-850 border-2 border-neutral-700 rounded grid gap-5",
-        config.inputs && config.outputs
+        inputs && outputs
           ? "grid-cols-[1fr_auto_1fr]"
           : "grid-cols-[auto_auto]",
-        !config.inputs ? "pl-5" : "",
-        !config.outputs ? "pr-5" : ""
+        !inputs ? "pl-5" : "",
+        !outputs ? "pr-5" : ""
       )}
     >
-      {config.inputs ? (
-        <Endpoints
+      {inputs ? (
+        <BaseHandles
           className="ml-[-10px] mt-8"
           type="input"
-          endpointsConfig={config.inputs}
+          endpointsConfig={inputs}
         />
       ) : null}
 
       <div className="flex flex-col gap-5 items-center">
-        <p
-          className={twJoin(
-            "text-neutral-300 font-medium text-sm",
-            !config.inputs ? "self-start" : "",
-            !config.outputs ? "self-end" : ""
-          )}
-        >
-          {label}
-        </p>
+        {label ? (
+          <p
+            className={twJoin(
+              "text-neutral-300 font-medium text-sm",
+              !inputs ? "self-start" : "",
+              !outputs ? "self-end" : ""
+            )}
+          >
+            {label}
+          </p>
+        ) : null}
         {children}
       </div>
 
-      {config.outputs ? (
-        <Endpoints
+      {outputs ? (
+        <BaseHandles
           className="mr-[-10px] mt-8"
           type="output"
-          endpointsConfig={config.outputs}
+          endpointsConfig={outputs}
         />
       ) : null}
     </div>

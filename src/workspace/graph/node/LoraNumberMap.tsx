@@ -7,11 +7,12 @@ import { twMerge } from "tailwind-merge";
 import { useGraphStore } from "../Store";
 import { z } from "zod";
 import { produce } from "immer";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (value?: LoraMap): NodeData => ({
   outputs: [
     {
-      id: "lora-number-map",
+      id: uuidv4(),
       label: "Lora Number Map",
       type: EndpointDataType.LoraNumberMap,
       value: value ?? new Map(),

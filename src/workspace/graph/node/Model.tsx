@@ -4,6 +4,7 @@ import BaseNode from "./Base";
 import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, labelStyles, twoColumnGridStyles } from "./styles";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (model?: {
   modelName: string;
@@ -13,7 +14,7 @@ const createData = (model?: {
   modelVersion: model?.modelVersion ?? "",
   outputs: [
     {
-      id: "model",
+      id: uuidv4(),
       label: "Model",
       type: EndpointDataType.Model,
       value: model ?? {},

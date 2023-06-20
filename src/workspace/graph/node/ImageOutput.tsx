@@ -7,17 +7,15 @@ import {
   inputEndpointSchema,
 } from "./BaseHandle";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (): NodeData => ({
   imageOutput: "",
   inputs: [
     {
-      id: "image",
+      id: uuidv4(),
       label: "Image",
       type: EndpointDataType.Image,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
   ],
 });

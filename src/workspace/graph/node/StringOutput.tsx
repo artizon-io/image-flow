@@ -8,17 +8,15 @@ import {
 } from "./BaseHandle";
 import { textareaStyles } from "./styles";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (): NodeData => ({
   stringOutput: "",
   inputs: [
     {
-      id: "string",
+      id: uuidv4(),
       label: "String",
       type: EndpointDataType.String,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
   ],
 });

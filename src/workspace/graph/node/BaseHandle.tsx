@@ -7,8 +7,6 @@ export type InputEndpoint = z.infer<typeof inputEndpointSchema>;
 
 export type OutputEndpoint = z.infer<typeof outputEndpointSchema>;
 
-export type EndpointType = EndpointDataType | EndpointDataType[];
-
 export enum EndpointDataType {
   Number = "number",
   String = "string",
@@ -20,14 +18,18 @@ export enum EndpointDataType {
   Sampler = "sampler",
 }
 
+const endpointSchema = z.union([
+  z.nativeEnum(EndpointDataType),
+  z.set(z.nativeEnum(EndpointDataType)),
+]);
+
+type EndpointType = z.infer<typeof endpointSchema>;
+
 export const outputEndpointSchema = z
   .object({
     id: z.string(),
     label: z.string(),
-    type: z.union([
-      z.nativeEnum(EndpointDataType),
-      z.array(z.nativeEnum(EndpointDataType)),
-    ]),
+    type: endpointSchema,
     value: z.any(),
   })
   .refine((val) => {
@@ -42,8 +44,7 @@ export const outputEndpointSchema = z
 export const inputEndpointSchema = z.object({
   id: z.string(),
   label: z.string(),
-  type: z.nativeEnum(EndpointDataType),
-  isConnectableTo: z.function().args(outputEndpointSchema).returns(z.boolean()),
+  type: endpointSchema,
 });
 
 // TODO: load the colors from `.config`
@@ -61,7 +62,7 @@ const dataTypeColorHueMap: Record<EndpointDataType, number> = {
 
 const getEndpointColor = (endpointType: EndpointType): string => {
   if (!endpointType) return `hsl(0 0% 15%)`;
-  else if (Array.isArray(endpointType)) return `hsl(0 0% 25%)`;
+  else if (endpointType instanceof Set) return `hsl(0 0% 25%)`;
   else if (endpointType in dataTypeColorHueMap)
     return `hsl(${dataTypeColorHueMap[endpointType]} 50% 20%)`;
   else throw Error(`Unknown endpoint type ${endpointType}`);

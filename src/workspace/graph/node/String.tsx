@@ -6,11 +6,12 @@ import { textareaStyles } from "./styles";
 import { useGraphStore } from "../Store";
 import { z } from "zod";
 import { produce } from "immer";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (value?: string): NodeData => ({
   outputs: [
     {
-      id: "output-string",
+      id: uuidv4(),
       label: "String",
       type: EndpointDataType.String,
       value: value ?? "",

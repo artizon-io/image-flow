@@ -7,11 +7,12 @@ import { twMerge } from "tailwind-merge";
 import { useGraphStore } from "../Store";
 import { produce } from "immer";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (value?: Map<string, number>): NodeData => ({
   outputs: [
     {
-      id: "string-number-map",
+      id: uuidv4(),
       label: "String Number Map",
       type: EndpointDataType.StringNumberMap,
       value: value ?? new Map<string, number>(),

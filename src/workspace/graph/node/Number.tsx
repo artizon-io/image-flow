@@ -6,11 +6,12 @@ import { inputStyles } from "./styles";
 import { useGraphStore } from "../Store";
 import { produce } from "immer";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (value?: number): NodeData => ({
   outputs: [
     {
-      id: "output-number",
+      id: uuidv4(),
       label: "Number",
       type: EndpointDataType.Number,
       value: value ?? 0,

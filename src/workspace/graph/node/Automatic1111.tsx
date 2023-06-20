@@ -8,139 +8,95 @@ import {
   outputEndpointSchema,
 } from "./BaseHandle";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (): NodeData => ({
   inputs: [
     {
-      id: "input-image",
+      id: uuidv4(),
       label: "Image",
       type: EndpointDataType.Image,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "prompt",
+      id: uuidv4(),
       label: "Prompt",
       type: EndpointDataType.String,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "negative-prompt",
+      id: uuidv4(),
       label: "Negative Prompt",
       type: EndpointDataType.String,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "prompt-map",
+      id: uuidv4(),
       label: "Prompt Weight Map",
       type: EndpointDataType.StringNumberMap,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "negative-prompt-map",
+      id: uuidv4(),
       label: "Negative Prompt Weight Map",
       type: EndpointDataType.StringNumberMap,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "lora-map",
+      id: uuidv4(),
       label: "Lora Weight Map",
       type: EndpointDataType.LoraNumberMap,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "negative-lora-map",
+      id: uuidv4(),
       label: "Negative Lora Weight Map",
       type: EndpointDataType.LoraNumberMap,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "model",
+      id: uuidv4(),
       label: "Model",
       type: EndpointDataType.Model,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "sampler",
+      id: uuidv4(),
       label: "Sampler",
       type: EndpointDataType.Sampler,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "steps",
+      id: uuidv4(),
       label: "Steps",
       type: EndpointDataType.Number,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "resolution",
+      id: uuidv4(),
       label: "Resolution",
       type: EndpointDataType.NumberPair,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "denoising-strength",
+      id: uuidv4(),
       label: "Denoising Strength",
       type: EndpointDataType.Number,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "cfg-scale",
+      id: uuidv4(),
       label: "CFG Scale",
       type: EndpointDataType.Number,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "clip-skip",
+      id: uuidv4(),
       label: "CLIP Skip",
       type: EndpointDataType.Number,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
     {
-      id: "seed",
+      id: uuidv4(),
       label: "Seed",
       type: EndpointDataType.Number,
-      isConnectableTo(output: OutputEndpoint) {
-        return output.type === this.type;
-      },
     },
   ],
   outputs: [
     {
-      id: "output-image",
+      id: uuidv4(),
       label: "Image",
       type: EndpointDataType.Image,
       value: "",
     },
     {
-      id: "clip",
+      id: uuidv4(),
       label: "CLIP",
       type: EndpointDataType.String,
       value: "",

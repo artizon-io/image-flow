@@ -7,11 +7,12 @@ import { twoColumnGridStyles } from "./styles";
 import { useGraphStore } from "../Store";
 import { z } from "zod";
 import { produce } from "immer";
+import { v4 as uuidv4 } from "uuid";
 
 const createData = (value?: [number, number]): NodeData => ({
   outputs: [
     {
-      id: "output-number-pair",
+      id: uuidv4(),
       label: "Number Pair",
       type: EndpointDataType.NumberPair,
       value: value ?? [0, 0],

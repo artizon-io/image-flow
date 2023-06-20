@@ -65,6 +65,12 @@ import LoraNumberMapNode, {
   createLoraNumberMapNodeData,
   loraNumberMapNodeDataSchema,
 } from "./node/LoraNumberMap";
+import AddNode, {
+  AddNodeData,
+  createAddNodeData,
+  addNodeDataSchema,
+} from "./node/operator/Add";
+import { InputEndpoint, OutputEndpoint } from "./node/BaseHandle";
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
@@ -76,6 +82,7 @@ const nodeTypes = {
   "number-pair": NumberPairNode,
   "string-number-map": StringNumberMapNode,
   "lora-number-map": LoraNumberMapNode,
+  "add-operator": AddNode,
 } as const;
 
 const nodeDataSchemas = {
@@ -88,6 +95,7 @@ const nodeDataSchemas = {
   "number-pair": numberPairNodeDataSchema,
   "string-number-map": stringNumberMapNodeDataSchema,
   "lora-number-map": loraNumberMapNodeDataSchema,
+  "add-operator": addNodeDataSchema,
 } as const;
 
 const nodeCreateDataFunctions = {
@@ -100,6 +108,7 @@ const nodeCreateDataFunctions = {
   "number-pair": createNumberPairNodeData,
   "string-number-map": createStringNumberMapNodeData,
   "lora-number-map": createLoraNumberMapNodeData,
+  "add-operator": createAddNodeData,
 } as const;
 
 type NodeDataMap = {
@@ -112,6 +121,7 @@ type NodeDataMap = {
   "number-pair": NumberPairNodeData;
   "string-number-map": StringNumberMapNodeData;
   "lora-number-map": LoraNumberMapNodeData;
+  "add-operator": AddNodeData;
 };
 
 // TODO: create index for efficient lookup of nodes and edges
@@ -124,6 +134,10 @@ export const useGraphStore = create<{
   edges: Edge[];
   // edgeIndex: Map<string, Edge>;
   getEdge: (id: string) => Edge | undefined;
+  // endpointIndex: Map<string, Endpoint>;
+  getHandle: (id: string) => InputEndpoint | OutputEndpoint | undefined;
+  getConnectedInputEndpoints: (id: string) => InputEndpoint[] | undefined;
+  getConnectedOutputEndpoint: (id: string) => OutputEndpoint | undefined;
   createNode: <T extends keyof typeof nodeTypes>(
     nodeType: T,
     data?: NodeDataMap[T]
@@ -164,6 +178,24 @@ export const useGraphStore = create<{
       getNode: (id) => get().nodes.find((node) => node.id === id),
       // getEdge: (id) => get().edgeIndex.get(id),
       getEdge: (id) => get().edges.find((edge) => edge.id === id),
+      getHandle: (id) =>
+        get()
+          .nodes.map((n) => (n.data as BaseNodeData).inputs ?? [])
+          .flat()
+          .find((endpoint) => endpoint.id === id),
+      getConnectedInputEndpoints: (id) => {
+        const edges = get().edges.filter((edge) => edge.sourceHandle === id);
+        if (!edges) return undefined;
+
+        const inputIds = edges.map((e) => e.sourceHandle!);
+        return inputIds.map((id) => get().getHandle(id) as InputEndpoint);
+      },
+      getConnectedOutputEndpoint: (id) => {
+        const edge = get().edges.find((edge) => edge.targetHandle === id);
+        if (!edge) return undefined;
+
+        return get().getHandle(edge.sourceHandle!) as OutputEndpoint;
+      },
       setNodeData: (id, data) => {
         const nodes = produce(get().nodes, (draft) => {
           const node = draft.find((n) => n.id === id);
@@ -189,18 +221,8 @@ export const useGraphStore = create<{
        * that are not part of the connection
        */
       onConnect: (connection: Connection) => {
-        if (
-          !connection.source ||
-          !connection.target ||
-          !connection.sourceHandle ||
-          !connection.targetHandle
-        ) {
-          console.error("Connection information is incomplete");
-          return false;
-        }
-
-        const targetNode = get().getNode(connection.target);
-        const sourceNode = get().getNode(connection.source);
+        const targetNode = get().getNode(connection.target!);
+        const sourceNode = get().getNode(connection.source!);
 
         if (!targetNode || !sourceNode) {
           console.error(
@@ -225,12 +247,22 @@ export const useGraphStore = create<{
           return false;
         }
 
-        if (!targetEndpoint.isConnectableTo(sourceEndpoint)) {
+        const targetType =
+          targetEndpoint.type instanceof Set
+            ? targetEndpoint.type
+            : new Set([targetEndpoint.type]);
+        const sourceType =
+          sourceEndpoint.type instanceof Set
+            ? sourceEndpoint.type
+            : new Set([sourceEndpoint.type]);
+
+        const hasIntersection = [...targetType].some((t) => sourceType.has(t));
+        if (!hasIntersection) {
           useNotificationStore
             .getState()
             .showNotification(
               "Error",
-              `Fail to connect ${targetEndpoint.label} to ${sourceEndpoint.label}`
+              `Fail to connect ${targetEndpoint.label} to ${sourceEndpoint.label} because of type mismatch`
             );
           return false;
         }

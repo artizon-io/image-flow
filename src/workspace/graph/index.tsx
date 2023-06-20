@@ -1,8 +1,5 @@
 import { FC } from "react";
-import ReactFlow, {
-  Background,
-  SelectionMode,
-} from "reactflow";
+import ReactFlow, { Background, SelectionMode } from "reactflow";
 import { twMerge } from "tailwind-merge";
 import "reactflow/dist/style.css";
 import "./react-flow.css";
@@ -36,6 +33,8 @@ const Graph: FC<{
         selectionMode={SelectionMode.Partial}
         panOnDrag={false}
         panOnScrollSpeed={panSensitivity}
+        onlyRenderVisibleElements
+        fitView
       >
         <ToolboxPanel />
         <Background className="bg-neutral-900" gap={30} />

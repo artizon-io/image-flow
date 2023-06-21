@@ -9,19 +9,24 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import {
   inputEndpointSchema,
+  numberInputEndpointSchema,
+  numberOutputEndpointSchema,
+  numberPairInputEndpointSchema,
+  numberPairOutputEndpointSchema,
   outputEndpointSchema,
   stringInputEndpointSchema,
   stringOutputEndpointSchema,
 } from "../../endpoint";
 
 const createData = (): NodeData => ({
+  dynamicInputSize: true,
   inputs: [
     {
       id: uuidv4(),
       label: "Input",
       type: {
-        type: "string",
-        colorHue: 40,
+        type: "number-pair",
+        colorHue: 0,
       },
     },
   ],
@@ -30,26 +35,29 @@ const createData = (): NodeData => ({
       id: uuidv4(),
       label: "Output",
       data: {
-        type: "string",
-        string: "",
-        colorHue: 40,
+        type: "number-pair",
+        colorHue: 0,
       },
     },
   ],
 });
 
 const dataSchema = z.object({
-  inputs: z.array(stringInputEndpointSchema).min(1),
-  outputs: z.tuple([stringOutputEndpointSchema]),
+  dynamicInputSize: z.literal(true),
+  inputs: z.array(numberPairInputEndpointSchema).length(1),
+  outputs: z.tuple([numberPairOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
 
-export { createData as createAddNodeData, dataSchema as addNodeDataSchema };
+export {
+  createData as createAddNumberPairNodeData,
+  dataSchema as addNumberPairNodeDataSchema,
+};
 
-export type { NodeData as AddNodeData };
+export type { NodeData as AddNumberPairNodeData };
 
-const AddNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
+const AddNumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { inputs, outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
 
@@ -60,4 +68,4 @@ const AddNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   );
 };
 
-export default AddNode;
+export default AddNumberPairNode;

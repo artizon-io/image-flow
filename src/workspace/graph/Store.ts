@@ -65,12 +65,32 @@ import LoraNumberMapNode, {
   createLoraNumberMapNodeData,
   loraNumberMapNodeDataSchema,
 } from "./node/LoraNumberMap";
-import AddNode, {
-  AddNodeData,
-  createAddNodeData,
-  addNodeDataSchema,
-} from "./node/operator/add";
 import { Endpoint, InputEndpoint, OutputEndpoint } from "./node/endpoint";
+import AddStringNode, {
+  AddStringNodeData,
+  addStringNodeDataSchema,
+  createAddStringNodeData,
+} from "./node/operator/add/string";
+import AddNumberNode, {
+  AddNumberNodeData,
+  addNumberNodeDataSchema,
+  createAddNumberNodeData,
+} from "./node/operator/add/number";
+import AddNumberPairNode, {
+  AddNumberPairNodeData,
+  addNumberPairNodeDataSchema,
+  createAddNumberPairNodeData,
+} from "./node/operator/add/numberPair";
+import AddStringNumberMapNode, {
+  AddStringNumberMapNodeData,
+  addStringNumberMapNodeDataSchema,
+  createAddStringNumberMapNodeData,
+} from "./node/operator/add/stringNumberMap";
+import AddLoraNumberMapNode, {
+  AddLoraNumberMapNodeData,
+  addLoraNumberMapNodeDataSchema,
+  createAddLoraNumberMapNodeData,
+} from "./node/operator/add/loraNumberMap";
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
@@ -82,7 +102,11 @@ const nodeTypes = {
   "number-pair": NumberPairNode,
   "string-number-map": StringNumberMapNode,
   "lora-number-map": LoraNumberMapNode,
-  "add-operator": AddNode,
+  "add-string": AddStringNode,
+  "add-number": AddNumberNode,
+  "add-number-pair": AddNumberPairNode,
+  "add-string-number-map": AddStringNumberMapNode,
+  "add-lora-number-map": AddLoraNumberMapNode,
 } as const;
 
 const nodeDataSchemas = {
@@ -95,7 +119,11 @@ const nodeDataSchemas = {
   "number-pair": numberPairNodeDataSchema,
   "string-number-map": stringNumberMapNodeDataSchema,
   "lora-number-map": loraNumberMapNodeDataSchema,
-  "add-operator": addNodeDataSchema,
+  "add-string": addStringNodeDataSchema,
+  "add-number": addNumberNodeDataSchema,
+  "add-number-pair": addNumberPairNodeDataSchema,
+  "add-string-number-map": addStringNumberMapNodeDataSchema,
+  "add-lora-number-map": addLoraNumberMapNodeDataSchema,
 } as const;
 
 const nodeCreateDataFunctions = {
@@ -108,7 +136,11 @@ const nodeCreateDataFunctions = {
   "number-pair": createNumberPairNodeData,
   "string-number-map": createStringNumberMapNodeData,
   "lora-number-map": createLoraNumberMapNodeData,
-  "add-operator": createAddNodeData,
+  "add-string": createAddStringNodeData,
+  "add-number": createAddNumberNodeData,
+  "add-number-pair": createAddNumberPairNodeData,
+  "add-string-number-map": createAddStringNumberMapNodeData,
+  "add-lora-number-map": createAddLoraNumberMapNodeData,
 } as const;
 
 type NodeDataMap = {
@@ -121,7 +153,11 @@ type NodeDataMap = {
   "number-pair": NumberPairNodeData;
   "string-number-map": StringNumberMapNodeData;
   "lora-number-map": LoraNumberMapNodeData;
-  "add-operator": AddNodeData;
+  "add-string": AddStringNodeData;
+  "add-number": AddNumberNodeData;
+  "add-number-pair": AddNumberPairNodeData;
+  "add-string-number-map": AddStringNumberMapNodeData;
+  "add-lora-number-map": AddLoraNumberMapNodeData;
 };
 
 // TODO: create index for efficient lookup of nodes and edges
@@ -133,8 +169,9 @@ export const useGraphStore = create<{
   edges: Edge[];
   getEdge: (id: string) => Edge | undefined;
   getEndpoint: (id: string) => Endpoint | undefined;
+  isConnectedToOutputEndpoint: (id: string) => boolean;
   getConnectedInputEndpoints: (id: string) => InputEndpoint[] | undefined;
-  getConnectedOutputEndpoint: (id: string) => OutputEndpoint | undefined;
+  getConnectedOutputEndpoints: (id: string) => OutputEndpoint[] | undefined;
   createNode: <T extends keyof typeof nodeTypes>(
     nodeType: T,
     data?: NodeDataMap[T]
@@ -179,20 +216,29 @@ export const useGraphStore = create<{
           )
           .flat()
           .find((endpoint) => endpoint.id === id),
+      // O(m)
+      isConnectedToOutputEndpoint: (id) => {
+        for (const edge of get().edges) {
+          if (edge.targetHandle === id) return true;
+        }
+
+        return false;
+      },
       // High performance cost - avoid
       getConnectedInputEndpoints: (id) => {
         const edges = get().edges.filter((edge) => edge.sourceHandle === id);
         if (!edges) return undefined;
 
-        const inputIds = edges.map((e) => e.sourceHandle!);
+        const inputIds = edges.map((e) => e.targetHandle!);
         return inputIds.map((id) => get().getEndpoint(id) as InputEndpoint);
       },
       // High performance cost - avoid
-      getConnectedOutputEndpoint: (id) => {
-        const edge = get().edges.find((edge) => edge.targetHandle === id);
-        if (!edge) return undefined;
+      getConnectedOutputEndpoints: (id) => {
+        const edges = get().edges.filter((edge) => edge.targetHandle === id);
+        if (!edges) return undefined;
 
-        return get().getEndpoint(edge.sourceHandle!) as OutputEndpoint;
+        const inputIds = edges.map((e) => e.sourceHandle!);
+        return inputIds.map((id) => get().getEndpoint(id) as OutputEndpoint);
       },
       // O(n)
       setNodeData: (id, data) => {
@@ -252,7 +298,20 @@ export const useGraphStore = create<{
             .getState()
             .showNotification(
               "Error",
-              `Fail to connect ${targetEndpoint.label} to ${sourceEndpoint.label} because of type mismatch`
+              `Fail to connect ${sourceEndpoint.label} to ${targetEndpoint.label} because of type mismatch`
+            );
+          return false;
+        }
+
+        if (
+          !(targetNode.data as BaseNodeData).dynamicInputSize &&
+          get().isConnectedToOutputEndpoint(targetEndpoint.id)
+        ) {
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Error",
+              `Fail to connect ${sourceEndpoint.label} to ${targetEndpoint.label} because the target is already connected`
             );
           return false;
         }

@@ -15,8 +15,6 @@ const MenuItem: FC<
   const menuItemStyles = tailwind`flex flex-row justify-between items-center rounded-sm hover:bg-neutral-800 text-neutral-300 hover:text-neutral-50 hover:outline-none px-3 py-1.5 shadow-none outline-none`;
   const menuItemLabelStyles = tailwind`text-inherit text-s pointer-events-none`;
 
-  // TODO: fix sub-sub context menu position
-
   if (itemConfig.subItemConfigs)
     return (
       <ContextMenu.Sub>

@@ -128,8 +128,35 @@ const useGraphToolboxMenuStore = create<{
           subItemConfigs: [
             {
               label: "Add",
-              handler: () =>
-                useGraphStore.getState().createNode("add-operator"),
+              subItemConfigs: [
+                {
+                  label: "String",
+                  handler: () =>
+                    useGraphStore.getState().createNode("add-string"),
+                },
+                {
+                  label: "Number",
+                  handler: () =>
+                    useGraphStore.getState().createNode("add-number"),
+                },
+                {
+                  label: "Number Pair",
+                  handler: () =>
+                    useGraphStore.getState().createNode("add-number-pair"),
+                },
+                {
+                  label: "String Number Map",
+                  handler: () =>
+                    useGraphStore
+                      .getState()
+                      .createNode("add-string-number-map"),
+                },
+                {
+                  label: "Lora Number Map",
+                  handler: () =>
+                    useGraphStore.getState().createNode("add-lora-number-map"),
+                },
+              ],
             },
             // {
             //   label: "Subtract",

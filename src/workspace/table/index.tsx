@@ -53,12 +53,12 @@ const Table: FC<{
             "N/A"
           ),
       }),
-      columnHelper.accessor("modelName", {
+      columnHelper.accessor((row) => row.model?.name, {
         id: "modelName",
         header: "Model Name",
         cell: (info) => info.getValue() ?? "N/A",
       }),
-      columnHelper.accessor("modelVersion", {
+      columnHelper.accessor((row) => row.model?.version, {
         id: "modelVersion",
         header: "Model Version",
         cell: (info) => info.getValue() ?? "N/A",
@@ -116,7 +116,17 @@ const Table: FC<{
         header: "Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorHue={220} />
+            <WeightMap
+              weightMap={
+                new Map(
+                  [...info.getValue()!].map(([lora, weight]) => [
+                    lora.name,
+                    weight,
+                  ])
+                )
+              }
+              colorHue={220}
+            />
           ) : (
             "N/A"
           ),
@@ -126,17 +136,27 @@ const Table: FC<{
         header: "Negative Lora",
         cell: (info) =>
           info.getValue() ? (
-            <WeightMap weightMap={info.getValue()!} colorHue={0} />
+            <WeightMap
+              weightMap={
+                new Map(
+                  [...info.getValue()!].map(([lora, weight]) => [
+                    lora.name,
+                    weight,
+                  ])
+                )
+              }
+              colorHue={220}
+            />
           ) : (
             "N/A"
           ),
       }),
-      columnHelper.accessor("modelHash", {
+      columnHelper.accessor((row) => row.model?.hash, {
         id: "modelHash",
         header: "Model Hash",
         cell: (info) => info.getValue() ?? "N/A",
       }),
-      columnHelper.accessor("sampler", {
+      columnHelper.accessor((row) => row.sampler?.name, {
         id: "sampler",
         header: "Sampler",
         cell: (info) => info.getValue() ?? "N/A",
@@ -185,19 +205,10 @@ const Table: FC<{
     </thead>
   );
 
-  // TODO: Investigate performance cost
-  // const [hoverColumn, setHoverColumn] = useState<string | null>(null);
-  // const [hoverCell, setHoverCell] = useState<string | null>(null);
   const [hoverRow, setHoverRow] = useState<string | null>(null);
 
   const TableBody = () => (
-    <tbody
-    // onMouseLeave={(e) => {
-    //   setHoverColumn(null);
-    //   setHoverCell(null);
-    //   setHoverRow(null);
-    // }}
-    >
+    <tbody>
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
@@ -212,16 +223,8 @@ const Table: FC<{
               key={cell.id}
               className={twJoin(
                 "text-center p-3 font-light text-neutral-200 text-sm",
-                // hoverCell === cell.id
-                //   ? "shadow-solid-inset-1 shadow-neutral-500"
-                //   : "",
-                // hoverColumn === cell.column.id ? "" : "",
                 hoverRow === row.id ? "bg-neutral-850" : ""
               )}
-              // onMouseOver={(e) => {
-              //   setHoverColumn(cell.column.id);
-              //   setHoverCell(cell.id);
-              // }}
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>

@@ -1,31 +1,30 @@
 import { FC, useEffect, useRef } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode from "./Base";
-import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, labelStyles } from "./styles";
 import { twoColumnGridStyles } from "./styles";
 import { useGraphStore } from "../Store";
 import { z } from "zod";
 import { produce } from "immer";
 import { v4 as uuidv4 } from "uuid";
+import { numberPairOutputEndpointSchema } from "./endpoint";
 
 const createData = (value?: [number, number]): NodeData => ({
   outputs: [
     {
       id: uuidv4(),
       label: "Number Pair",
-      type: EndpointDataType.NumberPair,
-      value: value ?? [0, 0],
+      data: {
+        type: "number-pair",
+        colorHue: 0,
+        pair: value ?? [0, 0],
+      },
     },
   ],
 });
 
 const dataSchema = z.object({
-  outputs: z.tuple([
-    outputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.NumberPair
-    ),
-  ]),
+  outputs: z.tuple([numberPairOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
@@ -43,6 +42,8 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const xRef = useRef<HTMLInputElement>(null);
   const yRef = useRef<HTMLInputElement>(null);
 
+  const [x, y] = outputs[0].data.pair!;
+
   const handleValueChange = (type: "x" | "y", value: string) => {
     if (!xRef.current || !yRef.current) return;
 
@@ -50,12 +51,12 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
       id,
       produce(data, (draft) => {
         if (type === "x") {
-          draft.outputs[0].value = [
+          draft.outputs[0].data.pair = [
             parseInt(value),
             parseInt(yRef.current!.value),
           ];
         } else {
-          draft.outputs[0].value = [
+          draft.outputs[0].data.pair = [
             parseInt(xRef.current!.value),
             parseInt(value),
           ];
@@ -71,7 +72,7 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
         <input
           className={inputStyles}
           type="number"
-          value={isNaN(outputs[0].value[0]) ? 0 : outputs[0].value[0]}
+          value={isNaN(x) ? 0 : x}
           ref={xRef}
           onChange={(e) => handleValueChange("x", e.target.value)}
         />
@@ -79,7 +80,7 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
         <input
           className={inputStyles}
           type="number"
-          value={isNaN(outputs[0].value[1]) ? 0 : outputs[0].value[1]}
+          value={isNaN(y) ? 0 : y}
           ref={yRef}
           onChange={(e) => handleValueChange("y", e.target.value)}
         />

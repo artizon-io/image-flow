@@ -1,6 +1,5 @@
 const constructEmptyImageMetadata = (): ImageMetadata => ({
-  modelName: null,
-  modelVersion: null,
+  model: null,
   seed: null,
   prompt: null,
   negativePrompt: null,
@@ -10,7 +9,6 @@ const constructEmptyImageMetadata = (): ImageMetadata => ({
   highResResize: null,
   highResSteps: null,
   highResUpscaler: null,
-  modelHash: null,
   sampler: null,
   steps: null,
   promptMap: null,

@@ -1,7 +1,8 @@
 import { FC, PropsWithChildren, memo } from "react";
 import { NodeProps } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
-import BaseHandle, { InputEndpoint, OutputEndpoint } from "./BaseHandle";
+import BaseHandle from "./BaseHandle";
+import { Endpoint, InputEndpoint, OutputEndpoint } from "./endpoint";
 
 export type BaseNodeData = {
   inputs?: InputEndpoint[];
@@ -9,7 +10,7 @@ export type BaseNodeData = {
 };
 
 const BaseHandles: FC<{
-  endpointsConfig: (InputEndpoint | OutputEndpoint)[];
+  endpointsConfig: InputEndpoint[] | OutputEndpoint[];
   type: "input" | "output";
   className: string;
 }> = ({ endpointsConfig, className, type }) => (
@@ -22,11 +23,7 @@ const BaseHandles: FC<{
           type === "output" ? "flex-row-reverse" : ""
         )}
       >
-        <BaseHandle
-          endpointConfig={endpointConfig}
-          type={type}
-          key={endpointConfig.id}
-        />
+        <BaseHandle endpointConfig={endpointConfig} key={endpointConfig.id} />
         <p className="text-neutral-400 text-xs">{endpointConfig.label}</p>
       </div>
     ))}
@@ -60,8 +57,8 @@ const BaseNode: FC<PropsWithChildren<PropTypes>> = ({
       {inputs ? (
         <BaseHandles
           className="ml-[-10px] mt-8"
-          type="input"
           endpointsConfig={inputs}
+          type="input"
         />
       ) : null}
 
@@ -83,8 +80,8 @@ const BaseNode: FC<PropsWithChildren<PropTypes>> = ({
       {outputs ? (
         <BaseHandles
           className="mr-[-10px] mt-8"
-          type="output"
           endpointsConfig={outputs}
+          type="output"
         />
       ) : null}
     </div>

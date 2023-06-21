@@ -1,30 +1,39 @@
 import { FC } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode from "./Base";
-import {
-  EndpointDataType,
-  OutputEndpoint,
-  inputEndpointSchema,
-} from "./BaseHandle";
+import {} from "./BaseHandle";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import {
+  imageData,
+  imageInputEndpointSchema,
+  imageOutputEndpointSchema,
+} from "./endpoint";
 
 const createData = (): NodeData => ({
-  imageOutput: "",
+  imageOutput: {
+    id: uuidv4(),
+    label: "Image",
+    data: {
+      type: "image",
+      colorHue: 300,
+    },
+  },
   inputs: [
     {
       id: uuidv4(),
       label: "Image",
-      type: EndpointDataType.Image,
+      type: {
+        type: "image",
+        colorHue: 300,
+      },
     },
   ],
 });
 
 const dataSchema = z.object({
-  imageOutput: z.string(),
-  inputs: z.tuple([
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Image),
-  ]),
+  imageOutput: imageOutputEndpointSchema,
+  inputs: z.tuple([imageInputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
@@ -41,8 +50,8 @@ const ImageOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
 
   return (
     <BaseNode id={id} data={data} label="Image Output" {...props}>
-      {!!imageOutput ? (
-        <img src={imageOutput} />
+      {imageOutput.data.source ? (
+        <img src={imageOutput.data.source} />
       ) : (
         <div className="flex justify-center items-center w-[220px] h-[220px] bg-neutral-800 opacity-90">
           <p className="text-neutral-500 text-xs font-mono">No Image</p>

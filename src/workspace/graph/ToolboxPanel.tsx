@@ -131,11 +131,11 @@ const useGraphToolboxMenuStore = create<{
               handler: () =>
                 useGraphStore.getState().createNode("add-operator"),
             },
-            {
-              label: "Subtract",
-              handler: () =>
-                useGraphStore.getState().createNode("subtract-operator"),
-            },
+            // {
+            //   label: "Subtract",
+            //   handler: () =>
+            //     useGraphStore.getState().createNode("subtract-operator"),
+            // },
           ],
         },
       ],

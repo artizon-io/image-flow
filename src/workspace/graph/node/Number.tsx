@@ -1,28 +1,29 @@
 import { ChangeEventHandler, FC } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode from "./Base";
-import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles } from "./styles";
 import { useGraphStore } from "../Store";
 import { produce } from "immer";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import { numberOutputEndpointSchema } from "./endpoint";
 
 const createData = (value?: number): NodeData => ({
   outputs: [
     {
       id: uuidv4(),
       label: "Number",
-      type: EndpointDataType.Number,
-      value: value ?? 0,
+      data: {
+        type: "number",
+        colorHue: 0,
+        number: value ?? 0,
+      },
     },
   ],
 });
 
 const dataSchema = z.object({
-  outputs: z.tuple([
-    outputEndpointSchema.refine((val) => val.type === EndpointDataType.Number),
-  ]),
+  outputs: z.tuple([numberOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
@@ -36,6 +37,8 @@ export type { NodeData as NumberNodeData };
 
 const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { outputs } = data;
+
+  const value = outputs[0].data.number!;
   const setNodeData = useGraphStore((state) => state.setNodeData);
 
   const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -43,7 +46,7 @@ const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
     setNodeData<NodeData>(
       id,
       produce(data, (draft) => {
-        draft.outputs[0].value = value;
+        draft.outputs[0].data.number = value;
       })
     );
   };
@@ -54,7 +57,7 @@ const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
         className={inputStyles}
         type="number"
         onChange={handleValueChange}
-        value={isNaN(outputs[0].value) ? 0 : outputs[0].value}
+        value={isNaN(value) ? 0 : value}
       />
     </BaseNode>
   );

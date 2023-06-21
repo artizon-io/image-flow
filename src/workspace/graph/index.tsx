@@ -7,6 +7,8 @@ import ToolboxPanel from "./ToolboxPanel";
 import { useGraphStore } from "./Store";
 import { useSettingsStore } from "../../singleton/settings/Store";
 
+// TODO: ditch ReactFlow and use rustwasm web-sys instead (which uses Web Canvas API)
+
 const Graph: FC<{
   className: string;
 }> = ({ className }) => {

@@ -1,7 +1,6 @@
 import * as ohm from "ohm-js";
 import { resourceDir, documentDir, sep } from "@tauri-apps/api/path";
 import { readTextFile } from "@tauri-apps/api/fs";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
 import constructEmptyImageMetadata from "../constructEmptyImageMetadata";
 import {
   addTagToWeightMap,
@@ -36,13 +35,14 @@ const parseAutomatic1111Metadata = async (
   }
 
   let metadata: SDMetadata = constructEmptyImageMetadata();
-  metadata = {
-    ...metadata,
-    promptMap: new Map(),
-    negativePromptMap: new Map(),
-    loraMap: new Map(),
-    negativeLoraMap: new Map(),
-  };
+
+  let modelData: {
+    name?: string;
+    hash?: string;
+    version?: string;
+  } = {};
+  let loraMapData: Map<string, number> = new Map();
+  let negativeLoraMapData: Map<string, number> = new Map();
 
   const semantics = grammar.createSemantics();
   semantics.addOperation("constructMetadata", {
@@ -61,7 +61,7 @@ const parseAutomatic1111Metadata = async (
           metadata.steps = Number(value.sourceString);
           return;
         case "Sampler":
-          metadata.sampler = value.sourceString;
+          metadata.sampler = { name: value.sourceString };
           return;
         case "CFG scale":
           metadata.cfgScale = Number(value.sourceString);
@@ -72,10 +72,10 @@ const parseAutomatic1111Metadata = async (
         case "Size":
           return;
         case "Model hash":
-          metadata.modelHash = value.sourceString;
+          modelData.hash = value.sourceString;
           return;
         case "Model":
-          metadata.modelName = value.sourceString;
+          modelData.name = value.sourceString;
           return;
         case "Denoising strength":
           metadata.denoisingStrength = Number(value.sourceString);
@@ -157,7 +157,8 @@ const parseAutomatic1111Metadata = async (
       addTagToWeightMap(
         identifier.sourceString,
         Number(number.sourceString),
-        metadata.loraMap!
+        // TODO: fix negative lora map
+        loraMapData
       );
     },
     tag(_wordList) {
@@ -184,6 +185,17 @@ const parseAutomatic1111Metadata = async (
   // "A semantic adapter is an interface to a particular parse tree node"
   const adapter = semantics(match);
   adapter.constructMetadata();
+
+  metadata = {
+    ...metadata,
+    model: !!modelData.name ? { ...modelData, name: modelData.name } : null,
+    loraMap: new Map(
+      [...loraMapData].map(([name, weight]) => [{ name }, weight])
+    ),
+    negativeLoraMap: new Map(
+      [...negativeLoraMapData].map(([name, weight]) => [{ name }, weight])
+    ),
+  };
 
   return metadata;
 };

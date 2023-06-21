@@ -3,7 +3,7 @@ import * as ohm from "ohm-js";
 export const addTagToWeightMap = (
   tag: string,
   weight: number,
-  weightMap: PromptMap
+  weightMap: WeightMap
 ) => {
   weightMap.set(tag, (weightMap.get(tag) ?? 0) + weight);
 };
@@ -14,7 +14,7 @@ export const addTagToWeightMap = (
 export const multiplyTagWeightInWeightMap = (
   tag: string,
   weightFactor: number,
-  weightMap: PromptMap
+  weightMap: WeightMap
 ) => {
   weightMap.set(tag, (weightMap.get(tag) ?? 1) * weightFactor);
 };

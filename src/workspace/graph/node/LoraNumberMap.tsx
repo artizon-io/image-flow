@@ -1,31 +1,30 @@
 import { FC } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode from "./Base";
-import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, twoColumnGridStyles } from "./styles";
 import { twMerge } from "tailwind-merge";
 import { useGraphStore } from "../Store";
 import { z } from "zod";
 import { produce } from "immer";
 import { v4 as uuidv4 } from "uuid";
+import { loraNumberMapOutputEndpointSchema } from "./endpoint";
 
-const createData = (value?: LoraMap): NodeData => ({
+const createData = (map?: LoraWeightMap): NodeData => ({
   outputs: [
     {
       id: uuidv4(),
       label: "Lora Number Map",
-      type: EndpointDataType.LoraNumberMap,
-      value: value ?? new Map(),
+      data: {
+        type: "lora-number-map",
+        colorHue: 200,
+        map: map ?? new Map(),
+      },
     },
   ],
 });
 
 const dataSchema = z.object({
-  outputs: z.tuple([
-    outputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.LoraNumberMap
-    ),
-  ]),
+  outputs: z.tuple([loraNumberMapOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
@@ -45,7 +44,7 @@ const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
     <BaseNode id={id} data={data} label="Lora Number Map" {...props}>
       <div className={twMerge(twoColumnGridStyles, "gap-x-1 gap-y-2")}>
         {/* TODO: find a better key */}
-        {[...outputs[0].value].map(([lora, number], index) => (
+        {[...outputs[0].data.map!].map(([lora, number], index) => (
           <Item
             key={index}
             lora={lora}
@@ -54,8 +53,8 @@ const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
               setNodeData(
                 id,
                 produce(data, (draft) => {
-                  draft.outputs[0].value.set(newLora, number);
-                  draft.outputs[0].value.delete(lora);
+                  draft.outputs[0].data.map!.set(newLora, number);
+                  draft.outputs[0].data.map!.delete(lora);
                 })
               );
             }}
@@ -63,7 +62,7 @@ const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
               setNodeData(
                 id,
                 produce(data, (draft) => {
-                  draft.outputs[0].value.set(lora, newNumber);
+                  draft.outputs[0].data.map!.set(lora, newNumber);
                 })
               );
             }}
@@ -81,7 +80,7 @@ const Item: FC<{
   setNumber: (number: number) => void;
 }> = ({ lora, number, setLora, setNumber }) => (
   <>
-    <input className={inputStyles} value={lora} readOnly />
+    <input className={inputStyles} value={lora.name} readOnly />
     <input
       className={inputStyles}
       value={number}

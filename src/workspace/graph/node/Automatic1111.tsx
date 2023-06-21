@@ -1,141 +1,184 @@
 import { FC } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode, { BaseNodeData } from "./Base";
-import {
-  EndpointDataType,
-  OutputEndpoint,
-  inputEndpointSchema,
-  outputEndpointSchema,
-} from "./BaseHandle";
+import {} from "./BaseHandle";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import {
+  imageInputEndpointSchema,
+  loraNumberMapInputEndpointSchema,
+  modelInputEndpointSchema,
+  numberInputEndpointSchema,
+  numberPairInputEndpointSchema,
+  samplerInputEndpointSchema,
+  stringInputEndpointSchema,
+  stringNumberMapInputEndpointSchema,
+  stringOutputEndpointSchema,
+  imageOutputEndpointSchema,
+} from "./endpoint";
 
 const createData = (): NodeData => ({
   inputs: [
     {
       id: uuidv4(),
       label: "Image",
-      type: EndpointDataType.Image,
+      type: {
+        type: "image",
+        colorHue: 300,
+      },
     },
     {
       id: uuidv4(),
       label: "Prompt",
-      type: EndpointDataType.String,
+      type: {
+        type: "string",
+        colorHue: 40,
+      },
     },
     {
       id: uuidv4(),
       label: "Negative Prompt",
-      type: EndpointDataType.String,
+      type: {
+        type: "string",
+        colorHue: 40,
+      },
     },
     {
       id: uuidv4(),
       label: "Prompt Weight Map",
-      type: EndpointDataType.StringNumberMap,
+      type: {
+        type: "string-number-map",
+        colorHue: 160,
+      },
     },
     {
       id: uuidv4(),
       label: "Negative Prompt Weight Map",
-      type: EndpointDataType.StringNumberMap,
+      type: {
+        type: "string-number-map",
+        colorHue: 160,
+      },
     },
     {
       id: uuidv4(),
       label: "Lora Weight Map",
-      type: EndpointDataType.LoraNumberMap,
+      type: {
+        type: "lora-number-map",
+        colorHue: 200,
+      },
     },
     {
       id: uuidv4(),
       label: "Negative Lora Weight Map",
-      type: EndpointDataType.LoraNumberMap,
+      type: {
+        type: "lora-number-map",
+        colorHue: 200,
+      },
     },
     {
       id: uuidv4(),
       label: "Model",
-      type: EndpointDataType.Model,
+      type: {
+        type: "model",
+        colorHue: 260,
+      },
     },
     {
       id: uuidv4(),
       label: "Sampler",
-      type: EndpointDataType.Sampler,
+      type: {
+        type: "sampler",
+        colorHue: 260,
+      },
     },
     {
       id: uuidv4(),
       label: "Steps",
-      type: EndpointDataType.Number,
+      type: {
+        type: "number",
+        colorHue: 0,
+      },
     },
     {
       id: uuidv4(),
       label: "Resolution",
-      type: EndpointDataType.NumberPair,
+      type: {
+        type: "number-pair",
+        colorHue: 0,
+      },
     },
     {
       id: uuidv4(),
       label: "Denoising Strength",
-      type: EndpointDataType.Number,
+      type: {
+        type: "number",
+        colorHue: 0,
+      },
     },
     {
       id: uuidv4(),
       label: "CFG Scale",
-      type: EndpointDataType.Number,
+      type: {
+        type: "number",
+        colorHue: 0,
+      },
     },
     {
       id: uuidv4(),
       label: "CLIP Skip",
-      type: EndpointDataType.Number,
+      type: {
+        type: "number",
+        colorHue: 0,
+      },
     },
     {
       id: uuidv4(),
       label: "Seed",
-      type: EndpointDataType.Number,
+      type: {
+        type: "number",
+        colorHue: 0,
+      },
     },
   ],
   outputs: [
     {
       id: uuidv4(),
       label: "Image",
-      type: EndpointDataType.Image,
-      value: "",
+      data: {
+        type: "image",
+        colorHue: 300,
+      },
     },
     {
       id: uuidv4(),
       label: "CLIP",
-      type: EndpointDataType.String,
-      value: "",
+      data: {
+        type: "string",
+        colorHue: 40,
+      },
     },
   ],
 });
 
 const dataSchema = z.object({
   inputs: z.tuple([
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Image),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.String),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.String),
-    inputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.StringNumberMap
-    ),
-    inputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.StringNumberMap
-    ),
-    inputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.LoraNumberMap
-    ),
-    inputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.LoraNumberMap
-    ),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Model),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Sampler),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Number),
-    inputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.NumberPair
-    ),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Number),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Number),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Number),
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Number),
+    imageInputEndpointSchema,
+    stringInputEndpointSchema,
+    stringInputEndpointSchema,
+    stringNumberMapInputEndpointSchema,
+    stringNumberMapInputEndpointSchema,
+    loraNumberMapInputEndpointSchema,
+    loraNumberMapInputEndpointSchema,
+    modelInputEndpointSchema,
+    samplerInputEndpointSchema,
+    numberInputEndpointSchema,
+    numberPairInputEndpointSchema,
+    numberInputEndpointSchema,
+    numberInputEndpointSchema,
+    numberInputEndpointSchema,
+    numberInputEndpointSchema,
   ]),
-  outputs: z.tuple([
-    outputEndpointSchema.refine((val) => val.type === EndpointDataType.Image),
-    outputEndpointSchema.refine((val) => val.type === EndpointDataType.String),
-  ]),
+  outputs: z.tuple([imageOutputEndpointSchema, stringOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;

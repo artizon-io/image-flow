@@ -1,31 +1,30 @@
 import { FC } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode from "./Base";
-import { EndpointDataType, outputEndpointSchema } from "./BaseHandle";
 import { inputStyles, twoColumnGridStyles } from "./styles";
 import { twMerge } from "tailwind-merge";
 import { useGraphStore } from "../Store";
 import { produce } from "immer";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import { stringNumberMapOutputEndpointSchema } from "./endpoint";
 
 const createData = (value?: Map<string, number>): NodeData => ({
   outputs: [
     {
       id: uuidv4(),
       label: "String Number Map",
-      type: EndpointDataType.StringNumberMap,
-      value: value ?? new Map<string, number>(),
+      data: {
+        type: "string-number-map",
+        colorHue: 160,
+        map: value ?? new Map(),
+      },
     },
   ],
 });
 
 const dataSchema = z.object({
-  outputs: z.tuple([
-    outputEndpointSchema.refine(
-      (val) => val.type === EndpointDataType.StringNumberMap
-    ),
-  ]),
+  outputs: z.tuple([stringNumberMapOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
@@ -49,7 +48,7 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
     <BaseNode id={id} data={data} label="String Number Map" {...props}>
       <div className={twMerge(twoColumnGridStyles, "gap-x-1 gap-y-2")}>
         {/* TODO: find a better key */}
-        {[...outputs[0].value].map(([string, number], index) => (
+        {[...outputs[0].data.map!].map(([string, number], index) => (
           <Item
             key={index}
             string={string}
@@ -58,8 +57,8 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
               setNodeData(
                 id,
                 produce(data, (draft) => {
-                  draft.outputs[0].value.set(newString, number);
-                  draft.outputs[0].value.delete(string);
+                  draft.outputs[0].data.map!.set(newString, number);
+                  draft.outputs[0].data.map!.delete(string);
                 })
               );
             }}
@@ -67,7 +66,7 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
               setNodeData(
                 id,
                 produce(data, (draft) => {
-                  draft.outputs[0].value.set(string, newNumber);
+                  draft.outputs[0].data.map!.set(string, newNumber);
                 })
               );
             }}

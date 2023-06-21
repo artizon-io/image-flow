@@ -69,8 +69,8 @@ import AddNode, {
   AddNodeData,
   createAddNodeData,
   addNodeDataSchema,
-} from "./node/operator/Add";
-import { InputEndpoint, OutputEndpoint } from "./node/BaseHandle";
+} from "./node/operator/add";
+import { Endpoint, InputEndpoint, OutputEndpoint } from "./node/endpoint";
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
@@ -129,13 +129,10 @@ type NodeDataMap = {
 export const useGraphStore = create<{
   nodeTypes: NodeTypes;
   nodes: Node[];
-  // nodeIndex: Map<string, Node>;
   getNode: (id: string) => Node | undefined;
   edges: Edge[];
-  // edgeIndex: Map<string, Edge>;
   getEdge: (id: string) => Edge | undefined;
-  // endpointIndex: Map<string, Endpoint>;
-  getHandle: (id: string) => InputEndpoint | OutputEndpoint | undefined;
+  getEndpoint: (id: string) => Endpoint | undefined;
   getConnectedInputEndpoints: (id: string) => InputEndpoint[] | undefined;
   getConnectedOutputEndpoint: (id: string) => OutputEndpoint | undefined;
   createNode: <T extends keyof typeof nodeTypes>(
@@ -153,49 +150,51 @@ export const useGraphStore = create<{
       nodeTypes: nodeTypes,
       nodes: [],
       edges: [],
-      // nodeIndex: new Map(),
-      // edgeIndex: new Map(),
       onNodesChange: (changes: NodeChange[]) => {
         console.debug("Triggering onNodesChange", changes);
-        // changes.forEach((change) => {
-        //   if (change.type === "remove") {
-        //     const removeSuccess = get().nodeIndex.delete(change.id);
-        //     if (!removeSuccess)
-        //       console.error("Failed to remove node from index", change);
-        //   }
-        // });
+        changes.forEach((change) => {});
         set({
           nodes: applyNodeChanges(changes, get().nodes),
         });
       },
       onEdgesChange: (changes: EdgeChange[]) => {
         console.debug("Triggering onEdgesChange", changes);
+        changes.forEach((change) => {});
         set({
           edges: applyEdgeChanges(changes, get().edges),
         });
       },
-      // getNode: (id) => get().nodeIndex.get(id),
+      // O(n)
       getNode: (id) => get().nodes.find((node) => node.id === id),
-      // getEdge: (id) => get().edgeIndex.get(id),
+      // O(m)
       getEdge: (id) => get().edges.find((edge) => edge.id === id),
-      getHandle: (id) =>
+      // O(n * d) where d = average no. endpoints per node
+      getEndpoint: (id) =>
         get()
-          .nodes.map((n) => (n.data as BaseNodeData).inputs ?? [])
+          .nodes.map((n) =>
+            [
+              (n.data as BaseNodeData).inputs ?? [],
+              (n.data as BaseNodeData).outputs ?? [],
+            ].flat()
+          )
           .flat()
           .find((endpoint) => endpoint.id === id),
+      // High performance cost - avoid
       getConnectedInputEndpoints: (id) => {
         const edges = get().edges.filter((edge) => edge.sourceHandle === id);
         if (!edges) return undefined;
 
         const inputIds = edges.map((e) => e.sourceHandle!);
-        return inputIds.map((id) => get().getHandle(id) as InputEndpoint);
+        return inputIds.map((id) => get().getEndpoint(id) as InputEndpoint);
       },
+      // High performance cost - avoid
       getConnectedOutputEndpoint: (id) => {
         const edge = get().edges.find((edge) => edge.targetHandle === id);
         if (!edge) return undefined;
 
-        return get().getHandle(edge.sourceHandle!) as OutputEndpoint;
+        return get().getEndpoint(edge.sourceHandle!) as OutputEndpoint;
       },
+      // O(n)
       setNodeData: (id, data) => {
         const nodes = produce(get().nodes, (draft) => {
           const node = draft.find((n) => n.id === id);
@@ -210,6 +209,7 @@ export const useGraphStore = create<{
         set({ nodes });
         return true;
       },
+      // O(n)
       getNodeData: <T extends BaseNodeData>(id: string) =>
         get().getNode(id)?.data as T | undefined,
       /**
@@ -247,17 +247,7 @@ export const useGraphStore = create<{
           return false;
         }
 
-        const targetType =
-          targetEndpoint.type instanceof Set
-            ? targetEndpoint.type
-            : new Set([targetEndpoint.type]);
-        const sourceType =
-          sourceEndpoint.type instanceof Set
-            ? sourceEndpoint.type
-            : new Set([sourceEndpoint.type]);
-
-        const hasIntersection = [...targetType].some((t) => sourceType.has(t));
-        if (!hasIntersection) {
+        if (sourceEndpoint.data.type !== targetEndpoint.type.type) {
           useNotificationStore
             .getState()
             .showNotification(
@@ -281,6 +271,7 @@ export const useGraphStore = create<{
             get().edges
           ),
         });
+
         return true;
       },
       /**
@@ -298,7 +289,6 @@ export const useGraphStore = create<{
         set({
           nodes: [...get().nodes, newNode],
         });
-        // get().nodeIndex.set(id, newNode);
         return true;
       },
     }),
@@ -307,8 +297,6 @@ export const useGraphStore = create<{
       partialize: (state) => ({
         nodes: state.nodes,
         edges: state.edges,
-        // nodeIndex: state.nodeIndex,
-        // edgeIndex: state.edgeIndex,
       }),
 
       // TODO: save graph state in a more performant storage
@@ -349,13 +337,9 @@ export const useGraphStore = create<{
           animated: z.boolean(),
           label: z.string().optional(),
         });
-        // const nodeIndexSchema = z.map(z.string(), nodeSchema);
-        // const edgeIndexSchema = z.map(z.string(), edgeSchema);
         const schema = z.object({
           nodes: z.array(nodeSchema),
           edges: z.array(edgeSchema),
-          // nodeIndex: nodeIndexSchema,
-          // edgeIndex: edgeIndexSchema,
         });
 
         const parseResult = schema.safeParse(persisted);
@@ -378,17 +362,8 @@ export const useGraphStore = create<{
           ...current,
           nodes: [...current.nodes, ...parseResult.data.nodes],
           edges: [...current.edges, ...parseResult.data.edges],
-          // nodeIndex: new Map([
-          //   ...current.nodeIndex,
-          //   ...parseResult.data.nodeIndex,
-          // ]),
-          // edgeIndex: new Map([
-          //   ...current.edgeIndex,
-          //   ...parseResult.data.edgeIndex,
-          // ]),
         };
       },
-      // TODO: reconstruct indicies?
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name);
@@ -404,8 +379,6 @@ export const useGraphStore = create<{
             state: {
               nodes: deserializedValue?.state?.nodes,
               edges: deserializedValue?.state?.edges,
-              // nodeIndex: deserializedValue?.state?.nodeIndex,
-              // edgeIndex: deserializedValue?.state?.edgeIndex,
             },
             version: deserializedValue?.version,
           };

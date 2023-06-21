@@ -1,31 +1,39 @@
 import { FC } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode from "./Base";
-import {
-  EndpointDataType,
-  OutputEndpoint,
-  inputEndpointSchema,
-} from "./BaseHandle";
+import {} from "./BaseHandle";
 import { textareaStyles } from "./styles";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import {
+  stringInputEndpointSchema,
+  stringOutputEndpointSchema,
+} from "./endpoint";
 
 const createData = (): NodeData => ({
-  stringOutput: "",
+  stringOutput: {
+    id: uuidv4(),
+    label: "String",
+    data: {
+      type: "string",
+      colorHue: 40,
+    },
+  },
   inputs: [
     {
       id: uuidv4(),
       label: "String",
-      type: EndpointDataType.String,
+      type: {
+        type: "string",
+        colorHue: 40,
+      },
     },
   ],
 });
 
 const dataSchema = z.object({
-  stringOutput: z.string(),
-  inputs: z.tuple([
-    inputEndpointSchema.refine((val) => val.type === EndpointDataType.Image),
-  ]),
+  stringOutput: stringOutputEndpointSchema,
+  inputs: z.tuple([stringInputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
@@ -43,7 +51,7 @@ const StringOutputNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   return (
     <BaseNode id={id} data={data} label="String Output" {...props}>
       <textarea
-        value={stringOutput ?? "No Output"}
+        value={stringOutput.data.string ?? "No Output"}
         className={textareaStyles}
         readOnly
       />

@@ -12,7 +12,7 @@ import {
   outputEndpointSchema,
   stringInputEndpointSchema,
   stringOutputEndpointSchema,
-} from "../endpoint";
+} from "../endpointSchemas";
 
 const createData = (): NodeData => ({
   inputs: [
@@ -59,7 +59,11 @@ export {
 
 export type { NodeData as SubtractStringNodeData };
 
-const SubtractStringNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
+const SubtractStringNode: FC<NodeProps<NodeData>> = ({
+  id,
+  data,
+  ...props
+}) => {
   const { inputs, outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
 

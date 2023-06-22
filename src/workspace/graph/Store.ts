@@ -65,7 +65,11 @@ import LoraNumberMapNode, {
   createLoraNumberMapNodeData,
   loraNumberMapNodeDataSchema,
 } from "./node/LoraNumberMap";
-import { Endpoint, InputEndpoint, OutputEndpoint } from "./node/endpoint";
+import {
+  Endpoint,
+  InputEndpoint,
+  OutputEndpoint,
+} from "./node/endpointSchemas";
 import AddStringNode, {
   AddStringNodeData,
   addStringNodeDataSchema,
@@ -121,6 +125,16 @@ import SamplerNode, {
   createSamplerNodeData,
   samplerNodeDataSchema,
 } from "./node/Sampler";
+import ImageMetadataNode, {
+  ImageMetadataNodeData,
+  createImageMetadataNodeData,
+  imageMetadataNodeDataSchema,
+} from "./node/ImageMetadata";
+import ImageNode, {
+  ImageNodeData,
+  createImageNodeData,
+  imageNodeDataSchema,
+} from "./node/Image";
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
@@ -143,6 +157,8 @@ const nodeTypes = {
   "subtract-number-pair": SubtractNumberPairNode,
   "subtract-string-number-map": SubtractStringNumberMapNode,
   "subtract-lora-number-map": SubtractLoraNumberMapNode,
+  image: ImageNode,
+  "image-metadata": ImageMetadataNode,
 } as const;
 
 const nodeDataSchemas = {
@@ -166,6 +182,8 @@ const nodeDataSchemas = {
   "subtract-number-pair": subtractNumberPairNodeDataSchema,
   "subtract-string-number-map": subtractStringNumberMapNodeDataSchema,
   "subtract-lora-number-map": subtractLoraNumberMapNodeDataSchema,
+  image: imageNodeDataSchema,
+  "image-metadata": imageMetadataNodeDataSchema,
 } as const;
 
 const nodeCreateDataFunctions = {
@@ -189,6 +207,8 @@ const nodeCreateDataFunctions = {
   "subtract-number-pair": createSubtractNumberPairNodeData,
   "subtract-string-number-map": createSubtractStringNumberMapNodeData,
   "subtract-lora-number-map": createSubtractLoraNumberMapNodeData,
+  image: createImageNodeData,
+  "image-metadata": createImageMetadataNodeData,
 } as const;
 
 type NodeDataMap = {
@@ -212,6 +232,8 @@ type NodeDataMap = {
   "subtract-number-pair": SubtractNumberPairNodeData;
   "subtract-string-number-map": SubtractStringNumberMapNodeData;
   "subtract-lora-number-map": SubtractLoraNumberMapNodeData;
+  image: ImageNodeData;
+  "image-metadata": ImageMetadataNodeData;
 };
 
 // TODO: create index for efficient lookup of nodes and edges

@@ -2,7 +2,7 @@ import { FC, PropsWithChildren, memo } from "react";
 import { NodeProps } from "reactflow";
 import { twJoin, twMerge } from "tailwind-merge";
 import BaseHandle from "./BaseHandle";
-import { Endpoint, InputEndpoint, OutputEndpoint } from "./endpoint";
+import { Endpoint, InputEndpoint, OutputEndpoint } from "./endpointSchemas";
 
 export type BaseNodeData = {
   dynamicInputSize?: boolean;

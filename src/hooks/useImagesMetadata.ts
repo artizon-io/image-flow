@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import readImageMetadata from "../utils/metadata/readImageMetadata";
+import readImageMetadata from "../utils/imageMetadata/readImageMetadata";
 import { useNotification } from "../singleton/Notification/Store";
 import { exists, readDir } from "@tauri-apps/api/fs";
 import { useImageDirPathConfiguratorStore } from "../singleton/ImageDirPathConfigurator/Store";
-import { Metadata } from "../types/metadata";
+import { Metadata } from "../types/imageMetadata";
 
 const useImagesMetadata = () => {
   const [imagesMetadata, setImagesMetadata] = useState<Metadata[]>([]);

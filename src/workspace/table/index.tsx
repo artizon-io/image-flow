@@ -23,7 +23,7 @@ const Table: FC<{
   setImage?: (image: string | null) => void;
   className?: string;
 }> = ({ setImage, className, ...props }) => {
-  const columnHelper = createColumnHelper<Metadata>();
+  const columnHelper = createColumnHelper<ImageMetadataWithPath>();
 
   const showNotification = useNotification();
   const { positiveColorHue, negativeColorHue } = useSettingsStore((state) => ({
@@ -106,9 +106,9 @@ const Table: FC<{
         header: "Highres Fix Steps",
         cell: (info) => info.getValue() ?? "N/A",
       }),
-      columnHelper.accessor("highResUpscaler", {
+      columnHelper.accessor((row) => row.highResUpscaler?.name, {
         id: "highResUpscaler",
-        header: "Highres Sampler",
+        header: "Highres Fix Sampler",
         cell: (info) => info.getValue() ?? "N/A",
       }),
       columnHelper.accessor("loraMap", {
@@ -178,7 +178,7 @@ const Table: FC<{
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const selectImage = async (row: Row<Metadata>) => {
+  const selectImage = async (row: Row<ImageMetadataWithPath>) => {
     const imageSrc: string = row.getValue("imageSrc");
     setImage!(imageSrc);
   };

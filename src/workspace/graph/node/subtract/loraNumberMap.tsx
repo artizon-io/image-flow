@@ -14,7 +14,7 @@ import {
   outputEndpointSchema,
   stringInputEndpointSchema,
   stringOutputEndpointSchema,
-} from "../endpoint";
+} from "../endpointSchemas";
 
 const createData = (): NodeData => ({
   inputs: [

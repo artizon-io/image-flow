@@ -115,6 +115,19 @@ const useGraphToolboxMenuStore = create<{
       ],
     },
     {
+      label: "Image",
+      subItemConfigs: [
+        {
+          label: "Image",
+          handler: () => useGraphStore.getState().createNode("image"),
+        },
+        {
+          label: "Image Metadata",
+          handler: () => useGraphStore.getState().createNode("image-metadata"),
+        },
+      ],
+    },
+    {
       label: "Lora",
       subItemConfigs: [
         {

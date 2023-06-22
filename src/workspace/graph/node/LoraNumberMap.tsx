@@ -7,7 +7,7 @@ import { useGraphStore } from "../Store";
 import { z } from "zod";
 import { produce } from "immer";
 import { v4 as uuidv4 } from "uuid";
-import { loraNumberMapOutputEndpointSchema } from "./endpoint";
+import { loraNumberMapOutputEndpointSchema } from "./endpointSchemas";
 
 const createData = (map?: LoraWeightMap): NodeData => ({
   outputs: [

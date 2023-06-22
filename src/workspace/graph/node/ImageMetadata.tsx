@@ -1,21 +1,22 @@
 import { FC } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode, { BaseNodeData } from "./Base";
+import BaseNode from "./Base";
 import {} from "./BaseHandle";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import {
+  imageData,
   imageInputEndpointSchema,
-  loraNumberMapInputEndpointSchema,
-  modelInputEndpointSchema,
-  numberInputEndpointSchema,
-  numberPairInputEndpointSchema,
-  samplerInputEndpointSchema,
-  stringInputEndpointSchema,
-  stringNumberMapInputEndpointSchema,
-  stringOutputEndpointSchema,
   imageOutputEndpointSchema,
+  loraNumberMapOutputEndpointSchema,
+  modelOutputEndpointSchema,
+  numberOutputEndpointSchema,
+  numberPairOutputEndpointSchema,
+  samplerOutputEndpointSchema,
+  stringNumberMapOutputEndpointSchema,
+  stringOutputEndpointSchema,
 } from "./endpointSchemas";
+import { inputStyles, labelStyles, twoColumnGridStyles } from "./styles";
 
 const createData = (): NodeData => ({
   inputs: [
@@ -27,10 +28,12 @@ const createData = (): NodeData => ({
         colorHue: 300,
       },
     },
+  ],
+  outputs: [
     {
       id: uuidv4(),
       label: "Prompt",
-      type: {
+      data: {
         type: "string",
         colorHue: 40,
       },
@@ -38,7 +41,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Negative Prompt",
-      type: {
+      data: {
         type: "string",
         colorHue: 40,
       },
@@ -46,7 +49,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Prompt Weight Map",
-      type: {
+      data: {
         type: "string-number-map",
         colorHue: 160,
       },
@@ -54,7 +57,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Negative Prompt Weight Map",
-      type: {
+      data: {
         type: "string-number-map",
         colorHue: 160,
       },
@@ -62,7 +65,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "LoRA Weight Map",
-      type: {
+      data: {
         type: "lora-number-map",
         colorHue: 200,
       },
@@ -70,7 +73,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Negative LoRA Weight Map",
-      type: {
+      data: {
         type: "lora-number-map",
         colorHue: 200,
       },
@@ -78,7 +81,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Model",
-      type: {
+      data: {
         type: "model",
         colorHue: 260,
       },
@@ -86,7 +89,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Sampler",
-      type: {
+      data: {
         type: "sampler",
         colorHue: 260,
       },
@@ -94,7 +97,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Steps",
-      type: {
+      data: {
         type: "number",
         colorHue: 0,
       },
@@ -102,7 +105,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Resolution",
-      type: {
+      data: {
         type: "number-pair",
         colorHue: 0,
       },
@@ -110,7 +113,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Denoising Strength",
-      type: {
+      data: {
         type: "number",
         colorHue: 0,
       },
@@ -118,7 +121,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "CFG Scale",
-      type: {
+      data: {
         type: "number",
         colorHue: 0,
       },
@@ -126,7 +129,7 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "CLIP Skip",
-      type: {
+      data: {
         type: "number",
         colorHue: 0,
       },
@@ -134,66 +137,78 @@ const createData = (): NodeData => ({
     {
       id: uuidv4(),
       label: "Seed",
-      type: {
+      data: {
         type: "number",
         colorHue: 0,
       },
     },
-  ],
-  outputs: [
     {
       id: uuidv4(),
-      label: "Image",
+      label: "Highres Fix Sampler",
       data: {
-        type: "image",
-        colorHue: 300,
+        type: "sampler",
+        colorHue: 260,
       },
     },
     {
       id: uuidv4(),
-      label: "CLIP",
+      label: "Highres Fix Steps",
       data: {
-        type: "string",
-        colorHue: 40,
+        type: "number",
+        colorHue: 0,
+      },
+    },
+    {
+      id: uuidv4(),
+      label: "Highres Fix Resolution",
+      data: {
+        type: "number-pair",
+        colorHue: 0,
       },
     },
   ],
 });
 
 const dataSchema = z.object({
-  inputs: z.tuple([
-    imageInputEndpointSchema,
-    stringInputEndpointSchema,
-    stringInputEndpointSchema,
-    stringNumberMapInputEndpointSchema,
-    stringNumberMapInputEndpointSchema,
-    loraNumberMapInputEndpointSchema,
-    loraNumberMapInputEndpointSchema,
-    modelInputEndpointSchema,
-    samplerInputEndpointSchema,
-    numberInputEndpointSchema,
-    numberPairInputEndpointSchema,
-    numberInputEndpointSchema,
-    numberInputEndpointSchema,
-    numberInputEndpointSchema,
-    numberInputEndpointSchema,
+  inputs: z.tuple([imageInputEndpointSchema]),
+  outputs: z.tuple([
+    stringOutputEndpointSchema,
+    stringOutputEndpointSchema,
+    stringNumberMapOutputEndpointSchema,
+    stringNumberMapOutputEndpointSchema,
+    loraNumberMapOutputEndpointSchema,
+    loraNumberMapOutputEndpointSchema,
+    modelOutputEndpointSchema,
+    samplerOutputEndpointSchema,
+    numberOutputEndpointSchema,
+    numberPairOutputEndpointSchema,
+    numberOutputEndpointSchema,
+    numberOutputEndpointSchema,
+    numberOutputEndpointSchema,
+    numberOutputEndpointSchema,
+    samplerOutputEndpointSchema,
+    numberOutputEndpointSchema,
+    numberPairOutputEndpointSchema,
   ]),
-  outputs: z.tuple([imageOutputEndpointSchema, stringOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
 
 export {
-  createData as createAutomatic1111NodeData,
-  dataSchema as automatic1111NodeDataSchema,
+  createData as createImageMetadataNodeData,
+  dataSchema as imageMetadataNodeDataSchema,
 };
 
-export type { NodeData as Automatic1111NodeData };
+export type { NodeData as ImageMetadataNodeData };
 
-const Automatic1111Node: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
+const ImageMetadataNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
+  const { inputs, outputs } = data;
+
   return (
-    <BaseNode id={id} data={data} label="Automatic 1111" {...props}></BaseNode>
+    <BaseNode id={id} data={data} label="Image Metadata" {...props}>
+      <div className={twoColumnGridStyles}></div>
+    </BaseNode>
   );
 };
 
-export default Automatic1111Node;
+export default ImageMetadataNode;

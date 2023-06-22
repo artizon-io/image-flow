@@ -8,7 +8,7 @@ import {
   imageData,
   imageInputEndpointSchema,
   imageOutputEndpointSchema,
-} from "./endpoint";
+} from "./endpointSchemas";
 
 const createData = (): NodeData => ({
   imageOutput: {

@@ -1,4 +1,10 @@
 import { z } from "zod";
+import {
+  loraSchema,
+  modelSchema,
+  samplerSchema,
+} from "../../../utils/stableDiffusion/schemas";
+import { imageMetadataSchema } from "../../../utils/imageMetadata/schemas";
 
 export type InputEndpoint = z.infer<typeof inputEndpointSchema>;
 
@@ -8,10 +14,10 @@ export type Endpoint = InputEndpoint | OutputEndpoint;
 
 // TODO: load the colors from `.config`
 
-const endpointBaseSchema = {
+const endpointBaseSchema = z.object({
   id: z.string(),
   label: z.string(),
-};
+});
 
 export const stringType: z.infer<typeof stringInputEndpointSchema>["type"] = {
   type: "string",
@@ -23,19 +29,15 @@ export const stringData: z.infer<typeof stringOutputEndpointSchema>["data"] = {
   string: undefined as string | undefined,
 };
 
-export const stringInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const stringInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("string"),
     colorHue: z.literal(40),
   }),
 });
 
-export const stringOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("string"),
-    colorHue: z.literal(40),
+export const stringOutputEndpointSchema = endpointBaseSchema.extend({
+  data: stringInputEndpointSchema.shape.type.extend({
     string: z.string().optional(),
   }),
 });
@@ -50,19 +52,15 @@ export const numberData: z.infer<typeof numberOutputEndpointSchema>["data"] = {
   number: undefined as number | undefined,
 };
 
-export const numberInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const numberInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("number"),
     colorHue: z.literal(0),
   }),
 });
 
-export const numberOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("number"),
-    colorHue: z.literal(0),
+export const numberOutputEndpointSchema = endpointBaseSchema.extend({
+  data: numberInputEndpointSchema.shape.type.extend({
     number: z.number().optional(),
   }),
 });
@@ -81,19 +79,15 @@ export const numberPairData: z.infer<
   pair: undefined as [number, number] | undefined,
 };
 
-export const numberPairInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const numberPairInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("number-pair"),
     colorHue: z.literal(0),
   }),
 });
 
-export const numberPairOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("number-pair"),
-    colorHue: z.literal(0),
+export const numberPairOutputEndpointSchema = endpointBaseSchema.extend({
+  data: numberPairInputEndpointSchema.shape.type.extend({
     pair: z.tuple([z.number(), z.number()]).optional(),
   }),
 });
@@ -112,19 +106,15 @@ export const stringNumberMapData: z.infer<
   map: undefined as Map<string, number> | undefined,
 };
 
-export const stringNumberMapInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const stringNumberMapInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("string-number-map"),
     colorHue: z.literal(160),
   }),
 });
 
-export const stringNumberMapOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("string-number-map"),
-    colorHue: z.literal(160),
+export const stringNumberMapOutputEndpointSchema = endpointBaseSchema.extend({
+  data: stringNumberMapInputEndpointSchema.shape.type.extend({
     map: z.map(z.string(), z.number()).optional(),
   }),
 });
@@ -143,29 +133,16 @@ export const loraNumberMapData: z.infer<
   map: undefined as Map<Lora, number> | undefined,
 };
 
-export const loraNumberMapInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const loraNumberMapInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("lora-number-map"),
     colorHue: z.literal(200),
   }),
 });
 
-export const loraNumberMapOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("lora-number-map"),
-    colorHue: z.literal(200),
-    map: z
-      .map(
-        z.object({
-          name: z.string(),
-          version: z.string().optional(),
-          hash: z.string().optional(),
-        }),
-        z.number()
-      )
-      .optional(),
+export const loraNumberMapOutputEndpointSchema = endpointBaseSchema.extend({
+  data: loraNumberMapInputEndpointSchema.shape.type.extend({
+    map: z.map(loraSchema, z.number()).optional(),
   }),
 });
 
@@ -179,26 +156,16 @@ export const modelData: z.infer<typeof modelOutputEndpointSchema>["data"] = {
   data: undefined as Model | undefined,
 };
 
-export const modelInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const modelInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("model"),
     colorHue: z.literal(260),
   }),
 });
 
-export const modelOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("model"),
-    colorHue: z.literal(260),
-    data: z
-      .object({
-        name: z.string(),
-        version: z.string().optional(),
-        hash: z.string().optional(),
-      })
-      .optional(),
+export const modelOutputEndpointSchema = endpointBaseSchema.extend({
+  data: modelInputEndpointSchema.shape.type.extend({
+    data: modelSchema.optional(),
   }),
 });
 
@@ -212,19 +179,15 @@ export const imageData: z.infer<typeof imageOutputEndpointSchema>["data"] = {
   source: undefined as string | undefined,
 };
 
-export const imageInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const imageInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("image"),
     colorHue: z.literal(300),
   }),
 });
 
-export const imageOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("image"),
-    colorHue: z.literal(300),
+export const imageOutputEndpointSchema = endpointBaseSchema.extend({
+  data: imageInputEndpointSchema.shape.type.extend({
     source: z.string().optional(),
   }),
 });
@@ -240,39 +203,18 @@ export const samplerData: z.infer<typeof samplerOutputEndpointSchema>["data"] =
     data: undefined as Sampler | undefined,
   };
 
-export const samplerInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+export const samplerInputEndpointSchema = endpointBaseSchema.extend({
   type: z.object({
     type: z.literal("sampler"),
     colorHue: z.literal(260),
   }),
 });
 
-export const samplerOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
-  data: z.object({
-    type: z.literal("sampler"),
-    colorHue: z.literal(260),
-    data: z
-      .object({
-        name: z.string(),
-        version: z.string().optional(),
-        hash: z.string().optional(),
-      })
-      .optional(),
+export const samplerOutputEndpointSchema = endpointBaseSchema.extend({
+  data: samplerInputEndpointSchema.shape.type.extend({
+    data: samplerSchema.optional(),
   }),
 });
-
-export const outputEndpointSchema = z.union([
-  stringOutputEndpointSchema,
-  numberOutputEndpointSchema,
-  numberPairOutputEndpointSchema,
-  stringNumberMapOutputEndpointSchema,
-  loraNumberMapOutputEndpointSchema,
-  modelOutputEndpointSchema,
-  imageOutputEndpointSchema,
-  samplerOutputEndpointSchema,
-]);
 
 export const inputEndpointSchema = z.union([
   stringInputEndpointSchema,
@@ -283,4 +225,15 @@ export const inputEndpointSchema = z.union([
   modelInputEndpointSchema,
   imageInputEndpointSchema,
   samplerInputEndpointSchema,
+]);
+
+export const outputEndpointSchema = z.union([
+  stringOutputEndpointSchema,
+  numberOutputEndpointSchema,
+  numberPairOutputEndpointSchema,
+  stringNumberMapOutputEndpointSchema,
+  loraNumberMapOutputEndpointSchema,
+  modelOutputEndpointSchema,
+  imageOutputEndpointSchema,
+  samplerOutputEndpointSchema,
 ]);

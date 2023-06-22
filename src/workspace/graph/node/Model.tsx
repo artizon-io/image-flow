@@ -4,7 +4,7 @@ import BaseNode from "./Base";
 import { inputStyles, labelStyles, twoColumnGridStyles } from "./styles";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { modelOutputEndpointSchema } from "./endpoint";
+import { modelOutputEndpointSchema } from "./endpointSchemas";
 
 const createData = (model?: { name: string; version: string }): NodeData => ({
   outputs: [

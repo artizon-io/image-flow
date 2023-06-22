@@ -6,7 +6,7 @@ import { useGraphStore } from "../Store";
 import { produce } from "immer";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { numberOutputEndpointSchema } from "./endpoint";
+import { numberOutputEndpointSchema } from "./endpointSchemas";
 
 const createData = (value?: number): NodeData => ({
   outputs: [

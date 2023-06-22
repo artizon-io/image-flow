@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import {
   stringInputEndpointSchema,
   stringOutputEndpointSchema,
-} from "./endpoint";
+} from "./endpointSchemas";
 
 const createData = (): NodeData => ({
   stringOutput: {

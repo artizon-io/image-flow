@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Handle, Position } from "reactflow";
 import { twJoin } from "tailwind-merge";
-import { Endpoint, InputEndpoint, OutputEndpoint } from "./endpoint";
+import { Endpoint, InputEndpoint, OutputEndpoint } from "./endpointSchemas";
 
 const BaseHandle: FC<{
   endpointConfig: Endpoint;

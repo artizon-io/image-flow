@@ -4,9 +4,16 @@ import BaseNode from "./Base";
 import { inputStyles, labelStyles, twoColumnGridStyles } from "./styles";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { modelOutputEndpointSchema, samplerOutputEndpointSchema } from "./endpoint";
+import {
+  modelOutputEndpointSchema,
+  samplerOutputEndpointSchema,
+} from "./endpointSchemas";
 
-const createData = (sampler?: { name: string; version?: string, hash?: string }): NodeData => ({
+const createData = (sampler?: {
+  name: string;
+  version?: string;
+  hash?: string;
+}): NodeData => ({
   outputs: [
     {
       id: uuidv4(),
@@ -26,7 +33,10 @@ const dataSchema = z.object({
 
 type NodeData = z.infer<typeof dataSchema>;
 
-export { createData as createSamplerNodeData, dataSchema as samplerNodeDataSchema };
+export {
+  createData as createSamplerNodeData,
+  dataSchema as samplerNodeDataSchema,
+};
 
 export type { NodeData as SamplerNodeData };
 

@@ -16,7 +16,7 @@ import {
   stringNumberMapInputEndpointSchema,
   stringNumberMapOutputEndpointSchema,
   stringOutputEndpointSchema,
-} from "../endpoint";
+} from "../endpointSchemas";
 
 const createData = (): NodeData => ({
   dynamicInputSize: true,

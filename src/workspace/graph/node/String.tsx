@@ -1,7 +1,10 @@
 import { ChangeEventHandler, FC } from "react";
 import { NodeProps, useUpdateNodeInternals } from "reactflow";
 import BaseNode from "./Base";
-import { outputEndpointSchema, stringOutputEndpointSchema } from "./endpoint";
+import {
+  outputEndpointSchema,
+  stringOutputEndpointSchema,
+} from "./endpointSchemas";
 import { textareaStyles } from "./styles";
 import { useGraphStore } from "../Store";
 import { z } from "zod";

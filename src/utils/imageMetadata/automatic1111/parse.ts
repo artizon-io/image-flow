@@ -6,7 +6,7 @@ import {
   addTagToWeightMap,
   combineNodesToWeightMap,
   multiplyTagWeightInWeightMap,
-} from "../../weightMap";
+} from "../../stableDiffusion/weightMap";
 
 const resourceDirPath = await resourceDir();
 const documentDirPath = await documentDir();
@@ -89,7 +89,7 @@ const parseAutomatic1111Metadata = async (
           metadata.highResSteps = Number(value.sourceString);
           return;
         case "Hires upscaler":
-          metadata.highResUpscaler = value.sourceString;
+          metadata.highResUpscaler = { name: value.sourceString };
           return;
         default:
           console.warn("Unknown model param", key.sourceString);

@@ -237,7 +237,7 @@ export const samplerType: z.infer<typeof samplerInputEndpointSchema>["type"] = {
 export const samplerData: z.infer<typeof samplerOutputEndpointSchema>["data"] =
   {
     ...samplerType,
-    name: undefined as string | undefined,
+    data: undefined as Sampler | undefined,
   };
 
 export const samplerInputEndpointSchema = z.object({
@@ -253,7 +253,13 @@ export const samplerOutputEndpointSchema = z.object({
   data: z.object({
     type: z.literal("sampler"),
     colorHue: z.literal(260),
-    name: z.string().optional(),
+    data: z
+      .object({
+        name: z.string(),
+        version: z.string().optional(),
+        hash: z.string().optional(),
+      })
+      .optional(),
   }),
 });
 

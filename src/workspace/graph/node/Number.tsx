@@ -1,4 +1,4 @@
-import { ChangeEventHandler, FC } from "react";
+import { ChangeEventHandler, FC, useState } from "react";
 import { NodeProps } from "reactflow";
 import BaseNode from "./Base";
 import { inputStyles } from "./styles";
@@ -42,7 +42,9 @@ const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const setNodeData = useGraphStore((state) => state.setNodeData);
 
   const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = parseInt(e.target.value);
+    const value = parseFloat(e.target.value);
+    if (isNaN(value)) return;
+
     setNodeData<NodeData>(
       id,
       produce(data, (draft) => {
@@ -55,9 +57,9 @@ const NumberNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
     <BaseNode id={id} data={data} label="Number" {...props}>
       <input
         className={inputStyles}
+        defaultValue={value}
         type="number"
         onChange={handleValueChange}
-        value={isNaN(value) ? 0 : value}
       />
     </BaseNode>
   );

@@ -48,7 +48,7 @@ const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
           <Item
             key={index}
             lora={lora}
-            number={number}
+            defaultNumber={number}
             setLora={(newLora) => {
               setNodeData(
                 id,
@@ -59,6 +59,8 @@ const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
               );
             }}
             setNumber={(newNumber) => {
+              if (isNaN(newNumber)) return;
+
               setNodeData(
                 id,
                 produce(data, (draft) => {
@@ -75,17 +77,17 @@ const LoraNumberMap: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
 
 const Item: FC<{
   lora: Lora;
-  number: number;
+  defaultNumber: number;
   setLora: (lora: Lora) => void;
   setNumber: (number: number) => void;
-}> = ({ lora, number, setLora, setNumber }) => (
+}> = ({ lora, defaultNumber, setLora, setNumber }) => (
   <>
     <input className={inputStyles} value={lora.name} readOnly />
     <input
       className={inputStyles}
-      value={number}
       type="number"
-      onChange={(e) => setNumber(parseInt(e.target.value))}
+      onChange={(e) => setNumber(parseFloat(e.target.value))}
+      defaultValue={defaultNumber}
     />
   </>
 );

@@ -3,7 +3,7 @@ import ReactFlow, { Background, SelectionMode } from "reactflow";
 import { twMerge } from "tailwind-merge";
 import "reactflow/dist/style.css";
 import "./react-flow.css";
-import ToolboxPanel from "./ToolboxPanel";
+import GraphToolbox from "./Toolbox";
 import { useGraphStore } from "./Store";
 import { useSettingsStore } from "../../singleton/settings/Store";
 
@@ -38,7 +38,7 @@ const Graph: FC<{
         onlyRenderVisibleElements
         fitView
       >
-        <ToolboxPanel />
+        <GraphToolbox />
         <Background className="bg-neutral-900" gap={30} />
       </ReactFlow>
     </div>

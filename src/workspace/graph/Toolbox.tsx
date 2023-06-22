@@ -66,104 +66,128 @@ const useGraphToolboxMenuStore = create<{
   // TODO: genericaly derive the menu items and handlers
   menuItemConfigs: [
     {
-      label: "Add Node",
+      label: "Renderer",
       subItemConfigs: [
         {
-          label: "Renderer",
-          subItemConfigs: [
-            {
-              label: "Automatic 1111",
-              handler: () =>
-                useGraphStore.getState().createNode("automatic-1111"),
-            },
-          ],
+          label: "Automatic 1111",
+          handler: () => useGraphStore.getState().createNode("automatic-1111"),
         },
+      ],
+    },
+    {
+      label: "Model",
+      subItemConfigs: [
         {
           label: "Model",
           handler: () => useGraphStore.getState().createNode("model"),
         },
+      ],
+    },
+    {
+      label: "Sampler",
+      subItemConfigs: [
         {
-          label: "Primitive",
-          subItemConfigs: [
-            {
-              label: "Number",
-              handler: () => useGraphStore.getState().createNode("number"),
-            },
-            {
-              label: "Number Pair",
-              handler: () => useGraphStore.getState().createNode("number-pair"),
-            },
-            {
-              label: "String",
-              handler: () => useGraphStore.getState().createNode("string"),
-            },
-            {
-              label: "String Number Map",
-              handler: () =>
-                useGraphStore.getState().createNode("string-number-map"),
-            },
-          ],
+          label: "Sampler",
+          handler: () => useGraphStore.getState().createNode("sampler"),
         },
+      ],
+    },
+    {
+      label: "Primitive",
+      subItemConfigs: [
+        {
+          label: "Number",
+          handler: () => useGraphStore.getState().createNode("number"),
+        },
+        {
+          label: "Number Pair",
+          handler: () => useGraphStore.getState().createNode("number-pair"),
+        },
+        {
+          label: "String",
+          handler: () => useGraphStore.getState().createNode("string"),
+        },
+        {
+          label: "String Number Map",
+          handler: () =>
+            useGraphStore.getState().createNode("string-number-map"),
+        },
+      ],
+    },
+    {
+      label: "Lora",
+      subItemConfigs: [
         {
           label: "Lora Number Map",
           handler: () => useGraphStore.getState().createNode("lora-number-map"),
         },
+      ],
+    },
+    {
+      label: "Output",
+      subItemConfigs: [
         {
-          label: "Output",
-          subItemConfigs: [
-            {
-              label: "Image",
-              handler: () =>
-                useGraphStore.getState().createNode("image-output"),
-            },
-            {
-              label: "Text",
-              handler: () =>
-                useGraphStore.getState().createNode("string-output"),
-            },
-          ],
+          label: "Image",
+          handler: () => useGraphStore.getState().createNode("image-output"),
         },
         {
-          label: "Operator",
-          subItemConfigs: [
-            {
-              label: "Add",
-              subItemConfigs: [
-                {
-                  label: "String",
-                  handler: () =>
-                    useGraphStore.getState().createNode("add-string"),
-                },
-                {
-                  label: "Number",
-                  handler: () =>
-                    useGraphStore.getState().createNode("add-number"),
-                },
-                {
-                  label: "Number Pair",
-                  handler: () =>
-                    useGraphStore.getState().createNode("add-number-pair"),
-                },
-                {
-                  label: "String Number Map",
-                  handler: () =>
-                    useGraphStore
-                      .getState()
-                      .createNode("add-string-number-map"),
-                },
-                {
-                  label: "Lora Number Map",
-                  handler: () =>
-                    useGraphStore.getState().createNode("add-lora-number-map"),
-                },
-              ],
-            },
-            // {
-            //   label: "Subtract",
-            //   handler: () =>
-            //     useGraphStore.getState().createNode("subtract-operator"),
-            // },
-          ],
+          label: "Text",
+          handler: () => useGraphStore.getState().createNode("string-output"),
+        },
+      ],
+    },
+    {
+      label: "Add Operator",
+      subItemConfigs: [
+        {
+          label: "String",
+          handler: () => useGraphStore.getState().createNode("add-string"),
+        },
+        {
+          label: "Number",
+          handler: () => useGraphStore.getState().createNode("add-number"),
+        },
+        {
+          label: "Number Pair",
+          handler: () => useGraphStore.getState().createNode("add-number-pair"),
+        },
+        {
+          label: "String Number Map",
+          handler: () =>
+            useGraphStore.getState().createNode("add-string-number-map"),
+        },
+        {
+          label: "Lora Number Map",
+          handler: () =>
+            useGraphStore.getState().createNode("add-lora-number-map"),
+        },
+      ],
+    },
+    {
+      label: "Subtract Operator",
+      subItemConfigs: [
+        {
+          label: "String",
+          handler: () => useGraphStore.getState().createNode("subtract-string"),
+        },
+        {
+          label: "Number",
+          handler: () => useGraphStore.getState().createNode("subtract-number"),
+        },
+        {
+          label: "Number Pair",
+          handler: () =>
+            useGraphStore.getState().createNode("subtract-number-pair"),
+        },
+        {
+          label: "String Number Map",
+          handler: () =>
+            useGraphStore.getState().createNode("subtract-string-number-map"),
+        },
+        {
+          label: "Lora Number Map",
+          handler: () =>
+            useGraphStore.getState().createNode("subtract-lora-number-map"),
         },
       ],
     },
@@ -180,7 +204,7 @@ const useGraphToolboxMenuStore = create<{
     })),
 }));
 
-const ToolboxPanel: FC<{}> = ({}) => {
+const GraphToolbox: FC<{}> = ({}) => {
   const menuItemConfigs = useGraphToolboxMenuStore(
     (state) => state.menuItemConfigs
   );
@@ -250,39 +274,35 @@ const ToolboxPanel: FC<{}> = ({}) => {
   return (
     <Panel position={"top-left"}>
       <Menubar.Root className="flex flex-row bg-neutral-800 rounded-md overflow-hidden">
-        {menuItemConfigs.map((item) =>
-          item.subItemConfigs ? (
-            <Menubar.Menu key={item.label}>
-              <Menubar.Trigger
-                className={twMerge(
-                  menuItemStyles,
-                  "text-neutral-400 hover:text-neutral-300"
-                )}
-                onClick={item.handler}
+        {menuItemConfigs.map((item) => (
+          <Menubar.Menu key={item.label}>
+            <Menubar.Trigger
+              className={twMerge(
+                menuItemStyles,
+                "text-neutral-400 hover:text-neutral-300"
+              )}
+              onClick={item.handler}
+            >
+              <p className={menuItemLabelStyles}>{item.label}</p>
+              <div />
+            </Menubar.Trigger>
+            <Menubar.Portal>
+              <Menubar.Content
+                className={menuStyles}
+                align="start"
+                sideOffset={5}
+                alignOffset={-3}
               >
-                <p className={menuItemLabelStyles}>{item.label}</p>
-                <div />
-              </Menubar.Trigger>
-              <Menubar.Portal>
-                <Menubar.Content
-                  className={menuStyles}
-                  align="start"
-                  sideOffset={5}
-                  alignOffset={-3}
-                >
-                  {item.subItemConfigs.map((subItem) => (
-                    <SubMenu key={subItem.label} itemConfig={subItem} />
-                  ))}
-                </Menubar.Content>
-              </Menubar.Portal>
-            </Menubar.Menu>
-          ) : (
-            <MenuItem itemConfig={item} />
-          )
-        )}
+                {item.subItemConfigs!.map((subItem) => (
+                  <SubMenu key={subItem.label} itemConfig={subItem} />
+                ))}
+              </Menubar.Content>
+            </Menubar.Portal>
+          </Menubar.Menu>
+        ))}
       </Menubar.Root>
     </Panel>
   );
 };
 
-export default ToolboxPanel;
+export default GraphToolbox;

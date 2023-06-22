@@ -1,4 +1,4 @@
-src/assets/sample-exifs
+src/assets/sample-*
 .env.development
 .env.production
 

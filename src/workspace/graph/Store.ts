@@ -70,27 +70,57 @@ import AddStringNode, {
   AddStringNodeData,
   addStringNodeDataSchema,
   createAddStringNodeData,
-} from "./node/operator/add/string";
+} from "./node/add/string";
 import AddNumberNode, {
   AddNumberNodeData,
   addNumberNodeDataSchema,
   createAddNumberNodeData,
-} from "./node/operator/add/number";
+} from "./node/add/number";
 import AddNumberPairNode, {
   AddNumberPairNodeData,
   addNumberPairNodeDataSchema,
   createAddNumberPairNodeData,
-} from "./node/operator/add/numberPair";
+} from "./node/add/numberPair";
 import AddStringNumberMapNode, {
   AddStringNumberMapNodeData,
   addStringNumberMapNodeDataSchema,
   createAddStringNumberMapNodeData,
-} from "./node/operator/add/stringNumberMap";
+} from "./node/add/stringNumberMap";
 import AddLoraNumberMapNode, {
   AddLoraNumberMapNodeData,
   addLoraNumberMapNodeDataSchema,
   createAddLoraNumberMapNodeData,
-} from "./node/operator/add/loraNumberMap";
+} from "./node/add/loraNumberMap";
+import SubtractStringNode, {
+  SubtractStringNodeData,
+  createSubtractStringNodeData,
+  subtractStringNodeDataSchema,
+} from "./node/subtract/string";
+import SubtractNumberNode, {
+  SubtractNumberNodeData,
+  createSubtractNumberNodeData,
+  subtractNumberNodeDataSchema,
+} from "./node/subtract/number";
+import SubtractNumberPairNode, {
+  SubtractNumberPairNodeData,
+  createSubtractNumberPairNodeData,
+  subtractNumberPairNodeDataSchema,
+} from "./node/subtract/numberPair";
+import SubtractStringNumberMapNode, {
+  SubtractStringNumberMapNodeData,
+  createSubtractStringNumberMapNodeData,
+  subtractStringNumberMapNodeDataSchema,
+} from "./node/subtract/stringNumberMap";
+import SubtractLoraNumberMapNode, {
+  SubtractLoraNumberMapNodeData,
+  createSubtractLoraNumberMapNodeData,
+  subtractLoraNumberMapNodeDataSchema,
+} from "./node/subtract/loraNumberMap";
+import SamplerNode, {
+  SamplerNodeData,
+  createSamplerNodeData,
+  samplerNodeDataSchema,
+} from "./node/Sampler";
 
 const nodeTypes = {
   "automatic-1111": Automatic1111Node,
@@ -99,6 +129,7 @@ const nodeTypes = {
   "image-output": ImageOutputNode,
   "string-output": StringOutputNode,
   model: ModelNode,
+  sampler: SamplerNode,
   "number-pair": NumberPairNode,
   "string-number-map": StringNumberMapNode,
   "lora-number-map": LoraNumberMapNode,
@@ -107,6 +138,11 @@ const nodeTypes = {
   "add-number-pair": AddNumberPairNode,
   "add-string-number-map": AddStringNumberMapNode,
   "add-lora-number-map": AddLoraNumberMapNode,
+  "subtract-string": SubtractStringNode,
+  "subtract-number": SubtractNumberNode,
+  "subtract-number-pair": SubtractNumberPairNode,
+  "subtract-string-number-map": SubtractStringNumberMapNode,
+  "subtract-lora-number-map": SubtractLoraNumberMapNode,
 } as const;
 
 const nodeDataSchemas = {
@@ -116,6 +152,7 @@ const nodeDataSchemas = {
   "image-output": imageOutputNodeDataSchema,
   "string-output": stringOutputNodeDataSchema,
   model: modelNodeDataSchema,
+  sampler: samplerNodeDataSchema,
   "number-pair": numberPairNodeDataSchema,
   "string-number-map": stringNumberMapNodeDataSchema,
   "lora-number-map": loraNumberMapNodeDataSchema,
@@ -124,6 +161,11 @@ const nodeDataSchemas = {
   "add-number-pair": addNumberPairNodeDataSchema,
   "add-string-number-map": addStringNumberMapNodeDataSchema,
   "add-lora-number-map": addLoraNumberMapNodeDataSchema,
+  "subtract-string": subtractStringNodeDataSchema,
+  "subtract-number": subtractNumberNodeDataSchema,
+  "subtract-number-pair": subtractNumberPairNodeDataSchema,
+  "subtract-string-number-map": subtractStringNumberMapNodeDataSchema,
+  "subtract-lora-number-map": subtractLoraNumberMapNodeDataSchema,
 } as const;
 
 const nodeCreateDataFunctions = {
@@ -133,6 +175,7 @@ const nodeCreateDataFunctions = {
   "image-output": createImageOutputNodeData,
   "string-output": createStringOutputNodeData,
   model: createModelNodeData,
+  sampler: createSamplerNodeData,
   "number-pair": createNumberPairNodeData,
   "string-number-map": createStringNumberMapNodeData,
   "lora-number-map": createLoraNumberMapNodeData,
@@ -141,6 +184,11 @@ const nodeCreateDataFunctions = {
   "add-number-pair": createAddNumberPairNodeData,
   "add-string-number-map": createAddStringNumberMapNodeData,
   "add-lora-number-map": createAddLoraNumberMapNodeData,
+  "subtract-string": createSubtractStringNodeData,
+  "subtract-number": createSubtractNumberNodeData,
+  "subtract-number-pair": createSubtractNumberPairNodeData,
+  "subtract-string-number-map": createSubtractStringNumberMapNodeData,
+  "subtract-lora-number-map": createSubtractLoraNumberMapNodeData,
 } as const;
 
 type NodeDataMap = {
@@ -150,6 +198,7 @@ type NodeDataMap = {
   "image-output": ImageOutputNodeData;
   "string-output": StringOutputNodeData;
   model: ModelNodeData;
+  sampler: SamplerNodeData;
   "number-pair": NumberPairNodeData;
   "string-number-map": StringNumberMapNodeData;
   "lora-number-map": LoraNumberMapNodeData;
@@ -158,6 +207,11 @@ type NodeDataMap = {
   "add-number-pair": AddNumberPairNodeData;
   "add-string-number-map": AddStringNumberMapNodeData;
   "add-lora-number-map": AddLoraNumberMapNodeData;
+  "subtract-string": SubtractStringNodeData;
+  "subtract-number": SubtractNumberNodeData;
+  "subtract-number-pair": SubtractNumberPairNodeData;
+  "subtract-string-number-map": SubtractStringNumberMapNodeData;
+  "subtract-lora-number-map": SubtractLoraNumberMapNodeData;
 };
 
 // TODO: create index for efficient lookup of nodes and edges
@@ -267,8 +321,18 @@ export const useGraphStore = create<{
        * that are not part of the connection
        */
       onConnect: (connection: Connection) => {
-        const targetNode = get().getNode(connection.target!);
-        const sourceNode = get().getNode(connection.source!);
+        if (
+          !connection.source ||
+          !connection.target ||
+          !connection.sourceHandle ||
+          !connection.targetHandle
+        ) {
+          console.error("Connection information is incomplete", connection);
+          return false;
+        }
+
+        const targetNode = get().getNode(connection.target);
+        const sourceNode = get().getNode(connection.source);
 
         if (!targetNode || !sourceNode) {
           console.error(

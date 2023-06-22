@@ -1,26 +1,31 @@
 import { FC, useEffect } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode from "../../Base";
-import {} from "../../BaseHandle";
-import { useGraphStore } from "../../../Store";
+import BaseNode from "../Base";
+import {} from "../BaseHandle";
+import { useGraphStore } from "../../Store";
 import { produce } from "immer";
 import { z } from "zod";
-import { PlusIcon } from "@radix-ui/react-icons";
+import { MinusIcon } from "@radix-ui/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import {
   inputEndpointSchema,
-  numberInputEndpointSchema,
-  numberOutputEndpointSchema,
   outputEndpointSchema,
   stringInputEndpointSchema,
   stringNumberMapInputEndpointSchema,
   stringNumberMapOutputEndpointSchema,
   stringOutputEndpointSchema,
-} from "../../endpoint";
+} from "../endpoint";
 
 const createData = (): NodeData => ({
-  dynamicInputSize: true,
   inputs: [
+    {
+      id: uuidv4(),
+      label: "Input",
+      type: {
+        type: "string-number-map",
+        colorHue: 160,
+      },
+    },
     {
       id: uuidv4(),
       label: "Input",
@@ -43,21 +48,23 @@ const createData = (): NodeData => ({
 });
 
 const dataSchema = z.object({
-  dynamicInputSize: z.literal(true),
-  inputs: z.array(stringNumberMapInputEndpointSchema).length(1),
+  inputs: z.tuple([
+    stringNumberMapInputEndpointSchema,
+    stringNumberMapInputEndpointSchema,
+  ]),
   outputs: z.tuple([stringNumberMapOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
 
 export {
-  createData as createAddStringNumberMapNodeData,
-  dataSchema as addStringNumberMapNodeDataSchema,
+  createData as createSubtractStringNumberMapNodeData,
+  dataSchema as subtractStringNumberMapNodeDataSchema,
 };
 
-export type { NodeData as AddStringNumberMapNodeData };
+export type { NodeData as SubtractStringNumberMapNodeData };
 
-const AddStringNumberMapNode: FC<NodeProps<NodeData>> = ({
+const SubtractStringNumberMapNode: FC<NodeProps<NodeData>> = ({
   id,
   data,
   ...props
@@ -67,9 +74,9 @@ const AddStringNumberMapNode: FC<NodeProps<NodeData>> = ({
 
   return (
     <BaseNode id={id} data={data} {...props}>
-      <PlusIcon />
+      <MinusIcon />
     </BaseNode>
   );
 };
 
-export default AddStringNumberMapNode;
+export default SubtractStringNumberMapNode;

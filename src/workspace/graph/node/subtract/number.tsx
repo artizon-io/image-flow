@@ -1,31 +1,36 @@
 import { FC, useEffect } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode from "../../Base";
-import {} from "../../BaseHandle";
-import { useGraphStore } from "../../../Store";
+import BaseNode from "../Base";
+import {} from "../BaseHandle";
+import { useGraphStore } from "../../Store";
 import { produce } from "immer";
 import { z } from "zod";
-import { PlusIcon } from "@radix-ui/react-icons";
+import { MinusIcon } from "@radix-ui/react-icons";
 import { v4 as uuidv4 } from "uuid";
 import {
   inputEndpointSchema,
   numberInputEndpointSchema,
   numberOutputEndpointSchema,
-  numberPairInputEndpointSchema,
-  numberPairOutputEndpointSchema,
   outputEndpointSchema,
   stringInputEndpointSchema,
   stringOutputEndpointSchema,
-} from "../../endpoint";
+} from "../endpoint";
 
 const createData = (): NodeData => ({
-  dynamicInputSize: true,
   inputs: [
     {
       id: uuidv4(),
       label: "Input",
       type: {
-        type: "number-pair",
+        type: "number",
+        colorHue: 0,
+      },
+    },
+    {
+      id: uuidv4(),
+      label: "Input",
+      type: {
+        type: "number",
         colorHue: 0,
       },
     },
@@ -35,7 +40,7 @@ const createData = (): NodeData => ({
       id: uuidv4(),
       label: "Output",
       data: {
-        type: "number-pair",
+        type: "number",
         colorHue: 0,
       },
     },
@@ -43,29 +48,32 @@ const createData = (): NodeData => ({
 });
 
 const dataSchema = z.object({
-  dynamicInputSize: z.literal(true),
-  inputs: z.array(numberPairInputEndpointSchema).length(1),
-  outputs: z.tuple([numberPairOutputEndpointSchema]),
+  inputs: z.tuple([numberInputEndpointSchema, numberInputEndpointSchema]),
+  outputs: z.tuple([numberOutputEndpointSchema]),
 });
 
 type NodeData = z.infer<typeof dataSchema>;
 
 export {
-  createData as createAddNumberPairNodeData,
-  dataSchema as addNumberPairNodeDataSchema,
+  createData as createSubtractNumberNodeData,
+  dataSchema as subtractNumberNodeDataSchema,
 };
 
-export type { NodeData as AddNumberPairNodeData };
+export type { NodeData as SubtractNumberNodeData };
 
-const AddNumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
+const SubtractNumberNode: FC<NodeProps<NodeData>> = ({
+  id,
+  data,
+  ...props
+}) => {
   const { inputs, outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
 
   return (
     <BaseNode id={id} data={data} {...props}>
-      <PlusIcon />
+      <MinusIcon />
     </BaseNode>
   );
 };
 
-export default AddNumberPairNode;
+export default SubtractNumberNode;

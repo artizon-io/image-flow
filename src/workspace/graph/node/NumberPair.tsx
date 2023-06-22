@@ -47,18 +47,24 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const handleValueChange = (type: "x" | "y", value: string) => {
     if (!xRef.current || !yRef.current) return;
 
+    if (
+      isNaN(parseFloat(xRef.current.value)) ||
+      isNaN(parseFloat(yRef.current.value))
+    )
+      return;
+
     setNodeData(
       id,
       produce(data, (draft) => {
         if (type === "x") {
           draft.outputs[0].data.pair = [
-            parseInt(value),
-            parseInt(yRef.current!.value),
+            parseFloat(value),
+            parseFloat(yRef.current!.value),
           ];
         } else {
           draft.outputs[0].data.pair = [
-            parseInt(xRef.current!.value),
-            parseInt(value),
+            parseFloat(xRef.current!.value),
+            parseFloat(value),
           ];
         }
       })
@@ -72,16 +78,16 @@ const NumberPairNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
         <input
           className={inputStyles}
           type="number"
-          value={isNaN(x) ? 0 : x}
           ref={xRef}
+          defaultValue={x}
           onChange={(e) => handleValueChange("x", e.target.value)}
         />
         <label className={labelStyles}>Y:</label>
         <input
           className={inputStyles}
           type="number"
-          value={isNaN(y) ? 0 : y}
           ref={yRef}
+          defaultValue={y}
           onChange={(e) => handleValueChange("y", e.target.value)}
         />
       </div>

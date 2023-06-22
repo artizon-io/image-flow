@@ -32,7 +32,7 @@ export type { NodeData as ModelNodeData };
 
 const ModelNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   return (
-    <BaseNode id={id} data={data} label="Stable Diffusion Model" {...props}>
+    <BaseNode id={id} data={data} label="Model" {...props}>
       <div className={twoColumnGridStyles}>
         <label className={labelStyles}>Model Name:</label>
         <input

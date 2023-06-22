@@ -29,7 +29,6 @@ const BaseHandle: FC<{
       style={{
         backgroundColor: `hsl(${colorHue} 50% 20%)`,
       }}
-      onConnect={(connection) => console.log("handle onConnect", connection)}
     />
   );
 };

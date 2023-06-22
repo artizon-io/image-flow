@@ -1,8 +1,8 @@
 import { FC, useEffect } from "react";
 import { NodeProps } from "reactflow";
-import BaseNode from "../../Base";
-import {} from "../../BaseHandle";
-import { useGraphStore } from "../../../Store";
+import BaseNode from "../Base";
+import {} from "../BaseHandle";
+import { useGraphStore } from "../../Store";
 import { produce } from "immer";
 import { z } from "zod";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -16,7 +16,7 @@ import {
   outputEndpointSchema,
   stringInputEndpointSchema,
   stringOutputEndpointSchema,
-} from "../../endpoint";
+} from "../endpoint";
 
 const createData = (): NodeData => ({
   dynamicInputSize: true,

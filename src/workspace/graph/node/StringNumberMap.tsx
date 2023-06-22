@@ -52,7 +52,7 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
           <Item
             key={index}
             string={string}
-            number={number}
+            defaultNumber={number}
             setString={(newString) => {
               setNodeData(
                 id,
@@ -63,6 +63,8 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
               );
             }}
             setNumber={(newNumber) => {
+              if (isNaN(newNumber)) return;
+
               setNodeData(
                 id,
                 produce(data, (draft) => {
@@ -79,10 +81,10 @@ const StringNumberMapNode: FC<NodeProps<NodeData>> = ({
 
 const Item: FC<{
   string: string;
-  number: number;
+  defaultNumber: number;
   setString: (string: string) => void;
   setNumber: (number: number) => void;
-}> = ({ string, number, setString, setNumber }) => (
+}> = ({ string, defaultNumber, setString, setNumber }) => (
   <>
     <input
       className={inputStyles}
@@ -91,9 +93,9 @@ const Item: FC<{
     />
     <input
       className={inputStyles}
-      value={number}
       type="number"
-      onChange={(e) => setNumber(parseInt(e.target.value))}
+      onChange={(e) => setNumber(parseFloat(e.target.value))}
+      defaultValue={defaultNumber}
     />
   </>
 );

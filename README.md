@@ -2,6 +2,10 @@
 
 In development.
 
+Demo:
+
+<img width="1511" alt="image-flow-demo" src="https://github.com/artizon-io/image-flow/assets/86842365/95887e84-618c-4c67-a1e5-e55766036713">
+
 ## Roadmap
 
 On the way...

@@ -169,7 +169,6 @@ export const useGraphStore = create<{
   edges: Edge[];
   getEdge: (id: string) => Edge | undefined;
   getEndpoint: (id: string) => Endpoint | undefined;
-  isConnectedToOutputEndpoint: (id: string) => boolean;
   getConnectedInputEndpoints: (id: string) => InputEndpoint[] | undefined;
   getConnectedOutputEndpoints: (id: string) => OutputEndpoint[] | undefined;
   createNode: <T extends keyof typeof nodeTypes>(
@@ -216,14 +215,6 @@ export const useGraphStore = create<{
           )
           .flat()
           .find((endpoint) => endpoint.id === id),
-      // O(m)
-      isConnectedToOutputEndpoint: (id) => {
-        for (const edge of get().edges) {
-          if (edge.targetHandle === id) return true;
-        }
-
-        return false;
-      },
       // High performance cost - avoid
       getConnectedInputEndpoints: (id) => {
         const edges = get().edges.filter((edge) => edge.sourceHandle === id);
@@ -293,6 +284,16 @@ export const useGraphStore = create<{
           return false;
         }
 
+        if (targetEndpoint.edge) {
+          useNotificationStore
+            .getState()
+            .showNotification(
+              "Error",
+              `Fail to connect ${sourceEndpoint.label} to ${targetEndpoint.label} because the target is already connected`
+            );
+          return false;
+        }
+
         if (sourceEndpoint.data.type !== targetEndpoint.type.type) {
           useNotificationStore
             .getState()
@@ -303,23 +304,12 @@ export const useGraphStore = create<{
           return false;
         }
 
-        if (
-          !(targetNode.data as BaseNodeData).dynamicInputSize &&
-          get().isConnectedToOutputEndpoint(targetEndpoint.id)
-        ) {
-          useNotificationStore
-            .getState()
-            .showNotification(
-              "Error",
-              `Fail to connect ${sourceEndpoint.label} to ${targetEndpoint.label} because the target is already connected`
-            );
-          return false;
-        }
+        const newEdgeId = uuidv4();
 
         set({
           edges: addEdge(
             {
-              id: uuidv4(),
+              id: newEdgeId,
               source: connection.source,
               target: connection.target,
               sourceHandle: connection.sourceHandle,
@@ -330,6 +320,15 @@ export const useGraphStore = create<{
             get().edges
           ),
         });
+
+        const nodeData = produce(targetNode.data as BaseNodeData, (draft) => {
+          const index = draft.inputs!.findIndex(
+            (input) => input.id === targetEndpoint.id
+          );
+          draft.inputs![index].edge = newEdgeId;
+        });
+
+        get().setNodeData(targetNode.id, nodeData);
 
         return true;
       },

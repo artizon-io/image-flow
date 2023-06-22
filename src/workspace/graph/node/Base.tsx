@@ -5,7 +5,6 @@ import BaseHandle from "./BaseHandle";
 import { Endpoint, InputEndpoint, OutputEndpoint } from "./endpoint";
 
 export type BaseNodeData = {
-  dynamicInputSize?: boolean;
   inputs?: InputEndpoint[];
   outputs?: OutputEndpoint[];
 };

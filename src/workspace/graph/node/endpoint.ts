@@ -8,7 +8,13 @@ export type Endpoint = InputEndpoint | OutputEndpoint;
 
 // TODO: load the colors from `.config`
 
-const endpointBaseSchema = {
+const inputEndpointBaseSchema = {
+  id: z.string(),
+  label: z.string(),
+  edge: z.string().optional(),
+};
+
+const outputEndpointBaseSchema = {
   id: z.string(),
   label: z.string(),
 };
@@ -24,7 +30,7 @@ export const stringData: z.infer<typeof stringOutputEndpointSchema>["data"] = {
 };
 
 export const stringInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("string"),
     colorHue: z.literal(40),
@@ -32,7 +38,7 @@ export const stringInputEndpointSchema = z.object({
 });
 
 export const stringOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("string"),
     colorHue: z.literal(40),
@@ -51,7 +57,7 @@ export const numberData: z.infer<typeof numberOutputEndpointSchema>["data"] = {
 };
 
 export const numberInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("number"),
     colorHue: z.literal(0),
@@ -59,7 +65,7 @@ export const numberInputEndpointSchema = z.object({
 });
 
 export const numberOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("number"),
     colorHue: z.literal(0),
@@ -82,7 +88,7 @@ export const numberPairData: z.infer<
 };
 
 export const numberPairInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("number-pair"),
     colorHue: z.literal(0),
@@ -90,7 +96,7 @@ export const numberPairInputEndpointSchema = z.object({
 });
 
 export const numberPairOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("number-pair"),
     colorHue: z.literal(0),
@@ -113,7 +119,7 @@ export const stringNumberMapData: z.infer<
 };
 
 export const stringNumberMapInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("string-number-map"),
     colorHue: z.literal(160),
@@ -121,7 +127,7 @@ export const stringNumberMapInputEndpointSchema = z.object({
 });
 
 export const stringNumberMapOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("string-number-map"),
     colorHue: z.literal(160),
@@ -144,7 +150,7 @@ export const loraNumberMapData: z.infer<
 };
 
 export const loraNumberMapInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("lora-number-map"),
     colorHue: z.literal(200),
@@ -152,7 +158,7 @@ export const loraNumberMapInputEndpointSchema = z.object({
 });
 
 export const loraNumberMapOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("lora-number-map"),
     colorHue: z.literal(200),
@@ -180,7 +186,7 @@ export const modelData: z.infer<typeof modelOutputEndpointSchema>["data"] = {
 };
 
 export const modelInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("model"),
     colorHue: z.literal(260),
@@ -188,7 +194,7 @@ export const modelInputEndpointSchema = z.object({
 });
 
 export const modelOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("model"),
     colorHue: z.literal(260),
@@ -213,7 +219,7 @@ export const imageData: z.infer<typeof imageOutputEndpointSchema>["data"] = {
 };
 
 export const imageInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("image"),
     colorHue: z.literal(300),
@@ -221,7 +227,7 @@ export const imageInputEndpointSchema = z.object({
 });
 
 export const imageOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("image"),
     colorHue: z.literal(300),
@@ -241,7 +247,7 @@ export const samplerData: z.infer<typeof samplerOutputEndpointSchema>["data"] =
   };
 
 export const samplerInputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...inputEndpointBaseSchema,
   type: z.object({
     type: z.literal("sampler"),
     colorHue: z.literal(260),
@@ -249,7 +255,7 @@ export const samplerInputEndpointSchema = z.object({
 });
 
 export const samplerOutputEndpointSchema = z.object({
-  ...endpointBaseSchema,
+  ...outputEndpointBaseSchema,
   data: z.object({
     type: z.literal("sampler"),
     colorHue: z.literal(260),

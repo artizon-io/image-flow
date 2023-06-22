@@ -17,7 +17,6 @@ import {
 } from "../../endpoint";
 
 const createData = (): NodeData => ({
-  dynamicInputSize: true,
   inputs: [
     {
       id: uuidv4(),
@@ -41,7 +40,6 @@ const createData = (): NodeData => ({
 });
 
 const dataSchema = z.object({
-  dynamicInputSize: z.literal(true),
   inputs: z.array(numberInputEndpointSchema).length(1),
   outputs: z.tuple([numberOutputEndpointSchema]),
 });

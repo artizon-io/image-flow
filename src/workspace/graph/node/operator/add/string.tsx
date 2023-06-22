@@ -15,7 +15,6 @@ import {
 } from "../../endpoint";
 
 const createData = (): NodeData => ({
-  dynamicInputSize: true,
   inputs: [
     {
       id: uuidv4(),
@@ -39,7 +38,6 @@ const createData = (): NodeData => ({
 });
 
 const dataSchema = z.object({
-  dynamicInputSize: z.literal(true),
   inputs: z.array(stringInputEndpointSchema).length(1),
   outputs: z.tuple([stringOutputEndpointSchema]),
 });
@@ -56,6 +54,39 @@ export type { NodeData as AddStringNodeData };
 const AddStringNode: FC<NodeProps<NodeData>> = ({ id, data, ...props }) => {
   const { inputs, outputs } = data;
   const setNodeData = useGraphStore((state) => state.setNodeData);
+
+  useEffect(() => {
+    const numUnconnectedInput = data.inputs.filter(
+      (input) => !input.edge
+    ).length;
+
+    if (numUnconnectedInput === 0) {
+      setNodeData(
+        id,
+        produce(data, (draft) => {
+          draft.inputs.push({
+            id: uuidv4(),
+            label: "Input",
+            type: {
+              type: "string",
+              colorHue: 40,
+            },
+          });
+        })
+      );
+    } else if (numUnconnectedInput > 1) {
+      setNodeData(
+        id,
+        produce(data, (draft) => {
+          const randomUnconnectedInput = draft.inputs.filter(
+            (input) => !input.edge
+          )[0];
+          draft.inputs = draft.inputs.filter((input) => input.edge);
+          draft.inputs.push(randomUnconnectedInput);
+        })
+      );
+    }
+  }, [data.inputs]);
 
   return (
     <BaseNode id={id} data={data} {...props}>

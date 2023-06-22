@@ -2,9 +2,15 @@
 
 In development.
 
-Demo:
+## Demo
+
+**Graph Workspace**
 
 <img width="1511" alt="image-flow-demo" src="https://github.com/artizon-io/image-flow/assets/86842365/95887e84-618c-4c67-a1e5-e55766036713">
+
+**Table Workspace**
+
+<img width="1511" alt="image-flow-table-demo" src="https://github.com/artizon-io/image-flow/assets/86842365/fe45d301-e717-4bfe-836b-4e66e8a693b3">
 
 ## Roadmap
 

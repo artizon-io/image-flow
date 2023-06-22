@@ -6,7 +6,7 @@ In development.
 
 **Graph Workspace**
 
-<img width="1511" alt="image-flow-demo" src="https://github.com/artizon-io/image-flow/assets/86842365/95887e84-618c-4c67-a1e5-e55766036713">
+<img width="1511" alt="image-flow-graph-complex-demo" src="https://github.com/artizon-io/image-flow/assets/86842365/f1e87e83-a1f1-445b-99bb-2fc2d3c73012">
 
 **Table Workspace**
 

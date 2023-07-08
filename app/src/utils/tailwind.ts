@@ -1,6 +1,5 @@
-export function tailwind(
+export const tailwind = (
   template: TemplateStringsArray,
   ...templateElements: any[]
-) {
-  return template.join("")
-}
+) =>
+  template.reduce((acc, str, i) => acc + str + (templateElements[i] ?? ""), "");
